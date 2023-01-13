@@ -1,17 +1,21 @@
 import org.jetbrains.compose.compose
 
+
+val koin_version = "3.3.2"
+val koin_android_version = "3.3.2"
+val koin_android_compose_version = "3.4.1"
+val koin_ktor = "3.3.0"
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.android.library")
-    id("io.realm.kotlin")
 }
 
 group = "com.stockary"
 version = "1.0-SNAPSHOT"
 
-@OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-kotlin {
+@OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class) kotlin {
     android()
     jvm("desktop") {
         compilations.all {
@@ -26,12 +30,32 @@ kotlin {
                 api(compose.material)
                 api(compose.material3)
                 api(compose.materialIconsExtended)
-                implementation("io.realm.kotlin:library-sync:1.5.0")
+//                implementation("io.realm.kotlin:library-sync:1.5.0")
+//                implementation("io.appwrite:sdk-for-kotlin:1.1.0")
+
+                api("io.insert-koin:koin-core:$koin_version")
+                implementation("io.ktor:ktor-client-cio:2.2.2")
+
+                implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:0.7.4"))
+                implementation("io.github.jan-tennert.supabase:gotrue-kt")
+                implementation("io.github.jan-tennert.supabase:functions-kt")
+                implementation("io.github.jan-tennert.supabase:storage-kt")
+                implementation("io.github.jan-tennert.supabase:postgrest-kt")
+                implementation("io.github.jan-tennert.supabase:realtime-kt")
+
+                implementation("io.github.copper-leaf:ballast-core:2.3.0")
+                implementation("io.github.copper-leaf:ballast-saved-state:2.3.0")
+                implementation("io.github.copper-leaf:ballast-repository:2.3.0")
+                implementation("io.github.copper-leaf:ballast-firebase-crashlytics:2.3.0")
+                implementation("io.github.copper-leaf:ballast-firebase-analytics:2.3.0")
+                implementation("io.github.copper-leaf:ballast-debugger:2.3.0")
+                implementation("io.github.copper-leaf:ballast-navigation:2.3.0")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.github.copper-leaf:ballast-test:2.3.0")
             }
         }
         val androidMain by getting {

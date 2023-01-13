@@ -5,26 +5,59 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.copperleaf.ballast.*
+import com.copperleaf.ballast.core.LoggingInterceptor
+import com.copperleaf.ballast.core.PrintlnLogger
+import com.copperleaf.ballast.navigation.routing.*
+import com.copperleaf.ballast.navigation.vm.BasicRouter
+import com.copperleaf.ballast.navigation.vm.Router
+import com.copperleaf.ballast.navigation.vm.withRouter
+import com.stockary.common.router.AppScreen
+import com.stockary.common.router.AppScreen.*
+import com.stockary.common.router.navItems
 import com.stockary.common.screen.*
+import com.stockary.common.ui.login.Login
+import kotlin.system.exitProcess
 
-val NavItems = listOf("Overview", "Products", "Customers", "Orders", "New Product", "New Category", "Categories")
-
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalBallastApi::class)
 @Composable
 fun App() {
-    val scope = rememberCoroutineScope()
-    val selectedItem = remember { mutableStateOf(6) }
+
+    val applicationScope = rememberCoroutineScope()
+
+    // Set up the Router, which is just a normal Ballast ViewModel
+    val router: Router<AppScreen> = remember(applicationScope) {
+        BasicRouter(
+            coroutineScope = applicationScope,
+            config = BallastViewModelConfiguration.Builder().apply {
+                // log all Router activity to inspect the backstack changes
+                this += LoggingInterceptor()
+                logger = ::PrintlnLogger
+
+                // You may add any other Ballast Interceptors here as well, to extend the router functionality
+            }.withRouter(RoutingTable.fromEnum(values()), initialRoute = Login).build(),
+            eventHandler = eventHandler {
+                if (it is RouterContract.Events.BackstackEmptied) {
+                    exitProcess(0)
+                }
+            },
+        )
+    }
+
+    // collect the Router's StateFlow as a Compose State
+    val routerState: Backstack<AppScreen> by router.observeStates().collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -36,16 +69,19 @@ fun App() {
                     Image(painter = painterResource("images/stockary_logo.png"), null)
                 }
                 Spacer(Modifier.height(48.dp))
-                repeat(NavItems.size) {
+                navItems.forEach { item ->
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
-                        label = { Text(NavItems[it]) },
-                        selected = selectedItem.value == it,
+                        label = { Text(item.title) },
+                        selected = routerState.currentRouteOrNull == item,
                         onClick = {
-                            selectedItem.value = it
+                            router.trySend(
+                                RouterContract.Inputs.GoToDestination(
+                                    item.directions().build()
+                                )
+                            )
                         },
-                        modifier = Modifier.testTag("nav_${NavItems[it]}")
-                            .padding(NavigationDrawerItemDefaults.ItemPadding),
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         colors = NavigationDrawerItemDefaults.colors(
                             selectedContainerColor = Color(0xFFD6E2F8), unselectedContainerColor = Color.Transparent
                         )
@@ -61,8 +97,7 @@ fun App() {
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color(0xFFD6E2F8),
-                        unselectedContainerColor = Color.Transparent
+                        selectedContainerColor = Color(0xFFD6E2F8), unselectedContainerColor = Color.Transparent
                     )
                 )
                 Spacer(modifier = Modifier.height(56.dp))
@@ -89,15 +124,76 @@ fun App() {
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Box(modifier = Modifier.fillMaxSize()) {
-                    when (selectedItem.value) {
-                        0 -> Overview()
-                        1 -> Product()
-                        2 -> Customer()
-                        3 -> Orders()
-                        4 -> NewProduct()
-                        5 -> NewCategory()
-                        6 -> Categories()
-                    }
+                    routerState.renderCurrentDestination(
+                        route = { appScreen ->
+                            // the last entry in the backstack was matched to a route. We will switch on which route was matched,
+                            // and pull path and query parameters from the destination
+                            when (appScreen) {
+                                Login -> {
+                                    Login(router)
+                                }
+
+                                Home -> {
+                                    Overview()
+                                }
+
+                                CategoryList -> {
+                                    val sort: String? by optionalStringQuery()
+                                    Categories()
+                                    //
+                                    /*  PostListScreen(
+                                              sort = sort,
+                                              onPostSelected = { postId: Long ->
+                                                  // The user selected a post within the PostListScreen. Generate a URL which will match
+                                                  // to the PostDetails route, by using its directions to ensure the right parameters are
+                                                  // provided in the URL
+                                                  router.trySend(
+                                                      RouterContract.Inputs.GoToDestination(
+                                                          AppScreen.CategoryDetails
+                                                              .directions()
+                                                              .pathParameter("categoryId", postId.toString())
+                                                              .build()
+                                                      )
+                                                  )
+                                              },
+                                          )*/
+                                }
+
+                                CategoryDetails -> {
+                                    val categoryId: Long by longPath()
+                                    NewCategory()
+                                }
+
+                                CustomerList -> {
+                                    Customer()
+                                }
+
+                                CustomerDetails -> {
+
+                                }
+
+                                ProductList -> {
+                                    Product()
+                                }
+
+                                ProductDetails -> {
+                                    NewProduct()
+                                }
+
+                                OrderList -> {
+                                    Orders()
+                                }
+
+                                OrderDetails -> {
+
+                                }
+                            }
+                        },
+                        notFound = {
+                            // the last entry in the backstack could not be matched to a route
+                            Text("Not found")
+                        },
+                    )
                 }
             }
         }

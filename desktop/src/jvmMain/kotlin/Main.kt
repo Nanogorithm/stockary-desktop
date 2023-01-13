@@ -3,9 +3,14 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.helloanwar.common.ui.theme.AppTheme
 import com.stockary.common.App
+import com.stockary.common.di.appModule
+import org.koin.core.context.GlobalContext.startKoin
 
 
 fun main() = application {
+    startKoin {
+        modules(appModule())
+    }
     Window(onCloseRequest = ::exitApplication, title = "Stockary") {
         AppTheme {
             App()
