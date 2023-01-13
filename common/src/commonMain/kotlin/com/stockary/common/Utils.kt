@@ -4,6 +4,8 @@ package com.stockary.common
 
 val currencySymbol = "৳"
 
+fun Float.toCurrencyFormat() = "${currencySymbol}${this}"
+
 //val client = Client().setEndpoint("http://stockary.helloanwar.com/v1") // Your API Endpoint
 //    .setProject("63a3f8a029aee18d7448") // Your project ID
 //    .setKey(

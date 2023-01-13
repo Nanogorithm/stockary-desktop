@@ -27,8 +27,14 @@ import com.copperleaf.ballast.navigation.vm.withRouter
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
-import com.stockary.common.screen.*
+import com.stockary.common.screen.Customer
+import com.stockary.common.screen.NewCategory
+import com.stockary.common.screen.NewProduct
+import com.stockary.common.screen.Overview
+import com.stockary.common.ui.category.CategoryPage
 import com.stockary.common.ui.login.Login
+import com.stockary.common.ui.order.OrderPage
+import com.stockary.common.ui.product.ProductPage
 import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalBallastApi::class)
@@ -139,7 +145,7 @@ fun App() {
 
                                 CategoryList -> {
                                     val sort: String? by optionalStringQuery()
-                                    Categories()
+                                    CategoryPage().Categories()
                                     //
                                     /*  PostListScreen(
                                               sort = sort,
@@ -173,7 +179,7 @@ fun App() {
                                 }
 
                                 ProductList -> {
-                                    Product()
+                                    ProductPage().Product()
                                 }
 
                                 ProductDetails -> {
@@ -181,7 +187,7 @@ fun App() {
                                 }
 
                                 OrderList -> {
-                                    Orders()
+                                    OrderPage().Orders()
                                 }
 
                                 OrderDetails -> {

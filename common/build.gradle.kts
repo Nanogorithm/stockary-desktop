@@ -8,6 +8,7 @@ val koin_ktor = "3.3.0"
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("org.jetbrains.compose")
     id("com.android.library")
 }
