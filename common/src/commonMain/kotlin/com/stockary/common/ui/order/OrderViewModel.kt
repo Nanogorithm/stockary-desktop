@@ -8,14 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 
 class OrderViewModel(
     coroutineScope: CoroutineScope,
-    configBuilder: BallastViewModelConfiguration.Builder,
-    inputHandler: OrderInputHandler
+    configBuilder: BallastViewModelConfiguration.Builder
 ) : BasicViewModel<OrderContract.Inputs, OrderContract.Events, OrderContract.State>(
     coroutineScope = coroutineScope,
-    config = configBuilder.withViewModel(
-        inputHandler = inputHandler,
-        initialState = OrderContract.State(),
-        name = "Order",
-    ).build(),
+    config = configBuilder.build(),
     eventHandler = OrderEventHandler(),
 )

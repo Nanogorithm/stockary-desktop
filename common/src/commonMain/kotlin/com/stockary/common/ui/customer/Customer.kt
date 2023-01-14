@@ -1,4 +1,4 @@
-package com.stockary.common.ui.category
+package com.stockary.common.ui.customer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,22 +25,23 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
 
-class CategoryPage : KoinComponent {
+class CustomerPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Categories() {
+    fun Customer() {
         val viewModelScope = rememberCoroutineScope()
-        val vm: CategoryViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
+        val vm: CustomerViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
+
         val vmState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
-            vm.trySend(CategoryContract.Inputs.Initialize)
+            vm.trySend(CustomerContract.Inputs.Initialize)
         }
 
         var search by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-            Text("Categories", fontSize = 32.sp, fontWeight = FontWeight.W600)
+            Text("Customers", fontSize = 32.sp, fontWeight = FontWeight.W600)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -67,13 +68,24 @@ class CategoryPage : KoinComponent {
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = {
 
+                        }, colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = contentColorFor(MaterialTheme.colorScheme.secondaryContainer)
+                        )
+                    ) {
+                        Icon(Icons.Default.Category, null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Type")
+                    }
                     Button(onClick = {
 
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Add Category")
+                        Text("Create Customer")
                     }
                 }
             }
@@ -82,27 +94,29 @@ class CategoryPage : KoinComponent {
                 modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("ID", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(100.dp))
-                Text("Category Name", fontSize = 12.sp, color = Color(0x66000000))
+                Text("Name", fontSize = 12.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
-                Text("No of Products", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
-                Text("Sort", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
+                Text("Company", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
+                Text("Address", modifier = Modifier.width(300.dp), fontSize = 12.sp, color = Color(0x66000000))
+                Text("Type", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Actions", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
             }
             Divider(color = Color.Black.copy(alpha = 0.20f))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                if (vmState.categoryList !is Cached.NotLoaded && vmState.categoryList.isLoading()) {
+                if (vmState.customers !is Cached.NotLoaded && vmState.customers.isLoading()) {
                     item {
                         CircularProgressIndicator()
                     }
                 }
-                items(vmState.categoryList.getCachedOrEmptyList()) { _category ->
+                items(vmState.customers.getCachedOrEmptyList()) { _customer ->
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_category.id}", modifier = Modifier.width(100.dp))
-                        Text(_category.title, modifier = Modifier.weight(1f))
-                        Text("${_category.products.size}", modifier = Modifier.width(181.dp))
-                        Text("0", modifier = Modifier.width(181.dp))
+                        Text("#${_customer.id}", modifier = Modifier.width(100.dp))
+                        Text("${_customer.firstName} ${_customer.lastName}", modifier = Modifier.weight(1f))
+                        Text("Ashianaa Group", modifier = Modifier.width(181.dp))
+                        Text("Meadow Lane oakland, New York", modifier = Modifier.width(300.dp))
+                        Text(_customer.role?.name ?: "", modifier = Modifier.width(181.dp))
                         Row(
                             modifier = Modifier.width(181.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -135,4 +149,3 @@ class CategoryPage : KoinComponent {
         }
     }
 }
-

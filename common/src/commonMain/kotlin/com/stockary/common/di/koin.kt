@@ -9,6 +9,8 @@ import com.copperleaf.ballast.repository.bus.EventBusImpl
 import com.copperleaf.ballast.withViewModel
 import com.stockary.common.repository.category.CategoryRepository
 import com.stockary.common.repository.category.CategoryRepositoryImpl
+import com.stockary.common.repository.customer.CustomerRepository
+import com.stockary.common.repository.customer.CustomerRepositoryImpl
 import com.stockary.common.repository.login.LoginRepository
 import com.stockary.common.repository.login.LoginRepositoryImpl
 import com.stockary.common.repository.order.OrderRepository
@@ -18,6 +20,9 @@ import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.ui.category.CategoryContract
 import com.stockary.common.ui.category.CategoryInputHandler
 import com.stockary.common.ui.category.CategoryViewModel
+import com.stockary.common.ui.customer.CustomerContract
+import com.stockary.common.ui.customer.CustomerInputHandler
+import com.stockary.common.ui.customer.CustomerViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
@@ -48,11 +53,13 @@ val commonModule = module {
             }
         }
     }
-    single<LoginRepository> { LoginRepositoryImpl(get()) }
     single<EventBus> { EventBusImpl() }
+
+    factory<LoginRepository> { LoginRepositoryImpl(get()) }
     factory<CategoryRepository> { CategoryRepositoryImpl(get(), get(), get()) }
     factory<ProductRepository> { ProductRepositoryImpl(get(), get(), get()) }
     factory<OrderRepository> { OrderRepositoryImpl(get(), get(), get()) }
+    factory<CustomerRepository> { CustomerRepositoryImpl(get(), get(), get()) }
 
     factory<BallastViewModelConfiguration.Builder> {
         BallastViewModelConfiguration.Builder().apply {
@@ -76,6 +83,12 @@ val commonModule = module {
     factory<OrderInputHandler> {
         OrderInputHandler(
             orderRepository = get()
+        )
+    }
+
+    factory<CustomerInputHandler> {
+        CustomerInputHandler(
+            customerRepository = get()
         )
     }
 
@@ -105,7 +118,17 @@ val commonModule = module {
                 inputHandler = get<OrderInputHandler>(),
                 initialState = OrderContract.State(),
                 name = "OrderScreen",
-            ), coroutineScope = coroutineScope, inputHandler = get()
+            ), coroutineScope = coroutineScope
+        )
+    }
+
+    factory<CustomerViewModel> { (coroutineScope: CoroutineScope) ->
+        CustomerViewModel(
+            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
+                inputHandler = get<CustomerInputHandler>(),
+                initialState = CustomerContract.State(),
+                name = "CustomerScreen",
+            ), coroutineScope = coroutineScope
         )
     }
 }
