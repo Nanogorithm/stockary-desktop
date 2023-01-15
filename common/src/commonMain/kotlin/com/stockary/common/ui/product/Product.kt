@@ -18,10 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.copperleaf.ballast.navigation.vm.Router
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.router.AppScreen
 import com.stockary.common.toCurrencyFormat
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
@@ -29,12 +32,11 @@ import org.koin.core.parameter.parametersOf
 class ProductPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Product() {
-
+    fun Product(
+        router: Router<AppScreen>
+    ) {
         val viewModelScope = rememberCoroutineScope()
-
-        val vm: ProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
-
+        val vm: ProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
         val vmState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
@@ -73,7 +75,9 @@ class ProductPage : KoinComponent {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = {
-
+                            viewModelScope.launch {
+                                vm.trySend(ProductContract.Inputs.GoCategory)
+                            }
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = contentColorFor(MaterialTheme.colorScheme.secondaryContainer)
@@ -84,7 +88,9 @@ class ProductPage : KoinComponent {
                         Text("Category")
                     }
                     Button(onClick = {
-
+                        viewModelScope.launch {
+                            vm.trySend(ProductContract.Inputs.GoAddNew)
+                        }
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))

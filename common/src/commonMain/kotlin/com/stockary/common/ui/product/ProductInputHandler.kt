@@ -31,5 +31,13 @@ class ProductInputHandler(
         is ProductContract.Inputs.UpdateProductList -> {
             updateState { it.copy(products = input.products) }
         }
+
+        ProductContract.Inputs.GoAddNew -> {
+            postEvent(ProductContract.Events.GoProductAdd)
+        }
+
+        ProductContract.Inputs.GoCategory -> {
+            postEvent(ProductContract.Events.GoCategories)
+        }
     }
 }

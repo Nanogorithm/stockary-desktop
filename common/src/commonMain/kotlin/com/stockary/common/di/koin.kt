@@ -33,6 +33,8 @@ import com.stockary.common.ui.new_category.NewCategoryViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
+import com.stockary.common.ui.product.ProductContract
+import com.stockary.common.ui.product.ProductEventHandler
 import com.stockary.common.ui.product.ProductInputHandler
 import com.stockary.common.ui.product.ProductViewModel
 import io.github.jan.supabase.createSupabaseClient
@@ -95,6 +97,9 @@ val commonModule = module {
         )
     }
 
+    factory<ProductEventHandler> { ProductEventHandler(get()) }
+
+
     factory<OrderInputHandler> {
         OrderInputHandler(
             orderRepository = get()
@@ -127,13 +132,13 @@ val commonModule = module {
         )
     }
 
-    factory<ProductViewModel> { (coroutineScope: CoroutineScope) ->
+    factory<ProductViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
         ProductViewModel(
             configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
-                inputHandler = get<CategoryInputHandler>(),
-                initialState = CategoryContract.State(),
-                name = "CategoryScreen",
-            ), coroutineScope = coroutineScope, inputHandler = get()
+                inputHandler = get<ProductInputHandler>(),
+                initialState = ProductContract.State(),
+                name = "ProductScreen",
+            ), coroutineScope = coroutineScope, eventHandler = get()
         )
     }
 

@@ -27,12 +27,12 @@ import com.copperleaf.ballast.navigation.vm.withRouter
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
-import com.stockary.common.screen.NewProduct
 import com.stockary.common.screen.Overview
 import com.stockary.common.ui.category.CategoryPage
 import com.stockary.common.ui.customer.CustomerPage
 import com.stockary.common.ui.login.Login
 import com.stockary.common.ui.new_category.NewCategoryPage
+import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import kotlin.system.exitProcess
@@ -165,11 +165,15 @@ fun App() {
                                 }
 
                                 ProductList -> {
-                                    ProductPage().Product()
+                                    ProductPage().Product(router = router)
+                                }
+
+                                ProductAdd -> {
+                                    NewProductPage().NewProduct(router = router)
                                 }
 
                                 ProductDetails -> {
-                                    NewProduct()
+
                                 }
 
                                 OrderList -> {

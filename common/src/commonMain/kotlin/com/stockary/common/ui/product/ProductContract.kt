@@ -13,11 +13,15 @@ object ProductContract {
     sealed class Inputs {
         object Initialize : Inputs()
         object GoBack : Inputs()
+        object GoAddNew : Inputs()
+        object GoCategory : Inputs()
         data class FetchProductList(val forceRefresh: Boolean) : Inputs()
         data class UpdateProductList(val products: Cached<List<Product>>) : Inputs()
     }
 
     sealed class Events {
         object NavigateUp : Events()
+        object GoProductAdd : Events()
+        object GoCategories : Events()
     }
 }

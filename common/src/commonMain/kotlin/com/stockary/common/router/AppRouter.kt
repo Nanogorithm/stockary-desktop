@@ -22,8 +22,12 @@ enum class AppScreen(
     CategoryList(
         "/app/categories?sort={?}", "Categories"
     ),
-    CategoryDetails("/app/categories/{categoryId}", "Category Details"), ProductList(
+    CategoryDetails("/app/categories/{categoryId}", "Category Details"),
+    ProductList(
         "/app/products?sort={?}", "products"
+    ),
+    ProductAdd(
+        "/app/new-product", "Add Product"
     ),
     ProductDetails("/app/products/{categoryId}", "Product Details"), OrderList(
         "/app/orders?sort={?}", "Orders"
