@@ -7,6 +7,8 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.stockary.common.SupabaseResource
+import com.stockary.common.repository.product.model.Product
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
@@ -71,6 +73,46 @@ class ProductRepositoryInputHandler(
                     })
                 },
             )
+        }
+
+        is ProductRepositoryContract.Inputs.Add -> {
+            try {
+                val result = supabaseClient.postgrest["products"].insert(input.product)
+                updateState { it.copy(saving = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(saving = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is ProductRepositoryContract.Inputs.Delete -> {
+            try {
+                val result = supabaseClient.postgrest["products"].delete { Product::id eq input.product.id }
+                updateState { it.copy(deleting = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(deleting = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is ProductRepositoryContract.Inputs.Edit -> {
+            try {
+                val result = supabaseClient.postgrest["products"].update({
+                    if (input.product.title != input.updated.title) {
+                        Product::title setTo input.updated.title
+                    }
+
+                    if (input.product.categoryId != input.updated.categoryId) {
+                        Product::categoryId setTo input.updated.categoryId
+                    }
+                }) {
+                    Product::id eq input.product.id
+                }
+                updateState { it.copy(updating = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(updating = SupabaseResource.Error(e)) }
+            }
         }
     }
 }

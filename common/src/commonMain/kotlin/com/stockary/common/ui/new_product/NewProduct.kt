@@ -13,7 +13,12 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.currencySymbol
 import com.stockary.common.router.AppScreen
+import com.stockary.common.ui.new_category.NewCategoryContract
+import com.stockary.common.ui.new_category.NewCategoryViewModel
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import org.koin.core.parameter.parametersOf
 
 class NewProductPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -21,6 +26,15 @@ class NewProductPage : KoinComponent {
     fun NewProduct(
         router: Router<AppScreen>
     ) {
+
+        val viewModelScope = rememberCoroutineScope()
+        val vm: NewProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
+        val vmState by vm.observeStates().collectAsState()
+
+        LaunchedEffect(vm) {
+            vm.trySend(NewProductContract.Inputs.Initialize)
+        }
+
         var productName by remember { mutableStateOf("") }
         var productDescription by remember { mutableStateOf("") }
         var sellingPrice by remember { mutableStateOf("") }
@@ -152,7 +166,9 @@ class NewProductPage : KoinComponent {
                     Text("Save & Continue")
                 }
                 TextButton(onClick = {
-                    
+                    viewModelScope.launch {
+                        vm.trySend(NewProductContract.Inputs.GoBack)
+                    }
                 }) {
                     Text("BACK")
                 }

@@ -6,6 +6,7 @@ import com.copperleaf.ballast.repository.BallastRepository
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.product.model.Product
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -34,5 +35,17 @@ class ProductRepositoryImpl(
         trySend(ProductRepositoryContract.Inputs.RefreshDataList(refreshCache))
         return observeStates()
             .map { it.dataList }
+    }
+
+    override fun add(product: Product): SupabaseResource<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override fun edit(product: Product, updated: Product): SupabaseResource<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override fun delete(product: Product): SupabaseResource<Boolean> {
+        TODO("Not yet implemented")
     }
 }

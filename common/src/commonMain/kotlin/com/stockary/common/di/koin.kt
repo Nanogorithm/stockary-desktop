@@ -30,6 +30,10 @@ import com.stockary.common.ui.new_category.NewCategoryContract
 import com.stockary.common.ui.new_category.NewCategoryEventHandler
 import com.stockary.common.ui.new_category.NewCategoryInputHandler
 import com.stockary.common.ui.new_category.NewCategoryViewModel
+import com.stockary.common.ui.new_product.NewProductContract
+import com.stockary.common.ui.new_product.NewProductEventHandler
+import com.stockary.common.ui.new_product.NewProductInputHandler
+import com.stockary.common.ui.new_product.NewProductViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
@@ -97,6 +101,15 @@ val commonModule = module {
         )
     }
 
+    factory<NewProductInputHandler> {
+        NewProductInputHandler(
+            productRepository = get()
+        )
+    }
+
+    factory<NewProductEventHandler> { NewProductEventHandler(get()) }
+
+
     factory<ProductEventHandler> { ProductEventHandler(get()) }
 
 
@@ -138,6 +151,15 @@ val commonModule = module {
                 inputHandler = get<ProductInputHandler>(),
                 initialState = ProductContract.State(),
                 name = "ProductScreen",
+            ), coroutineScope = coroutineScope, eventHandler = get()
+        )
+    }
+    factory<NewProductViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
+        NewProductViewModel(
+            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
+                inputHandler = get<NewProductInputHandler>(),
+                initialState = NewProductContract.State(),
+                name = "NewProduct",
             ), coroutineScope = coroutineScope, eventHandler = get()
         )
     }
