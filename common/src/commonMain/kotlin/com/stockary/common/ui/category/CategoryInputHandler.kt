@@ -32,5 +32,17 @@ class CategoryInputHandler(
         is CategoryContract.Inputs.HotListUpdated -> {
             updateState { it.copy(categoryList = input.categoryList) }
         }
+
+        CategoryContract.Inputs.AddNew -> {
+            postEvent(CategoryContract.Events.AddNew)
+        }
+
+        is CategoryContract.Inputs.Delete -> {
+            
+        }
+
+        is CategoryContract.Inputs.Edit -> {
+
+        }
     }
 }

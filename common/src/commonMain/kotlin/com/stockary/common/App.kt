@@ -27,12 +27,12 @@ import com.copperleaf.ballast.navigation.vm.withRouter
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
-import com.stockary.common.screen.NewCategory
 import com.stockary.common.screen.NewProduct
 import com.stockary.common.screen.Overview
 import com.stockary.common.ui.category.CategoryPage
 import com.stockary.common.ui.customer.CustomerPage
 import com.stockary.common.ui.login.Login
+import com.stockary.common.ui.new_category.NewCategoryPage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import kotlin.system.exitProcess
@@ -145,29 +145,15 @@ fun App() {
 
                                 CategoryList -> {
                                     val sort: String? by optionalStringQuery()
-                                    CategoryPage().Categories()
-                                    //
-                                    /*  PostListScreen(
-                                              sort = sort,
-                                              onPostSelected = { postId: Long ->
-                                                  // The user selected a post within the PostListScreen. Generate a URL which will match
-                                                  // to the PostDetails route, by using its directions to ensure the right parameters are
-                                                  // provided in the URL
-                                                  router.trySend(
-                                                      RouterContract.Inputs.GoToDestination(
-                                                          AppScreen.CategoryDetails
-                                                              .directions()
-                                                              .pathParameter("categoryId", postId.toString())
-                                                              .build()
-                                                      )
-                                                  )
-                                              },
-                                          )*/
+                                    CategoryPage().Categories(router = router)
                                 }
 
                                 CategoryDetails -> {
                                     val categoryId: Long by longPath()
-                                    NewCategory()
+                                }
+
+                                CategoryAdd -> {
+                                    NewCategoryPage().NewCategory(router = router)
                                 }
 
                                 CustomerList -> {

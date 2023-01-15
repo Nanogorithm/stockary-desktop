@@ -12,11 +12,16 @@ object CategoryContract {
     sealed class Inputs {
         object Initialize : Inputs()
         object GoBack : Inputs()
+        object AddNew : Inputs()
         data class FetchHotList(val forceRefresh: Boolean) : Inputs()
         data class HotListUpdated(val categoryList: Cached<List<Category>>) : Inputs()
+        data class Edit(val category: Category) : Inputs()
+        data class Delete(val category: Category) : Inputs()
+
     }
 
     sealed class Events {
         object NavigateUp : Events()
+        object AddNew : Events()
     }
 }

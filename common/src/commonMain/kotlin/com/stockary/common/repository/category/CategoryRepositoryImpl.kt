@@ -6,6 +6,7 @@ import com.copperleaf.ballast.repository.BallastRepository
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -30,5 +31,20 @@ class CategoryRepositoryImpl(
         trySend(CategoryRepositoryContract.Inputs.Initialize)
         trySend(CategoryRepositoryContract.Inputs.RefreshCategoryList(refreshCache))
         return observeStates().map { it.categories }
+    }
+
+    override fun add(category: Category): Flow<SupabaseResource<Boolean>> {
+        trySend(CategoryRepositoryContract.Inputs.Add(category = category))
+        return observeStates().map { it.saving }
+    }
+
+    override fun edit(category: Category, updated: Category): Flow<SupabaseResource<Boolean>> {
+        trySend(CategoryRepositoryContract.Inputs.Edit(category = category, updated = updated))
+        return observeStates().map { it.editing }
+    }
+
+    override fun delete(category: Category): Flow<SupabaseResource<Boolean>> {
+        trySend(CategoryRepositoryContract.Inputs.Delete(category = category))
+        return observeStates().map { it.deleting }
     }
 }

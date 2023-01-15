@@ -3,6 +3,7 @@ package com.stockary.common.di
 import com.copperleaf.ballast.BallastViewModelConfiguration
 import com.copperleaf.ballast.core.LoggingInterceptor
 import com.copperleaf.ballast.core.PrintlnLogger
+import com.copperleaf.ballast.navigation.vm.Router
 import com.copperleaf.ballast.plusAssign
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.EventBusImpl
@@ -17,12 +18,18 @@ import com.stockary.common.repository.order.OrderRepository
 import com.stockary.common.repository.order.OrderRepositoryImpl
 import com.stockary.common.repository.product.ProductRepository
 import com.stockary.common.repository.product.ProductRepositoryImpl
+import com.stockary.common.router.AppScreen
 import com.stockary.common.ui.category.CategoryContract
+import com.stockary.common.ui.category.CategoryEventHandler
 import com.stockary.common.ui.category.CategoryInputHandler
 import com.stockary.common.ui.category.CategoryViewModel
 import com.stockary.common.ui.customer.CustomerContract
 import com.stockary.common.ui.customer.CustomerInputHandler
 import com.stockary.common.ui.customer.CustomerViewModel
+import com.stockary.common.ui.new_category.NewCategoryContract
+import com.stockary.common.ui.new_category.NewCategoryEventHandler
+import com.stockary.common.ui.new_category.NewCategoryInputHandler
+import com.stockary.common.ui.new_category.NewCategoryViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
@@ -73,6 +80,14 @@ val commonModule = module {
             categoryRepository = get()
         )
     }
+    factory<CategoryEventHandler> { CategoryEventHandler(get()) }
+
+    factory<NewCategoryInputHandler> {
+        NewCategoryInputHandler(
+            categoryRepository = get()
+        )
+    }
+    factory<NewCategoryEventHandler> { NewCategoryEventHandler(get()) }
 
     factory<ProductInputHandler> {
         ProductInputHandler(
@@ -92,13 +107,23 @@ val commonModule = module {
         )
     }
 
-    factory<CategoryViewModel> { (coroutineScope: CoroutineScope) ->
+    factory<CategoryViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
         CategoryViewModel(
             configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
                 inputHandler = get<CategoryInputHandler>(),
                 initialState = CategoryContract.State(),
                 name = "CategoryScreen",
-            ), coroutineScope = coroutineScope
+            ), coroutineScope = coroutineScope, eventHandler = get<CategoryEventHandler>()
+        )
+    }
+
+    factory<NewCategoryViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
+        NewCategoryViewModel(
+            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
+                inputHandler = get<NewCategoryInputHandler>(),
+                initialState = NewCategoryContract.State(),
+                name = "AddCategory",
+            ), coroutineScope = coroutineScope, eventHandler = get<NewCategoryEventHandler>()
         )
     }
 

@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Category(
-    val id: Int,
+    var id: Int? = null,
     val title: String,
-    val icon: String,
+    var icon: String? = null,
+    var description: String? = null,
     var products: List<Product> = emptyList()
 )

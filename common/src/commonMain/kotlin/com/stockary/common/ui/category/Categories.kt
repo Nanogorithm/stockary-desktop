@@ -18,9 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.copperleaf.ballast.navigation.vm.Router
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.router.AppScreen
+import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
@@ -28,9 +31,9 @@ import org.koin.core.parameter.parametersOf
 class CategoryPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Categories() {
+    fun Categories(router: Router<AppScreen>) {
         val viewModelScope = rememberCoroutineScope()
-        val vm: CategoryViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
+        val vm: CategoryViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
         val vmState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
@@ -69,7 +72,9 @@ class CategoryPage : KoinComponent {
                     Spacer(modifier = Modifier.weight(1f))
 
                     Button(onClick = {
-
+                        viewModelScope.launch {
+                            vm.trySend(CategoryContract.Inputs.AddNew)
+                        }
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))
@@ -99,7 +104,7 @@ class CategoryPage : KoinComponent {
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_category.id}", modifier = Modifier.width(100.dp))
+                        Text("#${_category?.id}", modifier = Modifier.width(100.dp))
                         Text(_category.title, modifier = Modifier.weight(1f))
                         Text("${_category.products.size}", modifier = Modifier.width(181.dp))
                         Text("0", modifier = Modifier.width(181.dp))

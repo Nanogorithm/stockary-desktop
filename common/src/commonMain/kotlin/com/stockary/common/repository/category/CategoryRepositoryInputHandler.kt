@@ -7,9 +7,10 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.stockary.common.SupabaseResource
+import com.stockary.common.repository.category.model.Category
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Count
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -73,6 +74,46 @@ class CategoryRepositoryInputHandler(
                     })
                 },
             )
+        }
+
+        is CategoryRepositoryContract.Inputs.Add -> {
+            try {
+                val result = supabaseClient.postgrest["categories"].insert(input.category)
+                updateState { it.copy(saving = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(saving = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is CategoryRepositoryContract.Inputs.Delete -> {
+            try {
+                val result = supabaseClient.postgrest["categories"].delete { Category::id eq input.category.id }
+                updateState { it.copy(deleting = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(deleting = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is CategoryRepositoryContract.Inputs.Edit -> {
+            try {
+                val result = supabaseClient.postgrest["categories"].update({
+                    if (input.category.title != input.updated.title) {
+                        Category::title setTo input.updated.title
+                    }
+
+                    if (input.category.description != input.updated.description) {
+                        Category::description setTo input.updated.description
+                    }
+                }) {
+                    Category::id eq input.category.id
+                }
+                updateState { it.copy(editing = SupabaseResource.Success(true)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(editing = SupabaseResource.Error(e)) }
+            }
         }
     }
 }

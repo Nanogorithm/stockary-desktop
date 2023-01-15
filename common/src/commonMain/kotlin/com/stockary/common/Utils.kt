@@ -11,3 +11,10 @@ fun Float.toCurrencyFormat() = "${currencySymbol}${this}"
 //    .setKey(
 //        "e30afefba1764c335670704bd1747be56901c394ec43c06ceefc29a4841ba9c370f7d0a4ca519a1bcde5e6052734741490a51c4d3f40bf71ee9f5a2df2df0e7b2b000ff290e07020799f2d76c1d120d9280c08771c46926246a5fa72561f718fb9d05d00027a0d371867d5c94b65459273f5c3ca2705952c55d45868a0a9307b"
 //    ).setSelfSigned(true)
+
+sealed interface SupabaseResource<out R> {
+    class Success<out T>(val data: T) : SupabaseResource<T>
+    class Error<out T>(val exception: Throwable, val data: T? = null) : SupabaseResource<T>
+    object Loading : SupabaseResource<Nothing>
+    object Idle : SupabaseResource<Nothing>
+}
