@@ -1,6 +1,7 @@
 package com.stockary.common.ui.product
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -147,8 +148,11 @@ class ProductPage : KoinComponent {
                             }
                             Box(
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.errorContainer),
-                                contentAlignment = Alignment.Center
+                                    .background(MaterialTheme.colorScheme.errorContainer).clickable {
+                                        viewModelScope.launch {
+                                            vm.trySend(ProductContract.Inputs.Delete(product = _product))
+                                        }
+                                    }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onErrorContainer)
                             }

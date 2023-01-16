@@ -103,7 +103,7 @@ val commonModule = module {
 
     factory<NewProductInputHandler> {
         NewProductInputHandler(
-            productRepository = get()
+            productRepository = get(), categoryRepository = get()
         )
     }
 

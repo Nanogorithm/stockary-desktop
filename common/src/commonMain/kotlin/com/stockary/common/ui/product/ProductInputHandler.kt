@@ -4,6 +4,7 @@ import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.product.ProductRepository
 import kotlinx.coroutines.flow.map
 
@@ -38,6 +39,18 @@ class ProductInputHandler(
 
         ProductContract.Inputs.GoCategory -> {
             postEvent(ProductContract.Events.GoCategories)
+        }
+
+        is ProductContract.Inputs.Delete -> {
+            updateState { it.copy(deleteResponse = SupabaseResource.Loading) }
+            observeFlows("DeleteProduct") {
+                listOf(productRepository.delete(product = input.product)
+                    .map { ProductContract.Inputs.UpdateDeleteResponse(it) })
+            }
+        }
+
+        is ProductContract.Inputs.UpdateDeleteResponse -> {
+            updateState { it.copy(deleteResponse = input.response) }
         }
     }
 }

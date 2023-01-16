@@ -7,6 +7,7 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
+import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -16,15 +17,12 @@ class ProductRepositoryImpl(
     coroutineScope: CoroutineScope,
     eventBus: EventBus,
     configBuilder: BallastViewModelConfiguration.Builder,
-) : BallastRepository<
-        ProductRepositoryContract.Inputs,
-        ProductRepositoryContract.State>(
-    coroutineScope = coroutineScope, eventBus = eventBus, config = configBuilder
-        .apply {
-            inputHandler = ProductRepositoryInputHandler(eventBus)
-            initialState = ProductRepositoryContract.State()
-            name = "Product Repository"
-        }.withRepository().build()
+) : BallastRepository<ProductRepositoryContract.Inputs, ProductRepositoryContract.State>(
+    coroutineScope = coroutineScope, eventBus = eventBus, config = configBuilder.apply {
+        inputHandler = ProductRepositoryInputHandler(eventBus)
+        initialState = ProductRepositoryContract.State()
+        name = "Product Repository"
+    }.withRepository().build()
 ), ProductRepository {
     override fun clearAllCaches() {
         trySend(ProductRepositoryContract.Inputs.ClearCaches)
@@ -33,19 +31,30 @@ class ProductRepositoryImpl(
     override fun getDataList(refreshCache: Boolean): Flow<Cached<List<Product>>> {
         trySend(ProductRepositoryContract.Inputs.Initialize)
         trySend(ProductRepositoryContract.Inputs.RefreshDataList(refreshCache))
-        return observeStates()
-            .map { it.dataList }
+        return observeStates().map { it.dataList }
     }
 
-    override fun add(product: Product): SupabaseResource<Boolean> {
-        TODO("Not yet implemented")
+    override fun getCustomerTypes(refreshCache: Boolean): Flow<Cached<List<Role>>> {
+        trySend(ProductRepositoryContract.Inputs.RefreshCustomerTypes(refreshCache))
+        return observeStates().map { it.customerTypes }
     }
 
-    override fun edit(product: Product, updated: Product): SupabaseResource<Boolean> {
-        TODO("Not yet implemented")
+    override fun add(product: Product, prices: List<String>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
+        trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types))
+        return observeStates().map { it.saving }
     }
 
-    override fun delete(product: Product): SupabaseResource<Boolean> {
-        TODO("Not yet implemented")
+    override fun edit(product: Product, updated: Product): Flow<SupabaseResource<Boolean>> {
+        return observeStates().map { it.updating }
+    }
+
+    override fun delete(product: Product): Flow<SupabaseResource<Boolean>> {
+        trySend(ProductRepositoryContract.Inputs.Delete(product = product))
+        return observeStates().map {
+            if (it.deleting is SupabaseResource.Success) {
+                trySend(ProductRepositoryContract.Inputs.RefreshDataList(true))
+            }
+            it.deleting
+        }
     }
 }

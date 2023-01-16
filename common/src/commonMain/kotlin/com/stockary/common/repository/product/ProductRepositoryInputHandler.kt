@@ -9,6 +9,7 @@ import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.product.model.Product
+import com.stockary.common.repository.product.model.ProductCustomerRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
@@ -50,6 +51,9 @@ class ProductRepositoryInputHandler(
             if (currentState.dataListInitialized) {
                 postInput(ProductRepositoryContract.Inputs.RefreshDataList(true))
             }
+            if (currentState.customerTypesInitialized) {
+                postInput(ProductRepositoryContract.Inputs.RefreshCustomerTypes(true))
+            }
 
             Unit
         }
@@ -78,6 +82,26 @@ class ProductRepositoryInputHandler(
         is ProductRepositoryContract.Inputs.Add -> {
             try {
                 val result = supabaseClient.postgrest["products"].insert(input.product)
+                //create prices
+                val product = result.decodeSingle<Product>(json = Json { ignoreUnknownKeys = true })
+                val prices = mutableListOf<ProductCustomerRole>().apply {
+                    input.prices.forEachIndexed { index, price ->
+                        if (price.isNotBlank()) {
+                            add(
+                                ProductCustomerRole(
+                                    product_id = product.id!!,
+                                    customer_role_id = input.types[index].id,
+                                    price = price.toFloat()
+                                )
+                            )
+                        }
+                    }
+                }
+                if (prices.isNotEmpty()) {
+                    supabaseClient.postgrest["product_customer_roles"].insert(
+                        prices
+                    )
+                }
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -113,6 +137,27 @@ class ProductRepositoryInputHandler(
                 e.printStackTrace()
                 updateState { it.copy(updating = SupabaseResource.Error(e)) }
             }
+        }
+
+        is ProductRepositoryContract.Inputs.RefreshCustomerTypes -> {
+            updateState { it.copy(customerTypesInitialized = true) }
+            fetchWithCache(
+                input = input,
+                forceRefresh = input.forceRefresh,
+                getValue = { it.customerTypes },
+                updateState = { ProductRepositoryContract.Inputs.UpdateCustomerTypes(it) },
+                doFetch = {
+                    val result = supabaseClient.postgrest["customer_roles"].select("*")
+                    println("Customer types => ${result.body}")
+                    result.decodeList(json = Json {
+                        ignoreUnknownKeys = true
+                    })
+                },
+            )
+        }
+
+        is ProductRepositoryContract.Inputs.UpdateCustomerTypes -> {
+            updateState { it.copy(customerTypes = input.dataList) }
         }
     }
 }

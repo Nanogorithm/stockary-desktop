@@ -6,11 +6,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Product(
-    val id: Int,
+    val id: Int? = null,
     val title: String,
+    val description: String? = null,
     val price: Float,
-    val stock: Int,
-    val sort: Int,
-    @SerialName("category_id") val categoryId: Int,
+    val stock: Int = 0,
+    val sort: Int = 0,
+    @SerialName("category_id") val categoryId: Int? = null,
     @SerialName("categories") var category: Category? = null
+)
+
+@Serializable
+data class ProductCustomerRole(
+    val id: Int? = null, val product_id: Int, val customer_role_id: Int, val price: Float
 )

@@ -40,7 +40,6 @@ import kotlin.system.exitProcess
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalBallastApi::class)
 @Composable
 fun App() {
-
     val applicationScope = rememberCoroutineScope()
 
     // Set up the Router, which is just a normal Ballast ViewModel
@@ -51,7 +50,6 @@ fun App() {
                 // log all Router activity to inspect the backstack changes
                 this += LoggingInterceptor()
                 logger = ::PrintlnLogger
-
                 // You may add any other Ballast Interceptors here as well, to extend the router functionality
             }.withRouter(RoutingTable.fromEnum(values()), initialRoute = Login).build(),
             eventHandler = eventHandler {
@@ -66,7 +64,7 @@ fun App() {
     val routerState: Backstack<AppScreen> by router.observeStates().collectAsState()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
     ) { innerPaddings ->
         PermanentNavigationDrawer(
             drawerContent = {
