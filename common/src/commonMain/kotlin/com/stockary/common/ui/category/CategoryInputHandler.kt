@@ -38,7 +38,7 @@ class CategoryInputHandler(
         }
 
         is CategoryContract.Inputs.Delete -> {
-            
+
         }
 
         is CategoryContract.Inputs.Edit -> {

@@ -16,27 +16,31 @@ enum class AppScreen(
     CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
-    CategoryAdd(
+    NewCategory(
         "/app/new-category", "Add Category"
     ),
     CategoryList(
         "/app/categories?sort={?}", "Categories"
     ),
     CategoryDetails("/app/categories/{categoryId}", "Category Details"),
+
     ProductList(
         "/app/products?sort={?}", "products"
     ),
-    ProductAdd(
+    NewProduct(
         "/app/new-product", "Add Product"
     ),
-    ProductDetails("/app/products/{categoryId}", "Product Details"), OrderList(
+    ProductDetails("/app/products/{categoryId}", "Product Details"), NewOrder(
         "/app/orders?sort={?}", "Orders"
     ),
-    OrderDetails("/app/orders/{orderId}", "Order Details"), ;
+    OrderList(
+        "/app/orders?sort={?}", "Orders"
+    ),
+    OrderDetails("/app/orders/{orderId}", "Order Details"), OrderSummary("/app/summary", "Order Summary"), ;
 
     override val matcher: RouteMatcher = RouteMatcher.create(routeFormat)
 }
 
 val navItems = listOf(
-    AppScreen.Home, AppScreen.OrderList, AppScreen.CategoryList, AppScreen.ProductList, AppScreen.CustomerList
+    AppScreen.Home, AppScreen.ProductList, AppScreen.CustomerList, AppScreen.OrderList,
 )

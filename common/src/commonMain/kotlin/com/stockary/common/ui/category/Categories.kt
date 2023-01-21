@@ -1,6 +1,7 @@
 package com.stockary.common.ui.category
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,32 +19,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.navigation.vm.Router
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
-import com.stockary.common.router.AppScreen
-import kotlinx.coroutines.launch
+import com.stockary.common.di.injector.ComposeDesktopInjector
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
 
 class CategoryPage : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Categories(router: Router<AppScreen>) {
-        val viewModelScope = rememberCoroutineScope()
-        val vm: CategoryViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
-        val vmState by vm.observeStates().collectAsState()
+    fun Categories(injector: ComposeDesktopInjector) {
+        val viewModelCoroutineScope = rememberCoroutineScope()
+        val vm = remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
+        val uiState by vm.observeStates().collectAsState()
 
-        LaunchedEffect(vm) {
+        LaunchedEffect(true) {
             vm.trySend(CategoryContract.Inputs.Initialize)
         }
 
+        Content(uiState) { vm.trySend(it) }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun Content(
+        vmState: CategoryContract.State,
+        postInput: (CategoryContract.Inputs) -> Unit,
+    ) {
         var search by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-            Text("Categories", fontSize = 32.sp, fontWeight = FontWeight.W600)
+            Text("Categories", fontSize = 32.sp, fontWeight = FontWeight.W600, modifier = Modifier.clickable {
+                postInput(CategoryContract.Inputs.FetchHotList(forceRefresh = true))
+            })
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -72,9 +79,7 @@ class CategoryPage : KoinComponent {
                     Spacer(modifier = Modifier.weight(1f))
 
                     Button(onClick = {
-                        viewModelScope.launch {
-                            vm.trySend(CategoryContract.Inputs.AddNew)
-                        }
+                        postInput(CategoryContract.Inputs.AddNew)
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))

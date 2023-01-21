@@ -21,7 +21,7 @@ class CategoryEventHandler(
         CategoryContract.Events.AddNew -> {
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
-                    AppScreen.CategoryAdd.directions().build()
+                    AppScreen.NewCategory.directions().build()
                 )
             )
             Unit

@@ -4,6 +4,7 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
+import com.stockary.common.repository.product.model.UnitType
 
 object ProductRepositoryContract {
     data class State(
@@ -11,8 +12,12 @@ object ProductRepositoryContract {
 
         val dataListInitialized: Boolean = false,
         val dataList: Cached<List<Product>> = Cached.NotLoaded(),
+
         val customerTypesInitialized: Boolean = false,
         val customerTypes: Cached<List<Role>> = Cached.NotLoaded(),
+
+        val unitTypes: Cached<List<UnitType>> = Cached.NotLoaded(),
+
         val saving: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val updating: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val deleting: SupabaseResource<Boolean> = SupabaseResource.Idle
@@ -25,6 +30,9 @@ object ProductRepositoryContract {
 
         data class RefreshDataList(val forceRefresh: Boolean) : Inputs()
         data class DataListUpdated(val dataList: Cached<List<Product>>) : Inputs()
+
+        data class RefreshUnitTypes(val forceRefresh: Boolean) : Inputs()
+        data class UpdateUnitTypes(val unitTypes: Cached<List<UnitType>>) : Inputs()
 
         data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()

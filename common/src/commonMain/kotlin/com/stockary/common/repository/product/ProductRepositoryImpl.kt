@@ -9,6 +9,7 @@ import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
+import com.stockary.common.repository.product.model.UnitType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,6 +38,11 @@ class ProductRepositoryImpl(
     override fun getCustomerTypes(refreshCache: Boolean): Flow<Cached<List<Role>>> {
         trySend(ProductRepositoryContract.Inputs.RefreshCustomerTypes(refreshCache))
         return observeStates().map { it.customerTypes }
+    }
+
+    override fun getProductUnitTypes(refreshCache: Boolean): Flow<Cached<List<UnitType>>> {
+        trySend(ProductRepositoryContract.Inputs.RefreshUnitTypes(refreshCache))
+        return observeStates().map { it.unitTypes }
     }
 
     override fun add(product: Product, prices: List<String>, types: List<Role>): Flow<SupabaseResource<Boolean>> {

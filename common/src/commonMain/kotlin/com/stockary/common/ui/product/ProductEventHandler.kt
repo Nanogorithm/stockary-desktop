@@ -33,7 +33,7 @@ class ProductEventHandler(
         ProductContract.Events.GoProductAdd -> {
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
-                    AppScreen.ProductAdd.directions().build()
+                    AppScreen.NewProduct.directions().build()
                 )
             )
             Unit

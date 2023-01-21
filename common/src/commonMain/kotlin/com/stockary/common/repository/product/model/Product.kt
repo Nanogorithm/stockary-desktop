@@ -9,14 +9,22 @@ data class Product(
     val id: Int? = null,
     val title: String,
     val description: String? = null,
-    val price: Float,
     val stock: Int = 0,
     val sort: Int = 0,
+    @SerialName("unit_amount") val unitAmount: Float = 0f,
     @SerialName("category_id") val categoryId: Int? = null,
-    @SerialName("categories") var category: Category? = null
+    @SerialName("unit_type_id") val unitTypeId: Int? = null,
+
+    @SerialName("categories") var category: Category? = null,
+    @SerialName("unit_types") var unitType: UnitType? = null
 )
 
 @Serializable
 data class ProductCustomerRole(
     val id: Int? = null, val product_id: Int, val customer_role_id: Int, val price: Float
+)
+
+@Serializable
+data class UnitType(
+    val id: Int? = null, val name: String
 )

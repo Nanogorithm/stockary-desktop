@@ -1,6 +1,3 @@
-import org.jetbrains.compose.compose
-
-
 val koin_version = "3.3.2"
 val koin_android_version = "3.3.2"
 val koin_android_compose_version = "3.4.1"
@@ -35,7 +32,11 @@ version = "1.0-SNAPSHOT"
 //                implementation("io.appwrite:sdk-for-kotlin:1.1.0")
 
                 api("io.insert-koin:koin-core:$koin_version")
+                implementation("io.insert-koin:koin-androidx-compose:$koin_android_compose_version")
                 implementation("io.ktor:ktor-client-cio:2.2.2")
+
+                implementation("com.alialbaali.kamel:kamel-image:0.4.1")
+                implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
                 implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:0.7.4"))
                 implementation("io.github.jan-tennert.supabase:gotrue-kt")
@@ -51,6 +52,10 @@ version = "1.0-SNAPSHOT"
                 implementation("io.github.copper-leaf:ballast-firebase-analytics:2.3.0")
                 implementation("io.github.copper-leaf:ballast-debugger:2.3.0")
                 implementation("io.github.copper-leaf:ballast-navigation:2.3.0")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-properties:1.4.1")
+
             }
         }
         val commonTest by getting {

@@ -7,6 +7,10 @@ import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.SupabaseResource
+import com.stockary.common.form_builder.BaseState
+import com.stockary.common.form_builder.FormState
+import com.stockary.common.form_builder.TextFieldState
+import com.stockary.common.form_builder.Validators
 import com.stockary.common.repository.category.CategoryRepository
 import com.stockary.common.repository.product.ProductRepository
 import com.stockary.common.repository.product.model.Product
@@ -21,6 +25,7 @@ class NewProductInputHandler(
         is NewProductContract.Inputs.Initialize -> {
             postInput(NewProductContract.Inputs.FetchCustomerTypes(true))
             postInput(NewProductContract.Inputs.FetchCategories(true))
+            postInput(NewProductContract.Inputs.FetchUnitTypes(true))
         }
 
         is NewProductContract.Inputs.GoBack -> {
@@ -40,17 +45,21 @@ class NewProductInputHandler(
         is NewProductContract.Inputs.SaveAndContinue -> {
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
-            observeFlows("SavingNewProduct") {
-                listOf(productRepository.add(
-                    product = Product(
-                        title = currentState.productName.text,
-                        description = currentState.productDescription.text,
-                        price = currentState.basePrice.text.toFloat(),
-                        categoryId = input.category.id,
-                        stock = 1
-                    ), prices = input.prices, types = input.types
-                ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
-            }
+
+            val formData: Product = currentState.formState.getData()
+
+
+            /* observeFlows("SavingNewProduct") {
+                 listOf(productRepository.add(
+                     product = Product(
+                         title = currentState.productName.text,
+                         description = currentState.productDescription.text,
+                         categoryId = input.category.id,
+                         stock = 1,
+                         unitAmount = currentState.basePrice.text.toFloat()
+                     ), prices = input.prices, types = input.types
+                 ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
+             }*/
         }
 
         is NewProductContract.Inputs.UpdateSaveResponse -> {
@@ -79,40 +88,35 @@ class NewProductInputHandler(
         }
 
         is NewProductContract.Inputs.UpdateCustomerTypes -> {
-            val size = input.customerTypes.getCachedOrEmptyList()
-            updateState { it.copy(customerType = input.customerTypes) }
-            val prices = mutableMapOf<String, TextFieldValue>().apply {
-                size.forEach {
-                    it.name to TextFieldValue()
-                }
+            val types = input.customerTypes.getCachedOrEmptyList()
+            val names = types.map { it.name }
+            val currentState = getCurrentState()
+            updateState {
+                it.copy(
+                    customerType = input.customerTypes, formState = FormState(mutableListOf<BaseState<*>>().apply {
+                        addAll(currentState.formState.fields)
+                        val fields = currentState.formState.fields.map {
+                            it.name
+                        }
+                        names.forEach {
+                            if (!fields.contains(it)) {
+                                add(TextFieldState(name = it, transform = { it.toFloatOrNull() ?: 0f }))
+                            }
+                        }
+                    })
+                )
             }
-            updateState { it.copy(prices = prices) }
         }
 
-        is NewProductContract.Inputs.NameChanged -> {
-            updateState { it.copy(productName = input.newValue) }
-        }
-
-        is NewProductContract.Inputs.PriceChanged -> {
-            updateState { it.copy(basePrice = input.newValue) }
-        }
-
-        is NewProductContract.Inputs.DescriptionChanged -> {
-            updateState { it.copy(productDescription = input.newValue) }
-        }
-
-        is NewProductContract.Inputs.PricesChanged -> {
-            val currentState = getCurrentState().prices
-            val prices = mutableMapOf<String, TextFieldValue>().apply {
-                currentState.forEach {
-                    if (it.key == input.role.name) {
-                        it.key to input.newValue
-                    } else {
-                        it.key to it.value
-                    }
-                }
+        is NewProductContract.Inputs.FetchUnitTypes -> {
+            observeFlows("FetchUnitTypes") {
+                listOf(productRepository.getProductUnitTypes(input.forceRefresh)
+                    .map { NewProductContract.Inputs.UpdateUnitTypes(it) })
             }
-            updateState { it.copy(prices = prices) }
+        }
+
+        is NewProductContract.Inputs.UpdateUnitTypes -> {
+            updateState { it.copy(unitTypes = input.unitTypes) }
         }
     }
 }

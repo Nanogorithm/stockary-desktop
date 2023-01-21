@@ -159,5 +159,25 @@ class ProductRepositoryInputHandler(
         is ProductRepositoryContract.Inputs.UpdateCustomerTypes -> {
             updateState { it.copy(customerTypes = input.dataList) }
         }
+
+        is ProductRepositoryContract.Inputs.RefreshUnitTypes -> {
+            fetchWithCache(
+                input = input,
+                forceRefresh = input.forceRefresh,
+                getValue = { it.unitTypes },
+                updateState = { ProductRepositoryContract.Inputs.UpdateUnitTypes(it) },
+                doFetch = {
+                    val result = supabaseClient.postgrest["unit_types"].select("*")
+                    println("Unit types => ${result.body}")
+                    result.decodeList(json = Json {
+                        ignoreUnknownKeys = true
+                    })
+                },
+            )
+        }
+
+        is ProductRepositoryContract.Inputs.UpdateUnitTypes -> {
+            updateState { it.copy(unitTypes = input.unitTypes) }
+        }
     }
 }

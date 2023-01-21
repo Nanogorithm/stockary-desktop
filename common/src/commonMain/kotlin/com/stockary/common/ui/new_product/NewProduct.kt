@@ -12,38 +12,51 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.navigation.vm.Router
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.SupabaseResource
 import com.stockary.common.components.SearchableDropDown
+import com.stockary.common.components.SelectUnitType
+import com.stockary.common.components.TextInput
 import com.stockary.common.currencySymbol
-import com.stockary.common.repository.category.model.Category
-import com.stockary.common.router.AppScreen
-import kotlinx.coroutines.launch
+import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.form_builder.ChoiceState
+import com.stockary.common.form_builder.TextFieldState
+import com.stockary.common.repository.product.model.Product
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
 
 class NewProductPage : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun NewProduct(
-        router: Router<AppScreen>
+        injector: ComposeDesktopInjector
     ) {
         val viewModelScope = rememberCoroutineScope()
-        val vm: NewProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
-        val vmState by vm.observeStates().collectAsState()
-        val selectedCategory = remember { mutableStateOf<Category?>(null) }
-        val error = remember { mutableStateOf<String?>(null) }
+        val vm: NewProductViewModel = remember(viewModelScope) { injector.newProductViewModel(viewModelScope) }
+        val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
             vm.trySend(NewProductContract.Inputs.Initialize)
         }
 
-        val prices = remember { mutableStateListOf<String>() }
+        Content(uiState) {
+            vm.trySend(it)
+        }
+    }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun Content(
+        uiState: NewProductContract.State, postInput: (NewProductContract.Inputs) -> Unit
+    ) {
+        val error = remember { mutableStateOf<String?>(null) }
+
+        val titleState: TextFieldState = uiState.formState.getState(Product::title.name)
+        val descriptionState: TextFieldState = uiState.formState.getState(Product::description.name)
+        val unitAmountState: TextFieldState = uiState.formState.getState("unit_amount")
+
+        val categoryIdState: ChoiceState = uiState.formState.getState("category_id")
+        val unitTypeIdState: ChoiceState = uiState.formState.getState("unit_type_id")
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
             Text("New Product", fontSize = 32.sp, fontWeight = FontWeight.W600)
@@ -57,63 +70,60 @@ class NewProductPage : KoinComponent {
                     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
                         Text("Information", fontSize = 24.sp, fontWeight = FontWeight.W600)
                         Spacer(modifier = Modifier.height(36.dp))
-                        TextField(value = vmState.productName,
-                            onValueChange = {
-                                viewModelScope.launch {
-                                    vm.trySend(NewProductContract.Inputs.NameChanged(it))
-                                }
-                            },
-                            placeholder = { Text("Product Name") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.White,
-                                textColor = contentColorFor(Color.White),
-                                unfocusedIndicatorColor = Color.Transparent,
-                                placeholderColor = Color(0xFF676767)
-                            )
+
+                        TextInput(
+                            label = "Product name",
+                            placeHolder = "Special biscuit",
+                            state = titleState,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        TextField(value = vmState.productDescription,
-                            onValueChange = {
-                                viewModelScope.launch {
-                                    vm.trySend(NewProductContract.Inputs.DescriptionChanged(it))
-                                }
-                            },
-                            placeholder = { Text("Description") },
+                        TextInput(
+                            label = "Description",
+                            placeHolder = "This is popular item contains a,b,c",
+                            state = descriptionState,
                             maxLines = 3,
-                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp),
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.White,
-                                textColor = contentColorFor(Color.White),
-                                unfocusedIndicatorColor = Color.Transparent,
-                                placeholderColor = Color(0xFF676767)
-                            )
+                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        TextField(value = vmState.basePrice,
-                            onValueChange = {
-                                viewModelScope.launch {
-                                    vm.trySend(NewProductContract.Inputs.PriceChanged(it))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 100.dp)
+                        ) {
+                            TextInput(
+                                label = "Weight/Piece",
+                                placeHolder = "5 kg or 2 piece",
+                                state = unitAmountState,
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            if (uiState.unitTypes !is Cached.NotLoaded && uiState.unitTypes.isLoading()) {
+                                CircularProgressIndicator()
+                            } else {
+                                Column {
+                                    SelectUnitType(
+                                        modifier = Modifier.width(200.dp).height(60.dp),
+                                        items = uiState.unitTypes.getCachedOrEmptyList(),
+                                    ) {
+                                        it.id?.let {
+                                            unitTypeIdState.change(it.toString())
+                                        }
+                                    }
+
+                                    if (unitTypeIdState.hasError) {
+                                        Text(
+                                            text = unitTypeIdState.errorMessage,
+                                            modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                            style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                color = androidx.compose.material.MaterialTheme.colors.error
+                                            )
+                                        )
+                                    }
                                 }
-                            },
-                            placeholder = { Text("Base Price") },
-                            singleLine = true,
-                            colors = TextFieldDefaults.textFieldColors(
-                                containerColor = Color.White,
-                                textColor = contentColorFor(Color.White),
-                                unfocusedIndicatorColor = Color.Transparent,
-                                placeholderColor = Color(0xFF676767)
-                            ),
-                            leadingIcon = {
-                                Text(
-                                    currencySymbol, color = Color(0xFF1F1F1F), fontWeight = FontWeight.W500
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = {
-                                Text("Base Price")
-                            })
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -131,65 +141,94 @@ class NewProductPage : KoinComponent {
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            if (vmState.categoryList !is Cached.NotLoaded && vmState.categoryList.isLoading()) {
+                            if (uiState.categoryList !is Cached.NotLoaded && uiState.categoryList.isLoading()) {
                                 item {
                                     CircularProgressIndicator(modifier = Modifier.size(48.dp))
                                 }
                                 item { }
                             } else {
-                                val categories = vmState.categoryList.getCachedOrEmptyList()
+                                val categories = uiState.categoryList.getCachedOrEmptyList()
                                 if (categories.isNotEmpty()) {
                                     item {
-                                        SearchableDropDown(
-                                            modifier = Modifier.width(200.dp).height(60.dp),
-                                            label = "Category",
-                                            items = categories,
-                                        ) {
-                                            selectedCategory.value = it
+                                        Column(modifier = Modifier.fillMaxWidth()) {
+                                            SearchableDropDown(
+                                                modifier = Modifier.width(56.dp).height(60.dp),
+                                                label = "Category",
+                                                items = categories,
+                                            ) {
+                                                it.id?.let {
+                                                    categoryIdState.change(it.toString())
+                                                }
+                                            }
+                                            if (categoryIdState.hasError) {
+                                                Text(
+                                                    text = categoryIdState.errorMessage,
+                                                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                    style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                        color = androidx.compose.material.MaterialTheme.colors.error
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
                                     item { }
                                 }
                             }
 
-                            if (vmState.customerType !is Cached.NotLoaded && vmState.customerType.isLoading()) {
+                            if (uiState.customerType !is Cached.NotLoaded && uiState.customerType.isLoading()) {
                                 item {
                                     CircularProgressIndicator(modifier = Modifier.size(48.dp))
                                 }
                                 item { }
                             } else {
-                                vmState.customerType.getCachedOrEmptyList().forEachIndexed { index, _customerType ->
+                                uiState.customerType.getCachedOrEmptyList().forEach { _customerType ->
                                     item {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            val typeName = _customerType.name.replaceFirst(
-                                                _customerType.name.first(), _customerType.name.first().uppercaseChar()
-                                            )
+                                        Column {
 
-                                            prices.add("")
+                                            val priceState: TextFieldState =
+                                                uiState.formState.getState(_customerType.name)
 
-                                            TextField(value = prices[index], onValueChange = {
-                                                prices[index] = it
-                                            }, placeholder = {
-                                                Text(
-                                                    typeName
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                val typeName = _customerType.name.replaceFirst(
+                                                    _customerType.name.first(),
+                                                    _customerType.name.first().uppercaseChar()
                                                 )
-                                            }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
-                                                containerColor = Color.White,
-                                                textColor = contentColorFor(Color.White),
-                                                unfocusedIndicatorColor = Color.Transparent,
-                                                placeholderColor = Color(0xFF676767)
-                                            ), leadingIcon = {
-                                                Text(
-                                                    currencySymbol,
-                                                    color = Color(0xFF1F1F1F),
-                                                    fontWeight = FontWeight.W500
+
+
+                                                TextField(value = priceState.value, onValueChange = {
+                                                    priceState.change(it)
+                                                }, placeholder = {
+                                                    Text(
+                                                        typeName
+                                                    )
+                                                }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
+                                                    containerColor = Color.White,
+                                                    textColor = contentColorFor(Color.White),
+                                                    unfocusedIndicatorColor = Color.Transparent,
+                                                    placeholderColor = Color(0xFF676767)
+                                                ), leadingIcon = {
+                                                    Text(
+                                                        currencySymbol,
+                                                        color = Color(0xFF1F1F1F),
+                                                        fontWeight = FontWeight.W500
+                                                    )
+                                                }, modifier = Modifier.weight(1f), label = {
+                                                    Text("$typeName Price")
+                                                }, isError = priceState.hasError
                                                 )
-                                            }, modifier = Modifier.weight(1f), label = {
-                                                Text("$typeName Price")
-                                            })
+                                            }
+                                            if (priceState.hasError) {
+                                                Text(
+                                                    text = priceState.errorMessage,
+                                                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                    style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                        color = androidx.compose.material.MaterialTheme.colors.error
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -198,7 +237,7 @@ class NewProductPage : KoinComponent {
                     }
                 }
             }
-            when (val saving = vmState.response) {
+            when (val saving = uiState.response) {
                 is SupabaseResource.Error -> {
                     Spacer(modifier = Modifier.height(28.dp))
                     Text(saving.exception.message ?: "")
@@ -223,30 +262,27 @@ class NewProductPage : KoinComponent {
                 Text(it)
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-//                Button(
-//                    onClick = {
-//
-//                    }, shape = RoundedCornerShape(15.dp)
-//                ) {
-//                    Text("PUBLISH")
-//                }
-
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
                 Button(
                     onClick = {
-                        if (selectedCategory.value == null) {
-                            error.value = "Please select category first"
-                        } else {
+                        if (uiState.formState.validate()) {
                             error.value = null
-                            viewModelScope.launch {
-                                vm.trySend(
-                                    NewProductContract.Inputs.SaveAndContinue(
-                                        prices = prices.toList(),
-                                        category = selectedCategory.value!!,
-                                        types = vmState.customerType.getCachedOrEmptyList()
-                                    )
-                                )
-                            }
+                            val data: Product = uiState.formState.getData()
+
+                            println("data => $data")
+
+                            /* postInput(
+                                 NewProductContract.Inputs.SaveAndContinue(
+                                     prices = prices.toList(),
+                                     category = selectedCategory.value!!,
+                                     types = uiState.customerType.getCachedOrEmptyList(),
+                                     unitTypeId = selectedUnitType.value?.id!!
+                                 )
+                             )*/
+                        } else {
+                            error.value = "Please sort out the errors"
                         }
                     }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -256,9 +292,7 @@ class NewProductPage : KoinComponent {
                     Text("Save")
                 }
                 TextButton(onClick = {
-                    viewModelScope.launch {
-                        vm.trySend(NewProductContract.Inputs.GoBack)
-                    }
+                    postInput(NewProductContract.Inputs.GoBack)
                 }) {
                     Text("BACK")
                 }

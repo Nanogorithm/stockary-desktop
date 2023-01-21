@@ -1,28 +1,18 @@
 package com.stockary.common.di
 
-import com.copperleaf.ballast.BallastViewModelConfiguration
+import com.copperleaf.ballast.*
 import com.copperleaf.ballast.core.LoggingInterceptor
 import com.copperleaf.ballast.core.PrintlnLogger
 import com.copperleaf.ballast.navigation.vm.Router
-import com.copperleaf.ballast.plusAssign
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.EventBusImpl
-import com.copperleaf.ballast.withViewModel
-import com.stockary.common.repository.category.CategoryRepository
-import com.stockary.common.repository.category.CategoryRepositoryImpl
 import com.stockary.common.repository.customer.CustomerRepository
 import com.stockary.common.repository.customer.CustomerRepositoryImpl
 import com.stockary.common.repository.login.LoginRepository
 import com.stockary.common.repository.login.LoginRepositoryImpl
 import com.stockary.common.repository.order.OrderRepository
 import com.stockary.common.repository.order.OrderRepositoryImpl
-import com.stockary.common.repository.product.ProductRepository
-import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.router.AppScreen
-import com.stockary.common.ui.category.CategoryContract
-import com.stockary.common.ui.category.CategoryEventHandler
-import com.stockary.common.ui.category.CategoryInputHandler
-import com.stockary.common.ui.category.CategoryViewModel
 import com.stockary.common.ui.customer.CustomerContract
 import com.stockary.common.ui.customer.CustomerInputHandler
 import com.stockary.common.ui.customer.CustomerViewModel
@@ -37,10 +27,6 @@ import com.stockary.common.ui.new_product.NewProductViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
-import com.stockary.common.ui.product.ProductContract
-import com.stockary.common.ui.product.ProductEventHandler
-import com.stockary.common.ui.product.ProductInputHandler
-import com.stockary.common.ui.product.ProductViewModel
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
 import io.github.jan.supabase.postgrest.Postgrest
@@ -54,6 +40,7 @@ val platformModule = module {
 }
 
 // platform Module
+@OptIn(ExperimentalBallastApi::class)
 val commonModule = module {
     single {
         createSupabaseClient(
@@ -66,11 +53,14 @@ val commonModule = module {
             }
         }
     }
+
     single<EventBus> { EventBusImpl() }
 
     factory<LoginRepository> { LoginRepositoryImpl(get()) }
-    factory<CategoryRepository> { CategoryRepositoryImpl(get(), get(), get()) }
-    factory<ProductRepository> { ProductRepositoryImpl(get(), get(), get()) }
+
+//    single<CategoryRepository> { CategoryRepositoryImpl(get(), get(), get()) }
+//    single<ProductRepository> { ProductRepositoryImpl(get(), get(), get()) }
+
     factory<OrderRepository> { OrderRepositoryImpl(get(), get(), get()) }
     factory<CustomerRepository> { CustomerRepositoryImpl(get(), get(), get()) }
 
@@ -81,12 +71,12 @@ val commonModule = module {
         }
     }
 
-    factory<CategoryInputHandler> {
+    /*factory<CategoryInputHandler> {
         CategoryInputHandler(
             categoryRepository = get()
         )
     }
-    factory<CategoryEventHandler> { CategoryEventHandler(get()) }
+    factory<CategoryEventHandler> { CategoryEventHandler(get()) }*/
 
     factory<NewCategoryInputHandler> {
         NewCategoryInputHandler(
@@ -95,11 +85,11 @@ val commonModule = module {
     }
     factory<NewCategoryEventHandler> { NewCategoryEventHandler(get()) }
 
-    factory<ProductInputHandler> {
+    /*factory<ProductInputHandler> {
         ProductInputHandler(
             productRepository = get()
         )
-    }
+    }*/
 
     factory<NewProductInputHandler> {
         NewProductInputHandler(
@@ -109,8 +99,8 @@ val commonModule = module {
 
     factory<NewProductEventHandler> { NewProductEventHandler(get()) }
 
-
-    factory<ProductEventHandler> { ProductEventHandler(get()) }
+    /*
+        factory<ProductEventHandler> { ProductEventHandler(get()) }*/
 
 
     factory<OrderInputHandler> {
@@ -125,15 +115,15 @@ val commonModule = module {
         )
     }
 
-    factory<CategoryViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
-        CategoryViewModel(
-            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
-                inputHandler = get<CategoryInputHandler>(),
-                initialState = CategoryContract.State(),
-                name = "CategoryScreen",
-            ), coroutineScope = coroutineScope, eventHandler = get<CategoryEventHandler>()
-        )
-    }
+    /*    factory<CategoryViewModel> { (coroutineScope: CoroutineScope) ->
+            CategoryViewModel(
+                configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
+                    inputHandler = get<CategoryInputHandler>(),
+                    initialState = CategoryContract.State(),
+                    name = "CategoryScreen",
+                ), coroutineScope = coroutineScope, eventHandler = get()
+            )
+        }*/
 
     factory<NewCategoryViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
         NewCategoryViewModel(
@@ -145,15 +135,16 @@ val commonModule = module {
         )
     }
 
-    factory<ProductViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
-        ProductViewModel(
-            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
-                inputHandler = get<ProductInputHandler>(),
-                initialState = ProductContract.State(),
-                name = "ProductScreen",
-            ), coroutineScope = coroutineScope, eventHandler = get()
-        )
-    }
+    /*    factory<ProductViewModel> { (coroutineScope: CoroutineScope) ->
+            ProductViewModel(
+                configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
+                    inputHandler = get<ProductInputHandler>(),
+                    initialState = ProductContract.State(),
+                    name = "ProductScreen",
+                ), coroutineScope = coroutineScope, eventHandler = get()
+            )
+        }*/
+
     factory<NewProductViewModel> { (coroutineScope: CoroutineScope, router: Router<AppScreen>) ->
         NewProductViewModel(
             configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(

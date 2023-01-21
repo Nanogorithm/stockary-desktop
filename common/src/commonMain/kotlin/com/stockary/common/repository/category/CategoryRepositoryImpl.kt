@@ -23,13 +23,17 @@ class CategoryRepositoryImpl(
         name = "Category Repository"
     }.withRepository().build()
 ), CategoryRepository {
+
+    init {
+        trySend(CategoryRepositoryContract.Inputs.Initialize)
+        trySend(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
+    }
+
     override fun clearAllCaches() {
         trySend(CategoryRepositoryContract.Inputs.ClearCaches)
     }
 
     override fun getCategoryList(refreshCache: Boolean): Flow<Cached<List<Category>>> {
-        trySend(CategoryRepositoryContract.Inputs.Initialize)
-        trySend(CategoryRepositoryContract.Inputs.RefreshCategoryList(refreshCache))
         return observeStates().map { it.categories }
     }
 

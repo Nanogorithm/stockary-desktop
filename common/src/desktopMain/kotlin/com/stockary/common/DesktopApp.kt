@@ -9,6 +9,6 @@ import com.helloanwar.common.ui.theme.AppTheme
 @Composable
 fun AppPreview() {
     AppTheme {
-        App()
+//        AppScreenView().App()
     }
 }
