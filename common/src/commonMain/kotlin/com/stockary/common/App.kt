@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.*
 import com.copperleaf.ballast.navigation.routing.*
 import com.stockary.common.di.injector.ComposeDesktopInjector
-import com.stockary.common.repository.login.AuthRepository
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
@@ -39,7 +38,7 @@ import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+
 
 class AppScreenView(
     val injector: ComposeDesktopInjector
@@ -52,10 +51,6 @@ class AppScreenView(
         // collect the Router's StateFlow as a Compose State
         val routerState: Backstack<AppScreen> by router.observeStates().collectAsState()
 
-        val authRepository: AuthRepository by inject()
-
-        authRepository.sessionStatus().collectAsState()
-
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPaddings ->
@@ -67,7 +62,12 @@ class AppScreenView(
                     }
                     Spacer(Modifier.height(48.dp))
                     navItems.forEach { item ->
-                        NavigationDrawerItem(icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
+                        NavigationDrawerItem(
+                            icon = {
+                                item.icon?.let {
+                                    Icon(it, contentDescription = null)
+                                }
+                            },
                             label = { Text(item.title) },
                             selected = routerState.currentRouteOrNull == item,
                             onClick = {
@@ -159,7 +159,7 @@ class AppScreenView(
                                     }
 
                                     NewCategory -> {
-                                        NewCategoryPage().NewCategory(router = router)
+                                        NewCategoryPage().NewCategory(injector = injector)
                                     }
 
                                     CustomerList -> {

@@ -106,7 +106,7 @@ class CustomerPage : KoinComponent {
                 Text("Name", fontSize = 12.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
                 Text("Company", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
-                Text("Address", modifier = Modifier.width(300.dp), fontSize = 12.sp, color = Color(0x66000000))
+                Text("Address", modifier = Modifier.width(200.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Type", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Actions", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
             }
@@ -119,7 +119,7 @@ class CustomerPage : KoinComponent {
                 }
                 items(uiState.customers.getCachedOrEmptyList()) { _customer ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("#${_customer.id}", modifier = Modifier.width(100.dp))
                         Text("${_customer.firstName} ${_customer.lastName}", modifier = Modifier.weight(1f))

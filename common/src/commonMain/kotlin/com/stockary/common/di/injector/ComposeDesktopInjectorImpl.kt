@@ -31,6 +31,10 @@ import com.stockary.common.ui.customer.CustomerContract
 import com.stockary.common.ui.customer.CustomerEventHandler
 import com.stockary.common.ui.customer.CustomerInputHandler
 import com.stockary.common.ui.customer.CustomerViewModel
+import com.stockary.common.ui.new_category.NewCategoryContract
+import com.stockary.common.ui.new_category.NewCategoryEventHandler
+import com.stockary.common.ui.new_category.NewCategoryInputHandler
+import com.stockary.common.ui.new_category.NewCategoryViewModel
 import com.stockary.common.ui.new_product.NewProductContract
 import com.stockary.common.ui.new_product.NewProductEventHandler
 import com.stockary.common.ui.new_product.NewProductInputHandler
@@ -152,6 +156,18 @@ class ComposeDesktopInjectorImpl(
                 inputHandler = NewProductInputHandler(productRepository, categoryRepository),
                 name = "AddProductScreen"
             ), eventHandler = NewProductEventHandler(router)
+        )
+    }
+
+    override fun newCategoryViewModel(coroutineScope: CoroutineScope): NewCategoryViewModel {
+        return NewCategoryViewModel(
+            coroutineScope = coroutineScope,
+            configBuilder = commonBuilder().withViewModel(
+                initialState = NewCategoryContract.State(),
+                inputHandler = NewCategoryInputHandler(categoryRepository),
+                name = "NewCategoryScreen"
+            ),
+            eventHandler = NewCategoryEventHandler(router)
         )
     }
 

@@ -1,5 +1,11 @@
 package com.stockary.common.router
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Shop2
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.copperleaf.ballast.navigation.routing.Route
 import com.copperleaf.ballast.navigation.routing.RouteAnnotation
 import com.copperleaf.ballast.navigation.routing.RouteMatcher
@@ -8,12 +14,13 @@ import com.copperleaf.ballast.navigation.routing.RouteMatcher
 enum class AppScreen(
     routeFormat: String,
     val title: String,
+    val icon: ImageVector? = null,
     override val annotations: Set<RouteAnnotation> = emptySet(),
 ) : Route {
-    Home("/app/home", "Home"),
+    Home("/app/home", "Home", icon = Icons.Default.Book),
     Login("/app/login", "Login"),
     CustomerList(
-        "/app/customers?sort={?}", "Customers"
+        "/app/customers?sort={?}", "Customers", icon = Icons.Default.Person
     ),
     NewCustomer("/app/new-customers", "New Customer"),
     CustomerDetails(
@@ -28,7 +35,7 @@ enum class AppScreen(
     CategoryDetails("/app/categories/{categoryId}", "Category Details"),
 
     ProductList(
-        "/app/products?sort={?}", "products"
+        "/app/products?sort={?}", "products", icon = Icons.Default.ShoppingCart
     ),
     NewProduct(
         "/app/new-product", "Add Product"
@@ -38,7 +45,7 @@ enum class AppScreen(
         "/app/new-order", "New Order"
     ),
     OrderList(
-        "/app/orders?sort={?}", "Orders"
+        "/app/orders?sort={?}", "Orders", icon = Icons.Default.Shop2
     ),
     OrderDetails("/app/orders/{orderId}", "Order Details"), OrderSummary("/app/summary", "Order Summary"), ;
 
