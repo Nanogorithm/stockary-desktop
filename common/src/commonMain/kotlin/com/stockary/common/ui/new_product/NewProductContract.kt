@@ -29,6 +29,9 @@ object NewProductContract {
                 ), TextFieldState(
                     name = Product::description.name,
                     validators = listOf(Validators.Required()),
+                ), TextFieldState(
+                    name = "photo",
+                    validators = listOf(),
                 ), TextFieldState(name = "unit_amount", validators = listOf(
                     Validators.Required()
                 ), transform = {

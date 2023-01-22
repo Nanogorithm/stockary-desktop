@@ -16,6 +16,7 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.SupabaseResource
+import com.stockary.common.components.FileChooser
 import com.stockary.common.components.SearchableDropDown
 import com.stockary.common.components.SelectUnitType
 import com.stockary.common.components.TextInput
@@ -53,6 +54,7 @@ class NewProductPage : KoinComponent {
 
         val titleState: TextFieldState = uiState.formState.getState(Product::title.name)
         val descriptionState: TextFieldState = uiState.formState.getState(Product::description.name)
+        val photoState: TextFieldState = uiState.formState.getState("photo")
         val unitAmountState: TextFieldState = uiState.formState.getState("unit_amount")
 
         val categoryIdState: ChoiceState = uiState.formState.getState("category_id")
@@ -70,7 +72,6 @@ class NewProductPage : KoinComponent {
                     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
                         Text("Information", fontSize = 24.sp, fontWeight = FontWeight.W600)
                         Spacer(modifier = Modifier.height(36.dp))
-
                         TextInput(
                             label = "Product name",
                             placeHolder = "Special biscuit",
@@ -86,44 +87,46 @@ class NewProductPage : KoinComponent {
                             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth().height(100.dp)
-                        ) {
-                            TextInput(
-                                label = "Weight/Piece",
-                                placeHolder = "5 kg or 2 piece",
-                                state = unitAmountState,
-                                modifier = Modifier.height(80.dp).weight(1f),
-                                maxLines = 1
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            if (uiState.unitTypes !is Cached.NotLoaded && uiState.unitTypes.isLoading()) {
-                                CircularProgressIndicator()
-                            } else {
-                                Column {
-                                    SelectUnitType(
-                                        modifier = Modifier.width(200.dp).height(60.dp),
-                                        items = uiState.unitTypes.getCachedOrEmptyList(),
-                                    ) {
-                                        it.id?.let {
-                                            unitTypeIdState.change(it.toString())
+                        Box(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(100.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextInput(
+                                    label = "Unit",
+                                    placeHolder = "5 kg, 2 piece",
+                                    state = unitAmountState,
+                                    modifier = Modifier.wrapContentHeight().weight(1f)
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                if (uiState.unitTypes !is Cached.NotLoaded && uiState.unitTypes.isLoading()) {
+                                    CircularProgressIndicator()
+                                } else {
+                                    Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) {
+                                        SelectUnitType(
+                                            modifier = Modifier.width(200.dp).height(60.dp),
+                                            items = uiState.unitTypes.getCachedOrEmptyList(),
+                                        ) {
+                                            it.id?.let {
+                                                unitTypeIdState.change(it.toString())
+                                            }
                                         }
-                                    }
 
-                                    if (unitTypeIdState.hasError) {
-                                        Text(
-                                            text = unitTypeIdState.errorMessage,
-                                            modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-                                            style = androidx.compose.material.MaterialTheme.typography.caption.copy(
-                                                color = androidx.compose.material.MaterialTheme.colors.error
+                                        if (unitTypeIdState.hasError) {
+                                            Text(
+                                                text = unitTypeIdState.errorMessage,
+                                                modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                    color = androidx.compose.material.MaterialTheme.colors.error
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                             }
                         }
-
+                        Spacer(modifier = Modifier.height(16.dp))
+                        FileChooser(state = photoState)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -244,7 +247,7 @@ class NewProductPage : KoinComponent {
                 }
 
                 SupabaseResource.Idle -> {
-                    
+
                 }
 
                 SupabaseResource.Loading -> {

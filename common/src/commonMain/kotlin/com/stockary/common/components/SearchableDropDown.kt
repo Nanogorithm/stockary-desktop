@@ -116,20 +116,3 @@ fun SelectUnitType(
         }
     }
 }
-
-@Composable
-private fun FileDialog(
-    parent: Frame? = null, onCloseRequest: (result: String?) -> Unit
-) = AwtWindow(
-    create = {
-        object : FileDialog(parent, "Choose a file", LOAD) {
-            override fun setVisible(value: Boolean) {
-                super.setVisible(value)
-                if (value) {
-                    val path: String = directory + file
-                    onCloseRequest(path)
-                }
-            }
-        }
-    }, dispose = FileDialog::dispose
-)
