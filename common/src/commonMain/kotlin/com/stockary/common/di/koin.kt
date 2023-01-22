@@ -171,16 +171,6 @@ val commonModule = module {
             ), coroutineScope = coroutineScope
         )
     }
-
-    factory<CustomerViewModel> { (coroutineScope: CoroutineScope) ->
-        CustomerViewModel(
-            configBuilder = get<BallastViewModelConfiguration.Builder>().withViewModel(
-                inputHandler = get<CustomerInputHandler>(),
-                initialState = CustomerContract.State(),
-                name = "CustomerScreen",
-            ), coroutineScope = coroutineScope
-        )
-    }
 }
 
 
