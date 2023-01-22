@@ -7,7 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 
 class CustomerViewModel(
     coroutineScope: CoroutineScope,
-    configBuilder: BallastViewModelConfiguration.Builder
+    configBuilder: BallastViewModelConfiguration.Builder,
+    eventHandler: CustomerEventHandler
 ) : BasicViewModel<
         CustomerContract.Inputs,
         CustomerContract.Events,
@@ -15,5 +16,5 @@ class CustomerViewModel(
     coroutineScope = coroutineScope,
     config = configBuilder
         .build(),
-    eventHandler = CustomerEventHandler(),
+    eventHandler = eventHandler,
 )

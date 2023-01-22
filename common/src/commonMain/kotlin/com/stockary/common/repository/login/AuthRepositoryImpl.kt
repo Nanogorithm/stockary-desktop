@@ -4,9 +4,9 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 
-class LoginRepositoryImpl(
+class AuthRepositoryImpl(
     val supabaseClient: SupabaseClient
-) : LoginRepository {
+) : AuthRepository {
     override suspend fun loginUser(email: String, password: String) {
         try {
             val goTrue = supabaseClient.gotrue
@@ -29,6 +29,14 @@ class LoginRepositoryImpl(
         } catch (e: Exception) {
             e.printStackTrace()
             return
+        }
+    }
+
+    override suspend fun logout() {
+        try {
+            supabaseClient.gotrue.invalidateSession()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

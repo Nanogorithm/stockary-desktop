@@ -16,6 +16,9 @@ import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.repository.category.CategoryRepositoryContract
 import com.stockary.common.repository.category.CategoryRepositoryImpl
 import com.stockary.common.repository.category.CategoryRepositoryInputHandler
+import com.stockary.common.repository.customer.CustomerRepositoryContract
+import com.stockary.common.repository.customer.CustomerRepositoryImpl
+import com.stockary.common.repository.customer.CustomerRepositoryInputHandler
 import com.stockary.common.repository.product.ProductRepositoryContract
 import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.repository.product.ProductRepositoryInputHandler
@@ -24,6 +27,10 @@ import com.stockary.common.ui.category.CategoryContract
 import com.stockary.common.ui.category.CategoryEventHandler
 import com.stockary.common.ui.category.CategoryInputHandler
 import com.stockary.common.ui.category.CategoryViewModel
+import com.stockary.common.ui.customer.CustomerContract
+import com.stockary.common.ui.customer.CustomerEventHandler
+import com.stockary.common.ui.customer.CustomerInputHandler
+import com.stockary.common.ui.customer.CustomerViewModel
 import com.stockary.common.ui.new_product.NewProductContract
 import com.stockary.common.ui.new_product.NewProductEventHandler
 import com.stockary.common.ui.new_product.NewProductInputHandler
@@ -92,6 +99,20 @@ class ComposeDesktopInjectorImpl(
         )
     }
 
+    private val customerRepository by lazy {
+        CustomerRepositoryImpl(
+            coroutineScope = applicationScope,
+            eventBus = eventBus,
+            configBuilder = commonBuilder().withViewModel(
+                inputHandler = CustomerRepositoryInputHandler(
+                    eventBus = eventBus,
+                ),
+                initialState = CustomerRepositoryContract.State(),
+                name = "Customer Repository",
+            ).withRepository(),
+        )
+    }
+
     override fun categoryViewModel(coroutineScope: CoroutineScope): CategoryViewModel {
         return CategoryViewModel(
             coroutineScope = coroutineScope,
@@ -111,6 +132,16 @@ class ComposeDesktopInjectorImpl(
                 inputHandler = ProductInputHandler(productRepository),
                 name = "ProductScreen",
             ), eventHandler = ProductEventHandler(router)
+        )
+    }
+
+    override fun customerViewModel(coroutineScope: CoroutineScope): CustomerViewModel {
+        return CustomerViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                initialState = CustomerContract.State(),
+                inputHandler = CustomerInputHandler(customerRepository = customerRepository),
+                name = "CustomersScreen"
+            ), eventHandler = CustomerEventHandler(router)
         )
     }
 

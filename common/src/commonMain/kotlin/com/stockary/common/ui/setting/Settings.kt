@@ -1,8 +1,8 @@
-package com.stockary.common.screen
+package com.stockary.common.ui.setting
 
 import androidx.compose.runtime.Composable
 
 @Composable
-fun NewOrder() {
-    
+fun Settings() {
+
 }

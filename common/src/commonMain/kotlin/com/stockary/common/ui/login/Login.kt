@@ -18,18 +18,17 @@ import kotlinx.coroutines.launch
 fun Login(
     router: Router<AppScreen>
 ) {
+    val viewModelScope = rememberCoroutineScope()
 
-    val loginScope = rememberCoroutineScope()
-
-    val vm = remember(loginScope) {
+    val vm = remember(viewModelScope) {
         LoginViewModel(
-            loginScope,
+            viewModelScope,
             configBuilder = BallastViewModelConfiguration.Builder(),
             eventHandler = LoginEventHandler(router)
         )
     }
 
-    val vmState by vm.observeStates().collectAsState()
+    val uiState by vm.observeStates().collectAsState()
 
     LaunchedEffect(vm) {
         vm.trySend(LoginContract.Inputs.Initialize)
@@ -43,11 +42,11 @@ fun Login(
 
         TextField(value = username, onValueChange = { username = it }, placeholder = { Text("Email") })
         TextField(value = password, onValueChange = { password = it }, placeholder = { Text("Password") })
-        vmState.error?.let {
+        uiState.error?.let {
             Text(it)
         }
         Button(onClick = {
-            loginScope.launch {
+            viewModelScope.launch {
                 vm.trySend(
                     LoginContract.Inputs.LoginByEmail(
                         email = username, password = password

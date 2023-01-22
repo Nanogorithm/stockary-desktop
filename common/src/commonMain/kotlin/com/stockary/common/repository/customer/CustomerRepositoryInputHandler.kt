@@ -47,23 +47,23 @@ class CustomerRepositoryInputHandler(
             // then refresh all the caches in this repository
             val currentState = getCurrentState()
             if (currentState.dataListInitialized) {
-                postInput(CustomerRepositoryContract.Inputs.RefreshDataList(true))
+                postInput(CustomerRepositoryContract.Inputs.RefreshCustomerList(true))
             }
 
             Unit
         }
 
-        is CustomerRepositoryContract.Inputs.DataListUpdated -> {
-            updateState { it.copy(dataList = input.dataList) }
+        is CustomerRepositoryContract.Inputs.CustomerListUpdated -> {
+            updateState { it.copy(dataList = input.customerList) }
         }
 
-        is CustomerRepositoryContract.Inputs.RefreshDataList -> {
+        is CustomerRepositoryContract.Inputs.RefreshCustomerList -> {
             updateState { it.copy(dataListInitialized = true) }
             fetchWithCache(
                 input = input,
                 forceRefresh = input.forceRefresh,
                 getValue = { it.dataList },
-                updateState = { CustomerRepositoryContract.Inputs.DataListUpdated(it) },
+                updateState = { CustomerRepositoryContract.Inputs.CustomerListUpdated(it) },
                 doFetch = {
                     val result = supabaseClient.postgrest["profiles"].select("*,customer_roles(*)")
                     println(result.body)

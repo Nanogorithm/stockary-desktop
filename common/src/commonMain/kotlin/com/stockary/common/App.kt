@@ -2,9 +2,13 @@ package com.stockary.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -20,19 +24,22 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.*
 import com.copperleaf.ballast.navigation.routing.*
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.repository.login.AuthRepository
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
-import com.stockary.common.screen.Overview
+import com.stockary.common.ui.home.Overview
 import com.stockary.common.ui.category.CategoryPage
 import com.stockary.common.ui.customer.CustomerPage
 import com.stockary.common.ui.login.Login
 import com.stockary.common.ui.new_category.NewCategoryPage
+import com.stockary.common.ui.new_customer.NewCustomer
+import com.stockary.common.ui.new_order.NewOrder
 import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import org.koin.core.component.KoinComponent
-
+import org.koin.core.component.inject
 
 class AppScreenView(
     val injector: ComposeDesktopInjector
@@ -45,6 +52,10 @@ class AppScreenView(
         // collect the Router's StateFlow as a Compose State
         val routerState: Backstack<AppScreen> by router.observeStates().collectAsState()
 
+        val authRepository: AuthRepository by inject()
+
+        authRepository.sessionStatus().collectAsState()
+
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { innerPaddings ->
@@ -56,8 +67,7 @@ class AppScreenView(
                     }
                     Spacer(Modifier.height(48.dp))
                     navItems.forEach { item ->
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
+                        NavigationDrawerItem(icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
                             label = { Text(item.title) },
                             selected = routerState.currentRouteOrNull == item,
                             onClick = {
@@ -74,8 +84,7 @@ class AppScreenView(
                         )
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    NavigationDrawerItem(
-                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                    NavigationDrawerItem(icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                         label = { Text("Settings") },
                         selected = false,
                         onClick = {
@@ -94,19 +103,36 @@ class AppScreenView(
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Spacer(modifier = Modifier.height(48.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(end = 50.dp)
+                    Box(
+                        modifier = Modifier.padding(end = 50.dp).align(Alignment.End),
+                        contentAlignment = Alignment.TopEnd
                     ) {
-                        Box(
-                            modifier = Modifier.size(24.dp).clip(CircleShape).background(Color(0xFFE2E3FF)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Person, null)
+                        var expandMenu by remember { mutableStateOf(false) }
+
+                        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
+                            expandMenu = true
+                        }) {
+                            Box(
+                                modifier = Modifier.size(24.dp).clip(CircleShape).background(Color(0xFFE2E3FF)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Person, null)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Shaad & Co", fontSize = 14.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.Default.ArrowDropDown, null)
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Shaad & Co", fontSize = 14.sp)
+
+                        DropdownMenu(expanded = expandMenu, onDismissRequest = {
+                            expandMenu = false
+                        }) {
+                            DropdownMenuItem(onClick = {
+                                expandMenu = false
+                            }) {
+                                Text("Logout")
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(48.dp))
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -137,7 +163,7 @@ class AppScreenView(
                                     }
 
                                     CustomerList -> {
-                                        CustomerPage().Customer()
+                                        CustomerPage().Customer(injector)
                                     }
 
                                     CustomerDetails -> {
@@ -165,11 +191,15 @@ class AppScreenView(
                                     }
 
                                     NewOrder -> {
-
+                                        NewOrder()
                                     }
 
                                     OrderSummary -> {
 
+                                    }
+
+                                    NewCustomer -> {
+                                        NewCustomer()
                                     }
                                 }
                             },

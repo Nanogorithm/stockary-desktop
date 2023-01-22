@@ -23,7 +23,7 @@ class CustomerInputHandler(
 
         is CustomerContract.Inputs.FetchCustomerList -> {
             observeFlows("FetchCustomerList") {
-                listOf(customerRepository.getDataList(input.forceRefresh)
+                listOf(customerRepository.getCustomerList(input.forceRefresh)
                     .map { CustomerContract.Inputs.UpdateCustomerList(it) })
             }
         }

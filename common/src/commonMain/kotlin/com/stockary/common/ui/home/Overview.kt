@@ -1,4 +1,4 @@
-package com.stockary.common.screen
+package com.stockary.common.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

@@ -3,7 +3,7 @@ package com.stockary.common.ui.login
 import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
-import com.stockary.common.repository.login.LoginRepository
+import com.stockary.common.repository.login.AuthRepository
 import io.github.jan.supabase.gotrue.SessionStatus
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
@@ -11,7 +11,7 @@ import org.koin.core.component.inject
 
 class LoginInputHandler : InputHandler<LoginContract.Inputs, LoginContract.Events, LoginContract.State>, KoinComponent {
 
-    val loginRepository: LoginRepository by inject()
+    val authRepository: AuthRepository by inject()
 
     override suspend fun InputHandlerScope<LoginContract.Inputs, LoginContract.Events, LoginContract.State>.handleInput(
         input: LoginContract.Inputs
@@ -21,7 +21,7 @@ class LoginInputHandler : InputHandler<LoginContract.Inputs, LoginContract.Event
             observeFlows(
                 key = "ObserveLoginSession"
             ) {
-                listOf(loginRepository.sessionStatus() // returns a Flow
+                listOf(authRepository.sessionStatus() // returns a Flow
                     .map {
                         LoginContract.Inputs.UpdateAuthStatus(it)
                     })
@@ -33,7 +33,7 @@ class LoginInputHandler : InputHandler<LoginContract.Inputs, LoginContract.Event
         }
 
         is LoginContract.Inputs.LoginByEmail -> {
-            loginRepository.loginUser(email = input.email, password = input.password)
+            authRepository.loginUser(email = input.email, password = input.password)
         }
 
         is LoginContract.Inputs.UpdateAuthStatus -> {
@@ -44,7 +44,7 @@ class LoginInputHandler : InputHandler<LoginContract.Inputs, LoginContract.Event
                 }
 
                 SessionStatus.LoadingFromStorage -> {
-                    
+
                 }
 
                 SessionStatus.NetworkError -> {

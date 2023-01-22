@@ -16,7 +16,7 @@ object CustomerRepositoryContract {
         object Initialize : Inputs()
         object RefreshAllCaches : Inputs()
 
-        data class RefreshDataList(val forceRefresh: Boolean) : Inputs()
-        data class DataListUpdated(val dataList: Cached<List<Profile>>) : Inputs()
+        data class RefreshCustomerList(val forceRefresh: Boolean) : Inputs()
+        data class CustomerListUpdated(val customerList: Cached<List<Profile>>) : Inputs()
     }
 }

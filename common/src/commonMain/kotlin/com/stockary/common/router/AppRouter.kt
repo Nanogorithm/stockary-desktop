@@ -10,9 +10,12 @@ enum class AppScreen(
     val title: String,
     override val annotations: Set<RouteAnnotation> = emptySet(),
 ) : Route {
-    Home("/app/home", "Home"), Login("/app/login", "Login"), CustomerList(
+    Home("/app/home", "Home"),
+    Login("/app/login", "Login"),
+    CustomerList(
         "/app/customers?sort={?}", "Customers"
     ),
+    NewCustomer("/app/new-customers", "New Customer"),
     CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
@@ -30,8 +33,9 @@ enum class AppScreen(
     NewProduct(
         "/app/new-product", "Add Product"
     ),
-    ProductDetails("/app/products/{categoryId}", "Product Details"), NewOrder(
-        "/app/orders?sort={?}", "Orders"
+    ProductDetails("/app/products/{categoryId}", "Product Details"),
+    NewOrder(
+        "/app/new-order", "New Order"
     ),
     OrderList(
         "/app/orders?sort={?}", "Orders"

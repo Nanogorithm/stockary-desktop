@@ -26,9 +26,9 @@ class CustomerRepositoryImpl(
         trySend(CustomerRepositoryContract.Inputs.ClearCaches)
     }
 
-    override fun getDataList(refreshCache: Boolean): Flow<Cached<List<Profile>>> {
+    override fun getCustomerList(refreshCache: Boolean): Flow<Cached<List<Profile>>> {
         trySend(CustomerRepositoryContract.Inputs.Initialize)
-        trySend(CustomerRepositoryContract.Inputs.RefreshDataList(refreshCache))
+        trySend(CustomerRepositoryContract.Inputs.RefreshCustomerList(refreshCache))
         return observeStates().map { it.dataList }
     }
 }

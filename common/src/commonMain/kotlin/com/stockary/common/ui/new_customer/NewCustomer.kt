@@ -1,4 +1,4 @@
-package com.stockary.common.screen
+package com.stockary.common.ui.new_customer
 
 import androidx.compose.runtime.Composable
 

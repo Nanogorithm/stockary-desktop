@@ -1,6 +1,7 @@
 package com.stockary.common.ui.customer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,23 +22,32 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.di.injector.ComposeDesktopInjector
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
+import java.util.*
 
 class CustomerPage : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Customer() {
+    fun Customer(
+        injector: ComposeDesktopInjector
+    ) {
         val viewModelScope = rememberCoroutineScope()
-        val vm: CustomerViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
+        val vm: CustomerViewModel = remember(viewModelScope) { injector.customerViewModel(viewModelScope) }
 
-        val vmState by vm.observeStates().collectAsState()
+        val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
             vm.trySend(CustomerContract.Inputs.Initialize)
         }
 
+        Content(uiState) {
+            vm.trySend(it)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun Content(uiState: CustomerContract.State, postInput: (CustomerContract.Inputs) -> Unit) {
         var search by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -79,14 +89,13 @@ class CustomerPage : KoinComponent {
                         Icon(Icons.Default.Category, null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Type")
-                    }
-                    Button(onClick = {
+                    }/*Button(onClick = {
 
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Create Customer")
-                    }
+                    }*/
                 }
             }
 
@@ -103,29 +112,39 @@ class CustomerPage : KoinComponent {
             }
             Divider(color = Color.Black.copy(alpha = 0.20f))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                if (vmState.customers !is Cached.NotLoaded && vmState.customers.isLoading()) {
+                if (uiState.customers !is Cached.NotLoaded && uiState.customers.isLoading()) {
                     item {
                         CircularProgressIndicator()
                     }
                 }
-                items(vmState.customers.getCachedOrEmptyList()) { _customer ->
+                items(uiState.customers.getCachedOrEmptyList()) { _customer ->
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("#${_customer.id}", modifier = Modifier.width(100.dp))
                         Text("${_customer.firstName} ${_customer.lastName}", modifier = Modifier.weight(1f))
-                        Text("Ashianaa Group", modifier = Modifier.width(181.dp))
-                        Text("Meadow Lane oakland, New York", modifier = Modifier.width(300.dp))
-                        Text(_customer.role?.name ?: "", modifier = Modifier.width(181.dp))
+                        Text(_customer.company.toString(), modifier = Modifier.width(181.dp))
+                        Text(_customer.address.toString(), modifier = Modifier.width(300.dp))
+                        Box(modifier = Modifier.width(181.dp)) {
+                            Box(
+                                modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFF79CFFF))
+                            ) {
+                                Text(
+                                    _customer.role?.name?.capitalize() ?: "",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    color = contentColorFor(Color(0xFF79CFFF))
+                                )
+                            }
+                        }
                         Row(
                             modifier = Modifier.width(181.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Box(
-                                modifier = Modifier.size(32.dp).clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                                contentAlignment = Alignment.Center
+                                modifier = Modifier.size(32.dp).clip(CircleShape).clickable {
+
+                                }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Default.Edit,
@@ -135,11 +154,11 @@ class CustomerPage : KoinComponent {
                                 )
                             }
                             Box(
-                                modifier = Modifier.size(32.dp).clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.errorContainer),
-                                contentAlignment = Alignment.Center
+                                modifier = Modifier.size(32.dp).clip(CircleShape).clickable {
+
+                                }, contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onErrorContainer)
+                                Icon(Icons.Default.Approval, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                             }
                         }
                     }

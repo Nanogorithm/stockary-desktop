@@ -8,8 +8,8 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.EventBusImpl
 import com.stockary.common.repository.customer.CustomerRepository
 import com.stockary.common.repository.customer.CustomerRepositoryImpl
-import com.stockary.common.repository.login.LoginRepository
-import com.stockary.common.repository.login.LoginRepositoryImpl
+import com.stockary.common.repository.login.AuthRepository
+import com.stockary.common.repository.login.AuthRepositoryImpl
 import com.stockary.common.repository.order.OrderRepository
 import com.stockary.common.repository.order.OrderRepositoryImpl
 import com.stockary.common.router.AppScreen
@@ -63,7 +63,7 @@ val commonModule = module {
 
     single<EventBus> { EventBusImpl() }
 
-    factory<LoginRepository> { LoginRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get()) }
 
 //    single<CategoryRepository> { CategoryRepositoryImpl(get(), get(), get()) }
 //    single<ProductRepository> { ProductRepositoryImpl(get(), get(), get()) }

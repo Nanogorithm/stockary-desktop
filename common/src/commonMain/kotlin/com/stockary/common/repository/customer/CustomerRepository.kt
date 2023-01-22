@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface CustomerRepository {
     fun clearAllCaches()
-    fun getDataList(refreshCache: Boolean = false): Flow<Cached<List<Profile>>>
+    fun getCustomerList(refreshCache: Boolean = false): Flow<Cached<List<Profile>>>
 }
