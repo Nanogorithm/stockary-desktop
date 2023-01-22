@@ -23,7 +23,6 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.di.injector.ComposeDesktopInjector
-import com.stockary.common.toCurrencyFormat
 import org.koin.core.component.KoinComponent
 
 class ProductPage : KoinComponent {
@@ -49,8 +48,7 @@ class ProductPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: ProductContract.State,
-        postInput: (ProductContract.Inputs) -> Unit
+        uiState: ProductContract.State, postInput: (ProductContract.Inputs) -> Unit
     ) {
         var search by remember { mutableStateOf("") }
 
@@ -120,7 +118,17 @@ class ProductPage : KoinComponent {
 
                 if (uiState.products !is Cached.NotLoaded && uiState.products.isLoading()) {
                     item {
-                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(48.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                } else if (uiState.products.getCachedOrEmptyList().isEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            Text("Product list is empty")
+                        }
                     }
                 }
 

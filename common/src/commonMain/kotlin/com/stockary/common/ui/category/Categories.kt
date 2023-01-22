@@ -42,7 +42,7 @@ class CategoryPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        vmState: CategoryContract.State,
+        uiState: CategoryContract.State,
         postInput: (CategoryContract.Inputs) -> Unit,
     ) {
         var search by remember { mutableStateOf("") }
@@ -100,12 +100,22 @@ class CategoryPage : KoinComponent {
             }
             Divider(color = Color.Black.copy(alpha = 0.20f))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                if (vmState.categoryList !is Cached.NotLoaded && vmState.categoryList.isLoading()) {
+                if (uiState.categoryList !is Cached.NotLoaded && uiState.categoryList.isLoading()) {
                     item {
-                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(48.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                } else if (uiState.categoryList.getCachedOrEmptyList().isEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            Text("Category list is empty")
+                        }
                     }
                 }
-                items(vmState.categoryList.getCachedOrEmptyList()) { _category ->
+                items(uiState.categoryList.getCachedOrEmptyList()) { _category ->
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -132,7 +142,9 @@ class CategoryPage : KoinComponent {
                             }
                             Box(
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.errorContainer),
+                                    .background(MaterialTheme.colorScheme.errorContainer).clickable {
+                                        postInput(CategoryContract.Inputs.Delete(_category))
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onErrorContainer)

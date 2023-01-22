@@ -4,7 +4,9 @@ import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.CategoryRepository
+import com.stockary.common.ui.product.ProductContract
 import kotlinx.coroutines.flow.map
 
 class CategoryInputHandler(
@@ -37,12 +39,20 @@ class CategoryInputHandler(
             postEvent(CategoryContract.Events.AddNew)
         }
 
-        is CategoryContract.Inputs.Delete -> {
+        is CategoryContract.Inputs.Edit -> {
 
         }
 
-        is CategoryContract.Inputs.Edit -> {
+        is CategoryContract.Inputs.Delete -> {
+            updateState { it.copy(deleteResponse = SupabaseResource.Loading) }
+            observeFlows("DeleteCategory") {
+                listOf(categoryRepository.delete(category = input.category)
+                    .map { CategoryContract.Inputs.UpdateDeleteResponse(it) })
+            }
+        }
 
+        is CategoryContract.Inputs.UpdateDeleteResponse -> {
+            updateState { it.copy(deleteResponse = input.deleteResponse) }
         }
     }
 }

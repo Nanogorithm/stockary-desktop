@@ -90,6 +90,8 @@ class CategoryRepositoryInputHandler(
             try {
                 val result = supabaseClient.postgrest["categories"].delete { Category::id eq input.category.id }
                 updateState { it.copy(deleting = SupabaseResource.Success(true)) }
+                println("category deleted => ${result.body}")
+                postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(forceRefresh = true))
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(deleting = SupabaseResource.Error(e)) }

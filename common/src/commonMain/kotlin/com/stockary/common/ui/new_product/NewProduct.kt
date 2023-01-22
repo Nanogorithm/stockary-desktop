@@ -244,7 +244,7 @@ class NewProductPage : KoinComponent {
                 }
 
                 SupabaseResource.Idle -> {
-
+                    
                 }
 
                 SupabaseResource.Loading -> {
@@ -270,9 +270,9 @@ class NewProductPage : KoinComponent {
                         if (uiState.formState.validate()) {
                             error.value = null
 
-                             postInput(
-                                 NewProductContract.Inputs.SaveAndContinue
-                             )
+                            postInput(
+                                NewProductContract.Inputs.SaveAndContinue
+                            )
                         }
                     }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,

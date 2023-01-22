@@ -56,11 +56,6 @@ class ProductRepositoryImpl(
 
     override fun delete(product: Product): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Delete(product = product))
-        return observeStates().map {
-//            if (it.deleting is SupabaseResource.Success) {
-//                trySend(ProductRepositoryContract.Inputs.RefreshDataList(true))
-//            }
-            it.deleting
-        }
+        return observeStates().map { it.deleting }
     }
 }

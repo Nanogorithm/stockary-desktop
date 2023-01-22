@@ -88,9 +88,7 @@ class ProductRepositoryInputHandler(
                     input.prices.forEachIndexed { index, price ->
                         add(
                             ProductCustomerRole(
-                                product_id = product.id!!,
-                                customer_role_id = input.types[index].id,
-                                price = price
+                                product_id = product.id!!, customer_role_id = input.types[index].id, price = price
                             )
                         )
                     }
@@ -110,7 +108,9 @@ class ProductRepositoryInputHandler(
         is ProductRepositoryContract.Inputs.Delete -> {
             try {
                 val result = supabaseClient.postgrest["products"].delete { Product::id eq input.product.id }
+                println("product delete => ${result.body}")
                 updateState { it.copy(deleting = SupabaseResource.Success(true)) }
+                postInput(ProductRepositoryContract.Inputs.RefreshDataList(true))
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(deleting = SupabaseResource.Error(e)) }
