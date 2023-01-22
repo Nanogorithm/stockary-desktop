@@ -45,7 +45,7 @@ class ProductRepositoryImpl(
         return observeStates().map { it.unitTypes }
     }
 
-    override fun add(product: Product, prices: List<String>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
+    override fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types))
         return observeStates().map { it.saving }
     }
@@ -57,9 +57,9 @@ class ProductRepositoryImpl(
     override fun delete(product: Product): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Delete(product = product))
         return observeStates().map {
-            if (it.deleting is SupabaseResource.Success) {
-                trySend(ProductRepositoryContract.Inputs.RefreshDataList(true))
-            }
+//            if (it.deleting is SupabaseResource.Success) {
+//                trySend(ProductRepositoryContract.Inputs.RefreshDataList(true))
+//            }
             it.deleting
         }
     }

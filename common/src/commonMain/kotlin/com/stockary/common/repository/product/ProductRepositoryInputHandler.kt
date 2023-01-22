@@ -86,15 +86,13 @@ class ProductRepositoryInputHandler(
                 val product = result.decodeSingle<Product>(json = Json { ignoreUnknownKeys = true })
                 val prices = mutableListOf<ProductCustomerRole>().apply {
                     input.prices.forEachIndexed { index, price ->
-                        if (price.isNotBlank()) {
-                            add(
-                                ProductCustomerRole(
-                                    product_id = product.id!!,
-                                    customer_role_id = input.types[index].id,
-                                    price = price.toFloat()
-                                )
+                        add(
+                            ProductCustomerRole(
+                                product_id = product.id!!,
+                                customer_role_id = input.types[index].id,
+                                price = price
                             )
-                        }
+                        )
                     }
                 }
                 if (prices.isNotEmpty()) {

@@ -37,7 +37,7 @@ object ProductRepositoryContract {
         data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()
 
-        data class Add(val product: Product, val prices: List<String>, val types: List<Role>) : Inputs()
+        data class Add(val product: Product, val prices: List<Float>, val types: List<Role>) : Inputs()
         data class Edit(val product: Product, val updated: Product) : Inputs()
         data class Delete(val product: Product) : Inputs()
     }

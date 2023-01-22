@@ -88,13 +88,13 @@ class NewProductPage : KoinComponent {
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Row(
-                            modifier = Modifier.fillMaxWidth().heightIn(max = 100.dp)
+                            modifier = Modifier.fillMaxWidth().height(100.dp)
                         ) {
                             TextInput(
                                 label = "Weight/Piece",
                                 placeHolder = "5 kg or 2 piece",
                                 state = unitAmountState,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.height(80.dp).weight(1f),
                                 maxLines = 1
                             )
                             Spacer(modifier = Modifier.width(16.dp))
@@ -152,7 +152,7 @@ class NewProductPage : KoinComponent {
                                     item {
                                         Column(modifier = Modifier.fillMaxWidth()) {
                                             SearchableDropDown(
-                                                modifier = Modifier.width(56.dp).height(60.dp),
+                                                modifier = Modifier.fillMaxWidth().height(60.dp),
                                                 label = "Category",
                                                 items = categories,
                                             ) {
@@ -269,20 +269,10 @@ class NewProductPage : KoinComponent {
                     onClick = {
                         if (uiState.formState.validate()) {
                             error.value = null
-                            val data: Product = uiState.formState.getData()
 
-                            println("data => $data")
-
-                            /* postInput(
-                                 NewProductContract.Inputs.SaveAndContinue(
-                                     prices = prices.toList(),
-                                     category = selectedCategory.value!!,
-                                     types = uiState.customerType.getCachedOrEmptyList(),
-                                     unitTypeId = selectedUnitType.value?.id!!
-                                 )
-                             )*/
-                        } else {
-                            error.value = "Please sort out the errors"
+                             postInput(
+                                 NewProductContract.Inputs.SaveAndContinue
+                             )
                         }
                     }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,

@@ -47,19 +47,15 @@ class NewProductInputHandler(
             updateState { it.copy(response = SupabaseResource.Loading) }
 
             val formData: Product = currentState.formState.getData()
+            val rawData = currentState.formState.getMap()
 
-
-            /* observeFlows("SavingNewProduct") {
-                 listOf(productRepository.add(
-                     product = Product(
-                         title = currentState.productName.text,
-                         description = currentState.productDescription.text,
-                         categoryId = input.category.id,
-                         stock = 1,
-                         unitAmount = currentState.basePrice.text.toFloat()
-                     ), prices = input.prices, types = input.types
-                 ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
-             }*/
+            observeFlows("SavingNewProduct") {
+                listOf(productRepository.add(
+                    product = formData,
+                    prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.name] as Float },
+                    types = currentState.customerType.getCachedOrEmptyList()
+                ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
+            }
         }
 
         is NewProductContract.Inputs.UpdateSaveResponse -> {

@@ -49,9 +49,7 @@ object NewProductContract {
         object GoBack : Inputs()
 
         data class Save(val title: String, val description: String) : Inputs()
-        data class SaveAndContinue(
-            val prices: List<String>
-        ) : Inputs()
+        object SaveAndContinue : Inputs()
 
         data class UpdateSaveResponse(val response: SupabaseResource<Boolean>, val isContinue: Boolean = false) :
             Inputs()

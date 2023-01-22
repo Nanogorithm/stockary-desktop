@@ -49,7 +49,8 @@ class ProductPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: ProductContract.State, postInput: (ProductContract.Inputs) -> Unit
+        uiState: ProductContract.State,
+        postInput: (ProductContract.Inputs) -> Unit
     ) {
         var search by remember { mutableStateOf("") }
 
@@ -111,7 +112,7 @@ class ProductPage : KoinComponent {
                 Spacer(modifier = Modifier.weight(1f))
                 Text("Category", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Stock", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
-                Text("Price", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
+                Text("Unit amount", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Actions", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
             }
             Divider(color = Color.Black.copy(alpha = 0.20f))

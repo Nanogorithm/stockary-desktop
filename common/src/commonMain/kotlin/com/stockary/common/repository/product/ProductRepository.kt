@@ -13,7 +13,7 @@ interface ProductRepository {
     fun getCustomerTypes(refreshCache: Boolean = false): Flow<Cached<List<Role>>>
     fun getProductUnitTypes(refreshCache: Boolean = false): Flow<Cached<List<UnitType>>>
 
-    fun add(product: Product, prices: List<String>, types: List<Role>): Flow<SupabaseResource<Boolean>>
+    fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
     fun edit(product: Product, updated: Product): Flow<SupabaseResource<Boolean>>
     fun delete(product: Product): Flow<SupabaseResource<Boolean>>
 }

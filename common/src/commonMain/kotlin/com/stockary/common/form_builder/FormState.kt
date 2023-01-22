@@ -34,4 +34,9 @@ open class FormState<T : BaseState<*>>(val fields: List<T>) {
         println("data => $map")
         return Properties.decodeFromMap(map)
     }
+
+    fun getMap(): Map<String, Any> {
+        return fields.associate { it.name  to it.getData()}
+    }
+
 }
