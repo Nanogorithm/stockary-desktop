@@ -57,7 +57,11 @@ class AppScreenView(
                     Spacer(Modifier.height(48.dp))
                     navItems.forEach { item ->
                         NavigationDrawerItem(
-                            icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
+                            icon = {
+                                item.icon?.let {
+                                    Icon(it, contentDescription = null)
+                                }
+                            },
                             label = { Text(item.title) },
                             selected = routerState.currentRouteOrNull == item,
                             onClick = {
@@ -133,7 +137,7 @@ class AppScreenView(
                                     }
 
                                     NewCategory -> {
-                                        NewCategoryPage().NewCategory(router = router)
+                                        NewCategoryPage().NewCategory(injector = injector)
                                     }
 
                                     CustomerList -> {

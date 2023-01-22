@@ -10,28 +10,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.SupabaseResource
-import com.stockary.common.router.AppScreen
+import com.stockary.common.di.injector.ComposeDesktopInjector
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
 
 class NewCategoryPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun NewCategory(
-        router: Router<AppScreen>
+        injector: ComposeDesktopInjector
     ) {
         val viewModelScope = rememberCoroutineScope()
-        val vm: NewCategoryViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope, router) } }
-        val vmState by vm.observeStates().collectAsState()
+        val vm: NewCategoryViewModel = remember(viewModelScope) { injector.newCategoryViewModel(viewModelScope) }
+        val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
             vm.trySend(NewCategoryContract.Inputs.Initialize)
         }
 
+        Content(uiState){
+            vm.trySend(it)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun Content(
+        uiState: NewCategoryContract.State,
+        postInput: (NewCategoryContract.Inputs) -> Unit
+    ) {
         var categoryName by remember { mutableStateOf("") }
         var categoryDescription by remember { mutableStateOf("") }
         var sortIndex by remember { mutableStateOf("") }
@@ -74,7 +83,7 @@ class NewCategoryPage : KoinComponent {
                             placeholderColor = Color(0xFF676767)
                         )
                     )
-                    when (val saving = vmState.response) {
+                    when (val saving = uiState.response) {
                         is SupabaseResource.Error -> {
                             Text(saving.exception.message ?: "")
                         }
@@ -97,36 +106,30 @@ class NewCategoryPage : KoinComponent {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = {
-                        viewModelScope.launch {
-                            vm.trySend(
-                                NewCategoryContract.Inputs.Save(
-                                    title = categoryName, description = categoryDescription
-                                )
-                            )
-                        }
+                        postInput(NewCategoryContract.Inputs.Save(
+                            title = categoryName, description = categoryDescription
+                        ))
                     }, shape = RoundedCornerShape(15.dp), enabled = categoryName.isNotBlank()
                 ) {
                     Text("Save")
                 }/*Button(
-                    onClick = {
-                        viewModelScope.launch {
-                            vm.trySend(
-                                NewCategoryContract.Inputs.Save(
-                                    title = categoryName, description = categoryDescription
+                        onClick = {
+                            viewModelScope.launch {
+                                vm.trySend(
+                                    NewCategoryContract.Inputs.Save(
+                                        title = categoryName, description = categoryDescription
+                                    )
                                 )
-                            )
-                        }
-                    }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    ), enabled = categoryName.isNotBlank()
-                ) {
-                    Text("Save & Continue")
-                }*/
+                            }
+                        }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ), enabled = categoryName.isNotBlank()
+                    ) {
+                        Text("Save & Continue")
+                    }*/
                 TextButton(onClick = {
-                    viewModelScope.launch {
-                        vm.trySend(NewCategoryContract.Inputs.GoBack)
-                    }
+                    postInput(NewCategoryContract.Inputs.GoBack)
                 }) {
                     Text("BACK")
                 }
