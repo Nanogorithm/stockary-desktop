@@ -5,6 +5,7 @@ import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
+import java.io.File
 
 object ProductRepositoryContract {
     data class State(
@@ -17,6 +18,7 @@ object ProductRepositoryContract {
         val customerTypes: Cached<List<Role>> = Cached.NotLoaded(),
 
         val unitTypes: Cached<List<UnitType>> = Cached.NotLoaded(),
+        val photoUploadResponse: SupabaseResource<String> = SupabaseResource.Idle,
 
         val saving: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val updating: SupabaseResource<Boolean> = SupabaseResource.Idle,
@@ -36,6 +38,9 @@ object ProductRepositoryContract {
 
         data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()
+
+        data class UploadPhoto(val file: File) : Inputs()
+        data class UpdateUploadResponse(val photoUploadResponse: SupabaseResource<String>) : Inputs()
 
         data class Add(val product: Product, val prices: List<Float>, val types: List<Role>) : Inputs()
         data class Edit(val product: Product, val updated: Product) : Inputs()

@@ -38,7 +38,7 @@ version = "1.0-SNAPSHOT"
                 implementation("com.alialbaali.kamel:kamel-image:0.4.1")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")
 
-                implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:0.7.4"))
+                implementation(project.dependencies.platform("io.github.jan-tennert.supabase:bom:0.7.5"))
                 implementation("io.github.jan-tennert.supabase:gotrue-kt")
                 implementation("io.github.jan-tennert.supabase:functions-kt")
                 implementation("io.github.jan-tennert.supabase:storage-kt")

@@ -6,12 +6,15 @@ import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
 import kotlinx.coroutines.flow.Flow
+import java.io.File
 
 interface ProductRepository {
     fun clearAllCaches()
     fun getDataList(refreshCache: Boolean = false): Flow<Cached<List<Product>>>
     fun getCustomerTypes(refreshCache: Boolean = false): Flow<Cached<List<Role>>>
     fun getProductUnitTypes(refreshCache: Boolean = false): Flow<Cached<List<UnitType>>>
+
+    fun uploadPhoto(file: File): Flow<SupabaseResource<String>>
 
     fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
     fun edit(product: Product, updated: Product): Flow<SupabaseResource<Boolean>>

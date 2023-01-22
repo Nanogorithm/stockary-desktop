@@ -13,6 +13,7 @@ import com.stockary.common.repository.product.model.UnitType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.io.File
 
 class ProductRepositoryImpl(
     coroutineScope: CoroutineScope,
@@ -43,6 +44,11 @@ class ProductRepositoryImpl(
     override fun getProductUnitTypes(refreshCache: Boolean): Flow<Cached<List<UnitType>>> {
         trySend(ProductRepositoryContract.Inputs.RefreshUnitTypes(refreshCache))
         return observeStates().map { it.unitTypes }
+    }
+
+    override fun uploadPhoto(file: File): Flow<SupabaseResource<String>> {
+        trySend(ProductRepositoryContract.Inputs.UploadPhoto(file = file))
+        return observeStates().map { it.photoUploadResponse }
     }
 
     override fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {

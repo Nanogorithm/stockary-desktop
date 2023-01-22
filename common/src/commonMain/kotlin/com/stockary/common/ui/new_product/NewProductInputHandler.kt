@@ -114,5 +114,17 @@ class NewProductInputHandler(
         is NewProductContract.Inputs.UpdateUnitTypes -> {
             updateState { it.copy(unitTypes = input.unitTypes) }
         }
+
+        is NewProductContract.Inputs.UpdateUploadResponse -> {
+            updateState { it.copy(uploadResponse = input.uploadResponse) }
+        }
+
+        is NewProductContract.Inputs.UploadPhoto -> {
+            observeFlows("UploadPhoto") {
+                listOf(
+                    productRepository.uploadPhoto(input.file)
+                        .map { NewProductContract.Inputs.UpdateUploadResponse(it) })
+            }
+        }
     }
 }

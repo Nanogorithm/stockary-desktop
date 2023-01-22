@@ -26,6 +26,7 @@ import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.form_builder.TextFieldState
 import com.stockary.common.repository.product.model.Product
 import org.koin.core.component.KoinComponent
+import java.io.File
 
 class NewProductPage : KoinComponent {
     @Composable
@@ -59,6 +60,12 @@ class NewProductPage : KoinComponent {
 
         val categoryIdState: ChoiceState = uiState.formState.getState("category_id")
         val unitTypeIdState: ChoiceState = uiState.formState.getState("unit_type_id")
+
+        LaunchedEffect(photoState.value) {
+            if (photoState.value.isNotBlank()) {
+                postInput(NewProductContract.Inputs.UploadPhoto(file = File(photoState.value)))
+            }
+        }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
             Text("New Product", fontSize = 32.sp, fontWeight = FontWeight.W600)

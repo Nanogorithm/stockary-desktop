@@ -1,30 +1,33 @@
 package com.stockary.common.components
 
-import androidx.compose.foundation.border
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.contentColorFor
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
 import com.stockary.common.currencySymbol
 import com.stockary.common.dashedBorder
 import com.stockary.common.form_builder.TextFieldState
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.lazyPainterResource
 import java.awt.FileDialog
 import java.awt.Frame
+import java.io.File
 
 
 @Composable
@@ -32,7 +35,8 @@ fun TextInput(
     label: String, state: TextFieldState, placeHolder: String, maxLines: Int = 1, modifier: Modifier = Modifier
 ) {
     Column {
-        TextField(value = state.value,
+        TextField(
+            value = state.value,
             onValueChange = {
                 state.change(it)
             },
@@ -66,9 +70,29 @@ fun TextInput(
 fun FileChooser(
     state: TextFieldState, modifier: Modifier = Modifier.fillMaxWidth().height(90.dp)
 ) {
+    var isFileChooserOpen by remember { mutableStateOf(false) }
     Column {
-        Box(modifier = modifier.dashedBorder(1.dp, 10.dp, Color(0xFF959191)), contentAlignment = Alignment.Center) {
-            Icon(Icons.Default.AddAPhoto, null)
+        Box(
+            modifier = modifier.clip(RoundedCornerShape(10.dp)).background(color = Color.White)
+                .dashedBorder(1.dp, 10.dp, Color(0xFF959191)).clickable {
+                    isFileChooserOpen = true
+                }, contentAlignment = Alignment.Center
+        ) {
+            if (state.value.isNotBlank()) {
+                println(state.value)
+                val painterResource: Resource<Painter> = lazyPainterResource(data = File(state.value))
+                KamelImage(
+                    resource = painterResource,
+                    contentDescription = "Product photo",
+                    onLoading = { progress -> CircularProgressIndicator(progress) },
+                    onFailure = { exception ->
+                        
+                    },
+                    animationSpec = tween(),
+                )
+            } else {
+                Icon(Icons.Default.AddAPhoto, null)
+            }
         }
         if (state.hasError) {
             Text(
@@ -78,6 +102,16 @@ fun FileChooser(
                     color = MaterialTheme.colors.error
                 )
             )
+        }
+
+        if (isFileChooserOpen) {
+            FileDialog {
+                isFileChooserOpen = false
+                it?.let {
+                    //process to upload
+                    state.change(it)
+                }
+            }
         }
     }
 }

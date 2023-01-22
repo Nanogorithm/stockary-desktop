@@ -10,11 +10,21 @@ import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.ProductCustomerRole
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.gotrue.GoTrue
+import io.github.jan.supabase.plugins.standaloneSupabaseModule
+import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.storage.storage
+import io.github.jan.supabase.storage.upload
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.File
 
 class ProductRepositoryInputHandler(
     private val eventBus: EventBus,
@@ -176,6 +186,19 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.UpdateUnitTypes -> {
             updateState { it.copy(unitTypes = input.unitTypes) }
+        }
+
+        is ProductRepositoryContract.Inputs.UpdateUploadResponse -> {
+            updateState { it.copy(photoUploadResponse = input.photoUploadResponse) }
+        }
+
+        is ProductRepositoryContract.Inputs.UploadPhoto -> {
+            updateState { it.copy(photoUploadResponse = SupabaseResource.Loading) }
+            val result = supabaseClient.storage["shad"].upload(
+                "products/${System.currentTimeMillis()}.${input.file.extension}", input.file.readBytes()
+            )
+            println("upload path => $result")
+            updateState { it.copy(photoUploadResponse = SupabaseResource.Success(result)) }
         }
     }
 }

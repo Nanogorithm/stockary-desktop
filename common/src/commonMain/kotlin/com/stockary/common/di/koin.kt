@@ -27,9 +27,12 @@ import com.stockary.common.ui.new_product.NewProductViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.GoTrue
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.CoroutineScope
 import org.koin.dsl.module
 
@@ -43,12 +46,16 @@ val platformModule = module {
 @OptIn(ExperimentalBallastApi::class)
 val commonModule = module {
     single {
+        Napier.base(DebugAntilog())
         createSupabaseClient(
             supabaseUrl = "https://nfwwajxqeilqdkvwfojz.supabase.co",
             supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3dhanhxZWlscWRrdndmb2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzM1MTQ3NTEsImV4cCI6MTk4OTA5MDc1MX0.ZJawzRdHU9kRG5UBoRdyXPwlq6cinHhj1ItGKQGOsG4"
         ) {
             install(GoTrue)
             install(Postgrest) {
+                // settings
+            }
+            install(Storage) {
                 // settings
             }
         }

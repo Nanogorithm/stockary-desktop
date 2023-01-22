@@ -8,11 +8,13 @@ import com.stockary.common.repository.category.model.Category
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
+import java.io.File
 
 object NewProductContract {
     data class State(
         val loading: Boolean = false,
         val response: SupabaseResource<Boolean> = SupabaseResource.Idle,
+        val uploadResponse: SupabaseResource<String> = SupabaseResource.Idle,
 
         val categoryList: Cached<List<Category>> = Cached.NotLoaded(),
         val customerType: Cached<List<Role>> = Cached.NotLoaded(),
@@ -56,6 +58,9 @@ object NewProductContract {
 
         data class UpdateSaveResponse(val response: SupabaseResource<Boolean>, val isContinue: Boolean = false) :
             Inputs()
+
+        data class UploadPhoto(val file: File) : Inputs()
+        data class UpdateUploadResponse(val uploadResponse: SupabaseResource<String>) : Inputs()
 
         data class FetchCategories(val forceRefresh: Boolean) : Inputs()
         data class FetchUnitTypes(val forceRefresh: Boolean) : Inputs()
