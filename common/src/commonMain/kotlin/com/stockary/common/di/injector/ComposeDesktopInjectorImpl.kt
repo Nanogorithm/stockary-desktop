@@ -19,10 +19,15 @@ import com.stockary.common.repository.category.CategoryRepositoryInputHandler
 import com.stockary.common.repository.customer.CustomerRepositoryContract
 import com.stockary.common.repository.customer.CustomerRepositoryImpl
 import com.stockary.common.repository.customer.CustomerRepositoryInputHandler
+import com.stockary.common.repository.login.AuthRepositoryImpl
 import com.stockary.common.repository.product.ProductRepositoryContract
 import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.repository.product.ProductRepositoryInputHandler
 import com.stockary.common.router.AppScreen
+import com.stockary.common.ui.app.AppContract
+import com.stockary.common.ui.app.AppEventHandler
+import com.stockary.common.ui.app.AppInputHandler
+import com.stockary.common.ui.app.AppViewModel
 import com.stockary.common.ui.category.CategoryContract
 import com.stockary.common.ui.category.CategoryEventHandler
 import com.stockary.common.ui.category.CategoryInputHandler
@@ -43,14 +48,17 @@ import com.stockary.common.ui.product.ProductContract
 import com.stockary.common.ui.product.ProductEventHandler
 import com.stockary.common.ui.product.ProductInputHandler
 import com.stockary.common.ui.product.ProductViewModel
+import io.github.jan.supabase.SupabaseClient
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import kotlin.system.exitProcess
 
 class ComposeDesktopInjectorImpl(
     private val applicationScope: CoroutineScope,
-) : ComposeDesktopInjector {
+) : ComposeDesktopInjector, KoinComponent {
     @OptIn(ExperimentalBallastApi::class)
     private val router: Router<AppScreen> by lazy {
         BasicRouter(
@@ -60,7 +68,7 @@ class ComposeDesktopInjectorImpl(
                 this += LoggingInterceptor()
                 logger = ::PrintlnLogger
                 // You may add any other Ballast Interceptors here as well, to extend the router functionality
-            }.withRouter(RoutingTable.fromEnum(AppScreen.values()), initialRoute = AppScreen.Login).build(),
+            }.withRouter(RoutingTable.fromEnum(AppScreen.values()), initialRoute = AppScreen.Home).build(),
             eventHandler = eventHandler {
                 if (it is RouterContract.Events.BackstackEmptied) {
                     exitProcess(0)
@@ -73,7 +81,21 @@ class ComposeDesktopInjectorImpl(
         return router
     }
 
+    override fun appViewModel(coroutineScope: CoroutineScope): AppViewModel {
+        return AppViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                initialState = AppContract.State(),
+                inputHandler = AppInputHandler(authRepository = authRepository),
+                name = "AppScreen"
+            ), eventHandler = AppEventHandler(router)
+        )
+    }
+
     private val eventBus = EventBusImpl()
+
+    private val authRepository by lazy {
+        AuthRepositoryImpl(supabaseClient = get())
+    }
 
     private val categoryRepository by lazy {
         CategoryRepositoryImpl(

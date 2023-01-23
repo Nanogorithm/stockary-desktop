@@ -2,6 +2,7 @@ package com.stockary.common.di.injector
 
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.router.AppScreen
+import com.stockary.common.ui.app.AppViewModel
 import com.stockary.common.ui.category.CategoryViewModel
 import com.stockary.common.ui.customer.CustomerViewModel
 import com.stockary.common.ui.new_category.NewCategoryViewModel
@@ -11,6 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 
 interface ComposeDesktopInjector {
     fun router(): Router<AppScreen>
+
+    fun appViewModel(
+        coroutineScope: CoroutineScope
+    ):AppViewModel
 
     fun categoryViewModel(
         coroutineScope: CoroutineScope,

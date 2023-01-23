@@ -6,7 +6,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.helloanwar.common.ui.theme.AppTheme
-import com.stockary.common.AppScreenView
+import com.stockary.common.ui.app.AppScreenView
 import com.stockary.common.di.appModule
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.di.injector.ComposeDesktopInjectorImpl
