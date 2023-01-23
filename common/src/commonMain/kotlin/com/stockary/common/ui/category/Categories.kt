@@ -32,7 +32,7 @@ class CategoryPage : KoinComponent {
         val vm = remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
         val uiState by vm.observeStates().collectAsState()
 
-        LaunchedEffect(true) {
+        LaunchedEffect(vm) {
             vm.trySend(CategoryContract.Inputs.Initialize)
         }
 
