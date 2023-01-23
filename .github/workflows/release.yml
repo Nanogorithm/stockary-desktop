@@ -50,19 +50,12 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-            files: .\desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
+            files: D:/a/stockary-desktop/desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
 
-#      # Upload to Drive
-#      - name: Upload exe to Google Drive
-#        uses: anwarpro/upload-to-drive@master
-#        with:
-#          target: desktop\build\compose\binaries\main\msi\salompos-1.0.1.msi
-#          credentials: ${{ secrets.credentials }}
-#          folder: ${{ secrets.folderId }}
-
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: windows-binary-new.exe
-#          path: desktop\build\compose\binaries\main\exe\eepos-1.0.0.exe
-#          if-no-files-found: error
+      # Upload to Drive
+      - name: Upload msi to Google Drive
+        uses: anwarpro/upload-to-drive@master
+        with:
+          target: desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
+          credentials: ${{ secrets.credentials }}
+          folder: ${{ secrets.folderId }}
