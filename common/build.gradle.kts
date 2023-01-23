@@ -34,6 +34,9 @@ version = "1.0-SNAPSHOT"
                 api("io.insert-koin:koin-core:$koin_version")
                 implementation("io.insert-koin:koin-androidx-compose:$koin_android_compose_version")
                 implementation("io.ktor:ktor-client-cio:2.2.2")
+                implementation("io.ktor:ktor-client-logging:2.2.2")
+                implementation("io.ktor:ktor-server-content-negotiation:2.2.2")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.2")
 
                 implementation("com.alialbaali.kamel:kamel-image:0.4.1")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.0")

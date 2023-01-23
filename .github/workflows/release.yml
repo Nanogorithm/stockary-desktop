@@ -43,14 +43,21 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 15
+          cache: 'gradle'
 
-      - name: Publish
+      - name: Build
         run: ./gradlew packageDistributionForCurrentOS
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-            files: D:\a\stockary-desktop\stockary-desktop\desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
+          prerelease: ${{ contains(github.event.inputs.version, '-rc') || contains(github.event.inputs.version, '-b') || contains(github.event.inputs.version, '-a') }}
+          files: |
+            build/**/*.dmg
+            build/**/*.msi
+            build/compose/jars/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload to Drive
       - name: Upload msi to Google Drive
@@ -59,3 +66,4 @@ jobs:
           target: desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
           credentials: ${{ secrets.credentials }}
           folder: ${{ secrets.folderId }}
+          name: stockary-1.0.1.msi

@@ -34,6 +34,23 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "stockary"
             packageVersion = "1.0.1"
+            description = "Stockary"
+            copyright = "© 2023 Stockary. All rights reserved."
+            vendor = "Stockary"
+
+            macOS {
+                iconFile.set(project.file("icon.icns"))
+            }
+
+            windows {
+                iconFile.set(project.file("icon.ico"))
+                menuGroup = "stockary"
+                upgradeUuid = "1d5b6cb4-1061-4db2-8f40-53d3c9a68305"
+            }
+
+            linux {
+                iconFile.set(project.file("icon.png"))
+            }
         }
     }
 }
