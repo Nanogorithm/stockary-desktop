@@ -46,6 +46,12 @@ class NewProductInputHandler(
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
 
+            if(currentState.uploadResponse is SupabaseResource.Success){
+                val photoPath = currentState.uploadResponse.data
+                val photoField: TextFieldState = currentState.formState.getState("photo")
+                photoField.change(photoPath)
+            }
+
             val formData: Product = currentState.formState.getData()
             val rawData = currentState.formState.getMap()
 
