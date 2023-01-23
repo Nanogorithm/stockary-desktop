@@ -1,9 +1,11 @@
 package com.stockary.common.ui.order
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -20,23 +22,32 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.toCurrencyFormat
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
-import org.koin.core.parameter.parametersOf
 
 
 class OrderPage : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Orders() {
+    fun Orders(
+        injector: ComposeDesktopInjector
+    ) {
         val viewModelScope = rememberCoroutineScope()
-        val vm: OrderViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
-        val vmState by vm.observeStates().collectAsState()
+        val vm: OrderViewModel = remember(viewModelScope) { injector.orderViewModel(viewModelScope) }
+        val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
             vm.trySend(OrderContract.Inputs.Initialize)
         }
 
+        Content(uiState) {
+            vm.trySend(it)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun Content(uiState: OrderContract.State, postInput: (OrderContract.Inputs) -> Unit) {
         var search by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -90,29 +101,66 @@ class OrderPage : KoinComponent {
                 ) {
                     Text("Name", fontSize = 16.sp, color = Color(0x66000000))
                     Spacer(modifier = Modifier.weight(1f))
-                    Text("Price", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-                    Text("Quantity", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                    //                    Text("Price", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                    Text(
+                        "Total Quantity", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000)
+                    )
                     Text("Amount", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                    Text("Actions", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 }
                 Divider(color = Color(0x33000000))
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
 
-                    if (vmState.orders !is Cached.NotLoaded && vmState.orders.isLoading()) {
+                    if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
                         item {
-                            CircularProgressIndicator()
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
 
-                    items(vmState.orders.getCachedOrEmptyList()) { _order ->
+                    items(uiState.orders.getCachedOrEmptyList()) { _order ->
                         Row(
                             modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("ASOS Ridley Hight Waist")
+                            Text("${_order.profile?.firstName} ${_order.profile?.lastName}")
                             Spacer(modifier = Modifier.weight(1f))
-                            Text("$79.49", modifier = Modifier.width(181.dp))
-                            Text("82", modifier = Modifier.width(181.dp))
-                            Text("$6518.18", modifier = Modifier.width(181.dp))
+                            //                            Text("$79.49", modifier = Modifier.width(181.dp))
+                            Text("${_order.orderItems.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))
+                            Text(_order.total.toCurrencyFormat(), modifier = Modifier.width(181.dp))
+                            Row(
+                                modifier = Modifier.width(181.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(32.dp).clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer).clickable {
+
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Print,
+                                        null,
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier.size(32.dp).clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.errorContainer).clickable {
+
+                                        }, contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Visibility,
+                                        null,
+                                        tint = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            }
                         }
                         Divider(color = Color(0xFFD9D9D9))
                     }

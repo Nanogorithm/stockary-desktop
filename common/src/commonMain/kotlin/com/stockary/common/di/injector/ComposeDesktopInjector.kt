@@ -5,8 +5,10 @@ import com.stockary.common.router.AppScreen
 import com.stockary.common.ui.app.AppViewModel
 import com.stockary.common.ui.category.CategoryViewModel
 import com.stockary.common.ui.customer.CustomerViewModel
+import com.stockary.common.ui.home.HomeViewModel
 import com.stockary.common.ui.new_category.NewCategoryViewModel
 import com.stockary.common.ui.new_product.NewProductViewModel
+import com.stockary.common.ui.order.OrderViewModel
 import com.stockary.common.ui.product.ProductViewModel
 import kotlinx.coroutines.CoroutineScope
 
@@ -15,7 +17,13 @@ interface ComposeDesktopInjector {
 
     fun appViewModel(
         coroutineScope: CoroutineScope
-    ):AppViewModel
+    ): AppViewModel
+
+    fun homeViewModel(
+        coroutineScope: CoroutineScope
+    ): HomeViewModel
+
+    fun orderViewModel(coroutineScope: CoroutineScope): OrderViewModel
 
     fun categoryViewModel(
         coroutineScope: CoroutineScope,
@@ -30,6 +38,7 @@ interface ComposeDesktopInjector {
     fun newProductViewModel(
         coroutineScope: CoroutineScope,
     ): NewProductViewModel
+
     fun newCategoryViewModel(
         coroutineScope: CoroutineScope,
     ): NewCategoryViewModel

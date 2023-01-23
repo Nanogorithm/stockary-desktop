@@ -132,14 +132,13 @@ class AppScreenView(
                             var expandMenu by remember { mutableStateOf(false) }
 
                             when (uiState.sessionStatus) {
-                                is SessionStatus.Authenticated,
-                                SessionStatus.LoadingFromStorage -> {
+                                is SessionStatus.Authenticated, SessionStatus.LoadingFromStorage -> {
                                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
                                         expandMenu = true
                                     }) {
                                         Box(
-                                            modifier = Modifier.size(24.dp).clip(CircleShape).background(Color(0xFFE2E3FF)),
-                                            contentAlignment = Alignment.Center
+                                            modifier = Modifier.size(24.dp).clip(CircleShape)
+                                                .background(Color(0xFFE2E3FF)), contentAlignment = Alignment.Center
                                         ) {
                                             Icon(Icons.Default.Person, null)
                                         }
@@ -177,7 +176,7 @@ class AppScreenView(
                                         }
 
                                         Home -> {
-                                            Overview()
+                                            Overview(injector)
                                         }
 
                                         CategoryList -> {
@@ -214,7 +213,7 @@ class AppScreenView(
                                         }
 
                                         OrderList -> {
-                                            OrderPage().Orders()
+                                            OrderPage().Orders(injector = injector)
                                         }
 
                                         OrderDetails -> {

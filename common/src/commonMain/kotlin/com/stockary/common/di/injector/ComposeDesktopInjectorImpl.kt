@@ -20,6 +20,9 @@ import com.stockary.common.repository.customer.CustomerRepositoryContract
 import com.stockary.common.repository.customer.CustomerRepositoryImpl
 import com.stockary.common.repository.customer.CustomerRepositoryInputHandler
 import com.stockary.common.repository.login.AuthRepositoryImpl
+import com.stockary.common.repository.order.OrderRepositoryContract
+import com.stockary.common.repository.order.OrderRepositoryImpl
+import com.stockary.common.repository.order.OrderRepositoryInputHandler
 import com.stockary.common.repository.product.ProductRepositoryContract
 import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.repository.product.ProductRepositoryInputHandler
@@ -36,6 +39,10 @@ import com.stockary.common.ui.customer.CustomerContract
 import com.stockary.common.ui.customer.CustomerEventHandler
 import com.stockary.common.ui.customer.CustomerInputHandler
 import com.stockary.common.ui.customer.CustomerViewModel
+import com.stockary.common.ui.home.HomeContract
+import com.stockary.common.ui.home.HomeEventHandler
+import com.stockary.common.ui.home.HomeInputHandler
+import com.stockary.common.ui.home.HomeViewModel
 import com.stockary.common.ui.new_category.NewCategoryContract
 import com.stockary.common.ui.new_category.NewCategoryEventHandler
 import com.stockary.common.ui.new_category.NewCategoryInputHandler
@@ -44,11 +51,14 @@ import com.stockary.common.ui.new_product.NewProductContract
 import com.stockary.common.ui.new_product.NewProductEventHandler
 import com.stockary.common.ui.new_product.NewProductInputHandler
 import com.stockary.common.ui.new_product.NewProductViewModel
+import com.stockary.common.ui.order.OrderContract
+import com.stockary.common.ui.order.OrderEventHandler
+import com.stockary.common.ui.order.OrderInputHandler
+import com.stockary.common.ui.order.OrderViewModel
 import com.stockary.common.ui.product.ProductContract
 import com.stockary.common.ui.product.ProductEventHandler
 import com.stockary.common.ui.product.ProductInputHandler
 import com.stockary.common.ui.product.ProductViewModel
-import io.github.jan.supabase.SupabaseClient
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
@@ -91,10 +101,44 @@ class ComposeDesktopInjectorImpl(
         )
     }
 
+    override fun homeViewModel(coroutineScope: CoroutineScope): HomeViewModel {
+        return HomeViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                inputHandler = HomeInputHandler(orderRepository = orderRepository),
+                initialState = HomeContract.State(),
+                name = "HomeScreen",
+            ), eventHandler = HomeEventHandler(router)
+        )
+    }
+
+    override fun orderViewModel(coroutineScope: CoroutineScope): OrderViewModel {
+        return OrderViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                initialState = OrderContract.State(),
+                inputHandler = OrderInputHandler(orderRepository = orderRepository),
+                name = "Order Screen"
+            ), eventHandler = OrderEventHandler(router)
+        )
+    }
+
     private val eventBus = EventBusImpl()
 
     private val authRepository by lazy {
         AuthRepositoryImpl(supabaseClient = get())
+    }
+
+    private val orderRepository by lazy {
+        OrderRepositoryImpl(
+            coroutineScope = applicationScope,
+            eventBus = eventBus,
+            configBuilder = commonBuilder().withViewModel(
+                inputHandler = OrderRepositoryInputHandler(
+                    eventBus = eventBus,
+                ),
+                initialState = OrderRepositoryContract.State(),
+                name = "Order Repository",
+            ).withRepository(),
+        )
     }
 
     private val categoryRepository by lazy {
@@ -183,13 +227,11 @@ class ComposeDesktopInjectorImpl(
 
     override fun newCategoryViewModel(coroutineScope: CoroutineScope): NewCategoryViewModel {
         return NewCategoryViewModel(
-            coroutineScope = coroutineScope,
-            configBuilder = commonBuilder().withViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
                 initialState = NewCategoryContract.State(),
                 inputHandler = NewCategoryInputHandler(categoryRepository),
                 name = "NewCategoryScreen"
-            ),
-            eventHandler = NewCategoryEventHandler(router)
+            ), eventHandler = NewCategoryEventHandler(router)
         )
     }
 

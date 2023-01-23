@@ -2,8 +2,10 @@ package com.stockary.common.ui.order
 
 import com.copperleaf.ballast.EventHandler
 import com.copperleaf.ballast.EventHandlerScope
+import com.copperleaf.ballast.navigation.vm.Router
+import com.stockary.common.router.AppScreen
 
-class OrderEventHandler : EventHandler<
+class OrderEventHandler(router: Router<AppScreen>) : EventHandler<
         OrderContract.Inputs,
         OrderContract.Events,
         OrderContract.State> {

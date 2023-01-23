@@ -14,7 +14,7 @@ data class Profile(
     val address: String? = null,
     val avatar: String? = null,
     @SerialName("role_id") val roleId: Int?,
-    @SerialName("customer_roles") val role: Role?
+    @SerialName("customer_roles") val role: Role? = null
 )
 
 @Serializable

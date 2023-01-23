@@ -8,7 +8,7 @@ object OrderRepositoryContract {
         val initialized: Boolean = false,
 
         val dataListInitialized: Boolean = false,
-        val dataList: Cached<List<Order>> = Cached.NotLoaded(),
+        val orderList: Cached<List<Order>> = Cached.NotLoaded(),
     )
 
     sealed class Inputs {

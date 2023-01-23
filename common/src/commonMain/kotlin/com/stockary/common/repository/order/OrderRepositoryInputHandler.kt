@@ -55,7 +55,7 @@ class OrderRepositoryInputHandler(
         }
 
         is OrderRepositoryContract.Inputs.DataListUpdated -> {
-            updateState { it.copy(dataList = input.dataList) }
+            updateState { it.copy(orderList = input.dataList) }
         }
 
         is OrderRepositoryContract.Inputs.RefreshDataList -> {
@@ -63,12 +63,15 @@ class OrderRepositoryInputHandler(
             fetchWithCache(
                 input = input,
                 forceRefresh = input.forceRefresh,
-                getValue = { it.dataList },
+                getValue = { it.orderList },
                 updateState = { OrderRepositoryContract.Inputs.DataListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["orders"].select("*")
+                    val result = supabaseClient.postgrest["orders"].select("*,profiles(*),order_items(*)")
                     println(result.body)
-                    result.decodeList<Order>(json = Json { ignoreUnknownKeys = true }).let {
+                    result.decodeList<Order>(json = Json {
+                        ignoreUnknownKeys = true
+                        isLenient = true
+                    }).let {
                         println(it)
                         it
                     }

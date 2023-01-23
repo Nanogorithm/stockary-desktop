@@ -29,6 +29,6 @@ class OrderRepositoryImpl(
     override fun getDataList(refreshCache: Boolean): Flow<Cached<List<Order>>> {
         trySend(OrderRepositoryContract.Inputs.Initialize)
         trySend(OrderRepositoryContract.Inputs.RefreshDataList(refreshCache))
-        return observeStates().map { it.dataList }
+        return observeStates().map { it.orderList }
     }
 }

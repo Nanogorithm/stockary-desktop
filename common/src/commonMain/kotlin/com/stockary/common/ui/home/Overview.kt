@@ -7,18 +7,39 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.stockary.common.currencySymbol
+import com.copperleaf.ballast.repository.cache.Cached
+import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
+import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.toCurrencyFormat
+
+@Composable
+fun Overview(
+    injector: ComposeDesktopInjector
+) {
+    val viewModelScope = rememberCoroutineScope()
+    val vm: HomeViewModel = remember(viewModelScope) { injector.homeViewModel(viewModelScope) }
+    val uiState by vm.observeStates().collectAsState()
+
+    LaunchedEffect(vm) {
+        vm.trySend(HomeContract.Inputs.Initialize)
+    }
+
+    Content(uiState) {
+        vm.trySend(it)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Overview() {
+private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(start = 64.dp)) {
         Text("Hello there, Shaad", fontSize = 32.sp, fontWeight = FontWeight.W600)
         Spacer(modifier = Modifier.height(38.dp))
@@ -40,7 +61,14 @@ fun Overview() {
                         Text("Sales", fontSize = 24.sp, fontWeight = FontWeight.W500)
                         Text("Today", fontSize = 14.sp)
                     }
-                    Text("${currencySymbol}2,64,500", fontSize = 32.sp)
+                    if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(
+                            uiState.orders.getCachedOrEmptyList().sumOf { it.total.toDouble() }.toCurrencyFormat(),
+                            fontSize = 32.sp
+                        )
+                    }
                 }
             }
             Card(
@@ -60,7 +88,12 @@ fun Overview() {
                         Text("Orders", fontSize = 24.sp, fontWeight = FontWeight.W500)
                         Text("Today", fontSize = 14.sp)
                     }
-                    Text("${currencySymbol}538", fontSize = 32.sp)
+
+                    if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(uiState.orders.getCachedOrEmptyList().size.toString(), fontSize = 32.sp)
+                    }
                 }
             }
         }
