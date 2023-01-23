@@ -56,6 +56,8 @@ version = "1.0-SNAPSHOT"
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-properties:1.4.1")
 
+                implementation("com.github.librepdf:openpdf:1.3.30")
+
             }
         }
         val commonTest by getting {

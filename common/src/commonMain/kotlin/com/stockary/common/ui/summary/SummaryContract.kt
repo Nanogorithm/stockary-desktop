@@ -13,6 +13,8 @@ object SummaryContract {
         object GoBack : Inputs()
         data class FetchOrders(val forceRefresh: Boolean) : Inputs()
         data class UpdateOrders(val orders: Cached<List<Order>>) : Inputs()
+
+        data class Print(val orders: List<Order>): Inputs()
     }
 
     sealed class Events {
