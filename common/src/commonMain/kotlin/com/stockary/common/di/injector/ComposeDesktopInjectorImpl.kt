@@ -59,6 +59,10 @@ import com.stockary.common.ui.product.ProductContract
 import com.stockary.common.ui.product.ProductEventHandler
 import com.stockary.common.ui.product.ProductInputHandler
 import com.stockary.common.ui.product.ProductViewModel
+import com.stockary.common.ui.summary.SummaryContract
+import com.stockary.common.ui.summary.SummaryEventHandler
+import com.stockary.common.ui.summary.SummaryInputHandler
+import com.stockary.common.ui.summary.SummaryViewModel
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
@@ -118,6 +122,16 @@ class ComposeDesktopInjectorImpl(
                 inputHandler = OrderInputHandler(orderRepository = orderRepository),
                 name = "Order Screen"
             ), eventHandler = OrderEventHandler(router)
+        )
+    }
+
+    override fun summaryViewModel(coroutineScope: CoroutineScope): SummaryViewModel {
+        return SummaryViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                inputHandler = SummaryInputHandler(orderRepository = orderRepository),
+                initialState = SummaryContract.State(),
+                name = "SummaryScreen",
+            ), eventHandler = SummaryEventHandler(router)
         )
     }
 

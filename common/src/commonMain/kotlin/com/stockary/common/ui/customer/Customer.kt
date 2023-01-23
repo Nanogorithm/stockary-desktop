@@ -114,7 +114,9 @@ class CustomerPage : KoinComponent {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 if (uiState.customers !is Cached.NotLoaded && uiState.customers.isLoading()) {
                     item {
-                        CircularProgressIndicator()
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
                 items(uiState.customers.getCachedOrEmptyList()) { _customer ->

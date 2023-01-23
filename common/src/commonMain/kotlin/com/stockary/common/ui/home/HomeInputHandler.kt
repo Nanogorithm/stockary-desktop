@@ -23,7 +23,7 @@ class HomeInputHandler(
 
         is HomeContract.Inputs.FetchOrders -> {
             observeFlows("FetchOrders") {
-                listOf(orderRepository.getDataList(input.forceRefresh).map { HomeContract.Inputs.UpdateOrders(it) })
+                listOf(orderRepository.getOrders(input.forceRefresh).map { HomeContract.Inputs.UpdateOrders(it) })
             }
         }
 

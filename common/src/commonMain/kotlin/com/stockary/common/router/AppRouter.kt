@@ -1,10 +1,7 @@
 package com.stockary.common.router
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shop2
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.copperleaf.ballast.navigation.routing.Route
 import com.copperleaf.ballast.navigation.routing.RouteAnnotation
@@ -17,13 +14,10 @@ enum class AppScreen(
     val icon: ImageVector? = null,
     override val annotations: Set<RouteAnnotation> = emptySet(),
 ) : Route {
-    Home("/app/home", "Home", icon = Icons.Default.Book),
-    Login("/app/login", "Login"),
-    CustomerList(
+    Home("/app/home", "Home", icon = Icons.Default.Book), Login("/app/login", "Login"), CustomerList(
         "/app/customers?sort={?}", "Customers", icon = Icons.Default.Person
     ),
-    NewCustomer("/app/new-customers", "New Customer"),
-    CustomerDetails(
+    NewCustomer("/app/new-customers", "New Customer"), CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
     NewCategory(
@@ -40,18 +34,21 @@ enum class AppScreen(
     NewProduct(
         "/app/new-product", "Add Product"
     ),
-    ProductDetails("/app/products/{categoryId}", "Product Details"),
-    NewOrder(
+    ProductDetails("/app/products/{categoryId}", "Product Details"), NewOrder(
         "/app/new-order", "New Order"
     ),
     OrderList(
         "/app/orders?sort={?}", "Orders", icon = Icons.Default.Shop2
     ),
-    OrderDetails("/app/orders/{orderId}", "Order Details"), OrderSummary("/app/summary", "Order Summary"), ;
+    OrderDetails("/app/orders/{orderId}", "Order Details"), OrderSummary(
+        "/app/summary",
+        "Order Summary",
+        icon = Icons.Default.BarChart
+    ), ;
 
     override val matcher: RouteMatcher = RouteMatcher.create(routeFormat)
 }
 
 val navItems = listOf(
-    AppScreen.Home, AppScreen.ProductList, AppScreen.CustomerList, AppScreen.OrderList,
+    AppScreen.Home, AppScreen.ProductList, AppScreen.CustomerList, AppScreen.OrderList, AppScreen.OrderSummary
 )

@@ -48,23 +48,23 @@ class OrderRepositoryInputHandler(
             // then refresh all the caches in this repository
             val currentState = getCurrentState()
             if (currentState.dataListInitialized) {
-                postInput(OrderRepositoryContract.Inputs.RefreshDataList(true))
+                postInput(OrderRepositoryContract.Inputs.RefreshOrders(true))
             }
 
             Unit
         }
 
-        is OrderRepositoryContract.Inputs.DataListUpdated -> {
+        is OrderRepositoryContract.Inputs.UpdateOrders -> {
             updateState { it.copy(orderList = input.dataList) }
         }
 
-        is OrderRepositoryContract.Inputs.RefreshDataList -> {
+        is OrderRepositoryContract.Inputs.RefreshOrders -> {
             updateState { it.copy(dataListInitialized = true) }
             fetchWithCache(
                 input = input,
                 forceRefresh = input.forceRefresh,
                 getValue = { it.orderList },
-                updateState = { OrderRepositoryContract.Inputs.DataListUpdated(it) },
+                updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
                 doFetch = {
                     val result = supabaseClient.postgrest["orders"].select("*,profiles(*),order_items(*)")
                     println(result.body)
@@ -77,6 +77,30 @@ class OrderRepositoryInputHandler(
                     }
                 },
             )
+        }
+
+        is OrderRepositoryContract.Inputs.RefreshSummary -> {
+            fetchWithCache(
+                input = input,
+                forceRefresh = input.forceRefresh,
+                getValue = { it.summary },
+                updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
+                doFetch = {
+                    val result = supabaseClient.postgrest["orders"].select("*,profiles(*),order_items(*)")
+                    println(result.body)
+                    result.decodeList<Order>(json = Json {
+                        ignoreUnknownKeys = true
+                        isLenient = true
+                    }).let {
+                        println(it)
+                        it
+                    }
+                },
+            )
+        }
+
+        is OrderRepositoryContract.Inputs.UpdateSummary -> {
+            updateState { it.copy(summary = input.summary) }
         }
     }
 }

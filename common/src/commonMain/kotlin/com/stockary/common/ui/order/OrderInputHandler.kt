@@ -23,7 +23,7 @@ class OrderInputHandler(
 
         is OrderContract.Inputs.FetchOrders -> {
             observeFlows("FetchOrders") {
-                listOf(orderRepository.getDataList(refreshCache = input.forceRefresh).map {
+                listOf(orderRepository.getOrders(refreshCache = input.forceRefresh).map {
                     OrderContract.Inputs.UpdateOrders(it)
                 })
             }

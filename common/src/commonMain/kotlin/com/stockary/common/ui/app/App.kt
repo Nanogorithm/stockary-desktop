@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -28,9 +27,9 @@ import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
 import com.stockary.common.router.navItems
-import com.stockary.common.ui.home.Overview
 import com.stockary.common.ui.category.CategoryPage
 import com.stockary.common.ui.customer.CustomerPage
+import com.stockary.common.ui.home.Overview
 import com.stockary.common.ui.login.Login
 import com.stockary.common.ui.new_category.NewCategoryPage
 import com.stockary.common.ui.new_customer.NewCustomer
@@ -38,6 +37,7 @@ import com.stockary.common.ui.new_order.NewOrder
 import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
+import com.stockary.common.ui.summary.Summary
 import io.github.jan.supabase.gotrue.SessionStatus
 import org.koin.core.component.KoinComponent
 
@@ -225,7 +225,7 @@ class AppScreenView(
                                         }
 
                                         OrderSummary -> {
-
+                                            Summary(injector)
                                         }
 
                                         NewCustomer -> {

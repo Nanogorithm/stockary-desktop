@@ -9,6 +9,7 @@ object OrderRepositoryContract {
 
         val dataListInitialized: Boolean = false,
         val orderList: Cached<List<Order>> = Cached.NotLoaded(),
+        val summary: Cached<List<Order>> = Cached.NotLoaded(),
     )
 
     sealed class Inputs {
@@ -16,7 +17,10 @@ object OrderRepositoryContract {
         object Initialize : Inputs()
         object RefreshAllCaches : Inputs()
 
-        data class RefreshDataList(val forceRefresh: Boolean) : Inputs()
-        data class DataListUpdated(val dataList: Cached<List<Order>>) : Inputs()
+        data class RefreshOrders(val forceRefresh: Boolean) : Inputs()
+        data class UpdateOrders(val dataList: Cached<List<Order>>) : Inputs()
+
+        data class RefreshSummary(val forceRefresh: Boolean) : Inputs()
+        data class UpdateSummary(val summary: Cached<List<Order>>) : Inputs()
     }
 }
