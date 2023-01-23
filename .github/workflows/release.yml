@@ -53,9 +53,9 @@ jobs:
         with:
           prerelease: ${{ contains(github.event.inputs.version, '-rc') || contains(github.event.inputs.version, '-b') || contains(github.event.inputs.version, '-a') }}
           files: |
-            build/**/*.dmg
-            build/**/*.msi
-            build/compose/jars/*.jar
+            desktop\build\**\*.dmg
+            desktop\build\**\*.msi
+            desktop\build\compose\jars\*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -66,4 +66,3 @@ jobs:
           target: desktop\build\compose\binaries\main\msi\stockary-1.0.1.msi
           credentials: ${{ secrets.credentials }}
           folder: ${{ secrets.folderId }}
-          name: stockary-1.0.1.msi
