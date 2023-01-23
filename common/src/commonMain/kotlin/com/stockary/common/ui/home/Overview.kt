@@ -2,6 +2,7 @@ package com.stockary.common.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
@@ -122,20 +123,27 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
             }
             Divider(color = Color(0x33000000))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                for (i in 0..20) {
+
+                if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
                     item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("ASOS Ridley Hight Waist")
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text("$79.49", modifier = Modifier.width(181.dp))
-                            Text("82", modifier = Modifier.width(181.dp))
-                            Text("$6518.18", modifier = Modifier.width(181.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator()
                         }
-                        Divider(color = Color(0xFFD9D9D9))
                     }
+                }
+
+                items(uiState.orders.getCachedOrEmptyList()) { _order ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("ASOS Ridley Hight Waist")
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text("$79.49", modifier = Modifier.width(181.dp))
+                        Text("82", modifier = Modifier.width(181.dp))
+                        Text("$6518.18", modifier = Modifier.width(181.dp))
+                    }
+                    Divider(color = Color(0xFFD9D9D9))
                 }
             }
         }
