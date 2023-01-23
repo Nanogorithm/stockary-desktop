@@ -78,7 +78,7 @@ class CustomerPage : KoinComponent {
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Button(
+                   /* Button(
                         onClick = {
 
                         }, colors = ButtonDefaults.buttonColors(
@@ -89,7 +89,8 @@ class CustomerPage : KoinComponent {
                         Icon(Icons.Default.Category, null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Type")
-                    }/*Button(onClick = {
+                    }*/
+                /*Button(onClick = {
 
                     }) {
                         Icon(Icons.Default.Add, null)

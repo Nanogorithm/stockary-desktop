@@ -80,13 +80,13 @@ class OrderPage : KoinComponent {
                     }
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Button(onClick = {
+                    /*Button(onClick = {
 
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("New Order")
-                    }
+                    }*/
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))

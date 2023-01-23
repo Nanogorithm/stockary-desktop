@@ -29,7 +29,7 @@ class CategoryPage : KoinComponent {
     @Composable
     fun Categories(injector: ComposeDesktopInjector) {
         val viewModelCoroutineScope = rememberCoroutineScope()
-        val vm = remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
+        val vm: CategoryViewModel = remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
         val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {

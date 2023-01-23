@@ -25,7 +25,7 @@ class CategoryInputHandler(
         }
 
         is CategoryContract.Inputs.FetchHotList -> {
-            observeFlows("FetchHotList") {
+            observeFlows("FetchHotListCategory") {
                 listOf(categoryRepository.getCategoryList(refreshCache = input.forceRefresh)
                     .map { CategoryContract.Inputs.HotListUpdated(it) })
             }

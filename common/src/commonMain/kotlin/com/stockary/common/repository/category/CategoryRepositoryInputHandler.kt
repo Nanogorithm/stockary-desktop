@@ -9,6 +9,7 @@ import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
+import com.stockary.common.repository.product.ProductRepositoryContract
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
@@ -80,6 +81,7 @@ class CategoryRepositoryInputHandler(
             try {
                 val result = supabaseClient.postgrest["categories"].insert(input.category)
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
+                postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(saving = SupabaseResource.Error(e)) }
