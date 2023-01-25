@@ -5,7 +5,10 @@ import com.lowagie.text.pdf.PdfPageEventHelper
 import com.lowagie.text.pdf.PdfWriter
 import com.stockary.common.repository.order.model.Order
 import java.awt.Color
+import java.awt.Desktop
+import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 
 fun pdfInvoice(
@@ -101,4 +104,17 @@ fun pdfInvoice(
     }
 
     pdfWriter.close()
+
+    openPdf(File("./${fileName}.pdf"))
+
+}
+
+private fun openPdf(file: File) {
+    if (Desktop.isDesktopSupported()) {
+        try {
+            Desktop.getDesktop().open(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 }

@@ -16,6 +16,7 @@ object ProductContract {
         object Initialize : Inputs()
         object GoBack : Inputs()
         object GoAddNew : Inputs()
+        data class GoEdit(val productId: Int) : Inputs()
         object GoCategory : Inputs()
         data class FetchProductList(val forceRefresh: Boolean) : Inputs()
         data class UpdateProductList(val products: Cached<List<Product>>) : Inputs()
@@ -26,6 +27,7 @@ object ProductContract {
     sealed class Events {
         object NavigateUp : Events()
         object GoProductAdd : Events()
+        data class GoProductEdit(val productId: Int) : Events()
         object GoCategories : Events()
     }
 }

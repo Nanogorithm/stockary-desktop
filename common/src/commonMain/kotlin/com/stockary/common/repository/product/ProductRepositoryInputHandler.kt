@@ -10,21 +10,12 @@ import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.ProductCustomerRole
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.gotrue.GoTrue
-import io.github.jan.supabase.plugins.standaloneSupabaseModule
-import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.storage
-import io.github.jan.supabase.storage.upload
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.File
 
 class ProductRepositoryInputHandler(
     private val eventBus: EventBus,
@@ -80,7 +71,7 @@ class ProductRepositoryInputHandler(
                 getValue = { it.dataList },
                 updateState = { ProductRepositoryContract.Inputs.DataListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["products"].select("*,categories(*)")
+                    val result = supabaseClient.postgrest["products"].select("*,categories(*),unit_types(*)")
                     println("products => ${result.body}")
                     result.decodeList(json = Json {
                         ignoreUnknownKeys = true
@@ -129,17 +120,33 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.Edit -> {
             try {
+                println("${input.product} ${input.updated}")
                 val result = supabaseClient.postgrest["products"].update({
                     if (input.product.title != input.updated.title) {
                         Product::title setTo input.updated.title
+                    }
+                    if (input.product.description != input.updated.description) {
+                        Product::description setTo input.updated.description
+                    }
+
+                    if (input.product.photo != input.updated.photo) {
+                        Product::photo setTo input.updated.photo
                     }
 
                     if (input.product.categoryId != input.updated.categoryId) {
                         Product::categoryId setTo input.updated.categoryId
                     }
+
+                    if (input.product.unitAmount != input.updated.unitAmount) {
+                        Product::unitAmount setTo input.updated.unitAmount
+                    }
+                    if (input.product.unitTypeId != input.updated.unitTypeId) {
+                        Product::unitTypeId setTo input.updated.unitTypeId
+                    }
                 }) {
                     Product::id eq input.product.id
                 }
+
                 updateState { it.copy(updating = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -199,6 +206,27 @@ class ProductRepositoryInputHandler(
             )
             println("upload path => $result")
             updateState { it.copy(photoUploadResponse = SupabaseResource.Success(result)) }
+        }
+
+        is ProductRepositoryContract.Inputs.GetProduct -> {
+            try {
+                val result = supabaseClient.postgrest["products"].select("*,product_customer_roles(*)") {
+                    Product::id eq input.productId
+                }
+                println("get ${result.body}")
+                val product: Product = result.decodeSingle(json = Json {
+                    ignoreUnknownKeys = true
+                })
+                updateState { it.copy(product = SupabaseResource.Success(product)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(product = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is ProductRepositoryContract.Inputs.GetPhotoUrl -> {
+            val result = supabaseClient.storage["shad"].publicRenderUrl(input.path)
+            println("imagePath $result")
         }
     }
 }

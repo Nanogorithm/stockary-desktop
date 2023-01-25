@@ -16,17 +16,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.AwtWindow
+import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.repository.category.model.Category
 import com.stockary.common.repository.product.model.UnitType
-import java.awt.FileDialog
-import java.awt.Frame
 
 @Composable
 fun SearchableDropDown(
-    items: List<Category>, modifier: Modifier = Modifier, label: String = "Category", onSelected: (Category) -> Unit
+    items: List<Category>, modifier: Modifier = Modifier,
+    label: String = "Category",
+    state: ChoiceState
 ) {
-    var selected by remember { mutableStateOf(-1) }
     var showPop by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
 
@@ -44,7 +43,7 @@ fun SearchableDropDown(
             ) {
                 Text(label, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(if (selected < 0) "select ${label.lowercase()}" else items[selected].title)
+                Text(if (state.value =="") "Select ${label.lowercase()}" else items.firstOrNull { it.id.toString() == state.value }?.title ?: "Select Category")
             }
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
@@ -57,8 +56,7 @@ fun SearchableDropDown(
                 it.title.contains(search)
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
-                    selected = index
-                    onSelected(items[index])
+                    state.change(element.id.toString())
                     showPop = false
                     search = ""
                 }) { Text(text = element.title) }
@@ -71,9 +69,8 @@ fun SearchableDropDown(
 fun SelectUnitType(
     items: List<UnitType>,
     modifier: Modifier = Modifier,
-    onSelected: (UnitType) -> Unit
+    state: ChoiceState
 ) {
-    var selected by remember { mutableStateOf(-1) }
     var showPop by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
 
@@ -94,7 +91,7 @@ fun SelectUnitType(
                 modifier = Modifier.weight(1f).wrapContentHeight()
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(if (selected < 0) "select Unit type" else items[selected].name)
+                Text(if (state.value == "") "Select Unit type" else items.firstOrNull { it.id.toString() == state.value }?.name ?: "Select Unit type")
             }
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
@@ -107,8 +104,7 @@ fun SelectUnitType(
                 it.name.contains(search)
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
-                    selected = index
-                    onSelected(items[index])
+                    state.change(element.id.toString())
                     showPop = false
                     search = ""
                 }) { Text(text = element.name) }

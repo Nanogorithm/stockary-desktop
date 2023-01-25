@@ -18,7 +18,8 @@ data class Product(
     val photo: String? = null,
 
     @SerialName("categories") var category: Category? = null,
-    @SerialName("unit_types") var unitType: UnitType? = null
+    @SerialName("unit_types") var unitType: UnitType? = null,
+    @SerialName("product_customer_roles") val productCustomerRole: List<ProductCustomerRole> = emptyList()
 )
 
 @Serializable

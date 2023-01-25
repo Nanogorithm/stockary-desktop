@@ -51,17 +51,27 @@ class ProductRepositoryImpl(
         return observeStates().map { it.photoUploadResponse }
     }
 
+    override fun get(productId: Int): Flow<SupabaseResource<Product>> {
+        trySend(ProductRepositoryContract.Inputs.GetProduct(productId))
+        return observeStates().map { it.product }
+    }
+
     override fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types))
         return observeStates().map { it.saving }
     }
 
-    override fun edit(product: Product, updated: Product): Flow<SupabaseResource<Boolean>> {
+    override fun edit(product: Product, updated: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
+        trySend(ProductRepositoryContract.Inputs.Edit(product,updated, prices, types))
         return observeStates().map { it.updating }
     }
 
     override fun delete(product: Product): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Delete(product = product))
         return observeStates().map { it.deleting }
+    }
+
+    override fun getPhotoUrl(url: String){
+        trySend(ProductRepositoryContract.Inputs.GetPhotoUrl(url))
     }
 }

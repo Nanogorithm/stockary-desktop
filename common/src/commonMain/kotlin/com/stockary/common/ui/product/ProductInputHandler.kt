@@ -52,5 +52,7 @@ class ProductInputHandler(
         is ProductContract.Inputs.UpdateDeleteResponse -> {
             updateState { it.copy(deleteResponse = input.response) }
         }
+
+        is ProductContract.Inputs.GoEdit -> postEvent(ProductContract.Events.GoProductEdit(input.productId))
     }
 }

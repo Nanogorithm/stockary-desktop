@@ -8,6 +8,7 @@ import com.stockary.common.repository.category.model.Category
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
+import com.stockary.common.storagePrefix
 import java.io.File
 
 object NewProductContract {
@@ -22,7 +23,8 @@ object NewProductContract {
 
         val productName: TextFieldValue = TextFieldValue(),
         val productDescription: TextFieldValue = TextFieldValue(),
-        val basePrice: TextFieldValue = TextFieldValue(),
+        val productId: Int? = null,
+        val product: SupabaseResource<Product> = SupabaseResource.Idle,
         val formState: FormState<BaseState<*>> = FormState(
             fields = listOf(
                 TextFieldState(
@@ -34,6 +36,9 @@ object NewProductContract {
                 ), TextFieldState(
                     name = "photo",
                     validators = listOf(),
+                    transform = {
+                        if(it.contains("https://")) it.replace(storagePrefix, "") else it
+                    }
                 ), TextFieldState(name = "unit_amount", validators = listOf(
                     Validators.Required()
                 ), transform = {
@@ -50,11 +55,13 @@ object NewProductContract {
     )
 
     sealed class Inputs {
-        object Initialize : Inputs()
+        data class Initialize(val productId: Int? = null) : Inputs()
         object GoBack : Inputs()
+        object Update : Inputs()
 
         data class Save(val title: String, val description: String) : Inputs()
         object SaveAndContinue : Inputs()
+        object UpdateForm : Inputs()
 
         data class UpdateSaveResponse(val response: SupabaseResource<Boolean>, val isContinue: Boolean = false) :
             Inputs()
@@ -68,6 +75,10 @@ object NewProductContract {
         data class UpdateUnitTypes(val unitTypes: Cached<List<UnitType>>) : Inputs()
         data class FetchCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val customerTypes: Cached<List<Role>>) : Inputs()
+
+        data class GetProduct(val productId: Int):Inputs()
+        data class UpdateProduct(val product: SupabaseResource<Product>) : Inputs()
+
     }
 
     sealed class Events {

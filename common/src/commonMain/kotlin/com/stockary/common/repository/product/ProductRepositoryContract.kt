@@ -19,6 +19,7 @@ object ProductRepositoryContract {
 
         val unitTypes: Cached<List<UnitType>> = Cached.NotLoaded(),
         val photoUploadResponse: SupabaseResource<String> = SupabaseResource.Idle,
+        val product: SupabaseResource<Product> = SupabaseResource.Idle,
 
         val saving: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val updating: SupabaseResource<Boolean> = SupabaseResource.Idle,
@@ -42,8 +43,14 @@ object ProductRepositoryContract {
         data class UploadPhoto(val file: File) : Inputs()
         data class UpdateUploadResponse(val photoUploadResponse: SupabaseResource<String>) : Inputs()
 
+
+        data class GetProduct(val productId: Int) : Inputs()
+        data class GetPhotoUrl(val path: String) : Inputs()
+
         data class Add(val product: Product, val prices: List<Float>, val types: List<Role>) : Inputs()
-        data class Edit(val product: Product, val updated: Product) : Inputs()
+        data class Edit(val product: Product, val updated: Product, val prices: List<Float>, val types: List<Role>) :
+            Inputs()
+
         data class Delete(val product: Product) : Inputs()
     }
 }

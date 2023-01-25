@@ -25,20 +25,22 @@ import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.form_builder.TextFieldState
 import com.stockary.common.repository.product.model.Product
+import com.stockary.common.storagePrefix
 import org.koin.core.component.KoinComponent
 import java.io.File
 
 class NewProductPage : KoinComponent {
     @Composable
     fun NewProduct(
-        injector: ComposeDesktopInjector
+        injector: ComposeDesktopInjector,
+        productId: Int?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewProductViewModel = remember(viewModelScope) { injector.newProductViewModel(viewModelScope) }
         val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
-            vm.trySend(NewProductContract.Inputs.Initialize)
+            vm.trySend(NewProductContract.Inputs.Initialize(productId))
         }
 
         Content(uiState) {
@@ -62,117 +64,65 @@ class NewProductPage : KoinComponent {
         val unitTypeIdState: ChoiceState = uiState.formState.getState("unit_type_id")
 
         LaunchedEffect(photoState.value) {
-            if (photoState.value.isNotBlank()) {
+            if (photoState.value.isNotBlank() && !photoState.value.contains(storagePrefix)) {
                 postInput(NewProductContract.Inputs.UploadPhoto(file = File(photoState.value)))
             }
         }
 
-        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
-            Text("New Product", fontSize = 32.sp, fontWeight = FontWeight.W600)
-            Spacer(modifier = Modifier.height(38.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(34.dp)) {
-                Card(
-                    modifier = Modifier.weight(4f), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF8F8F8)
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
-                        Text("Information", fontSize = 24.sp, fontWeight = FontWeight.W600)
-                        Spacer(modifier = Modifier.height(36.dp))
-                        TextInput(
-                            label = "Product name",
-                            placeHolder = "Special biscuit",
-                            state = titleState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        TextInput(
-                            label = "Description",
-                            placeHolder = "This is popular item contains a,b,c",
-                            state = descriptionState,
-                            maxLines = 3,
-                            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Box(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(100.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextInput(
-                                    label = "Unit",
-                                    placeHolder = "5 kg, 2 piece",
-                                    state = unitAmountState,
-                                    modifier = Modifier.wrapContentHeight().weight(1f)
-                                )
-                                Spacer(modifier = Modifier.width(16.dp))
-                                if (uiState.unitTypes !is Cached.NotLoaded && uiState.unitTypes.isLoading()) {
-                                    CircularProgressIndicator()
-                                } else {
-                                    Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) {
-                                        SelectUnitType(
-                                            modifier = Modifier.width(200.dp).height(60.dp),
-                                            items = uiState.unitTypes.getCachedOrEmptyList(),
-                                        ) {
-                                            it.id?.let {
-                                                unitTypeIdState.change(it.toString())
-                                            }
-                                        }
 
-                                        if (unitTypeIdState.hasError) {
-                                            Text(
-                                                text = unitTypeIdState.errorMessage,
-                                                modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-                                                style = androidx.compose.material.MaterialTheme.typography.caption.copy(
-                                                    color = androidx.compose.material.MaterialTheme.colors.error
-                                                )
+        Box {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
+                Text(if(uiState.productId != null) "Editing ${uiState.productId}" else "New Product", fontSize = 32.sp, fontWeight = FontWeight.W600)
+                Spacer(modifier = Modifier.height(38.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(34.dp)) {
+                    Card(
+                        modifier = Modifier.weight(4f), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFF8F8F8)
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
+                            Text("Information", fontSize = 24.sp, fontWeight = FontWeight.W600)
+                            Spacer(modifier = Modifier.height(36.dp))
+                            TextInput(
+                                label = "Product name",
+                                placeHolder = "Special biscuit",
+                                state = titleState,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TextInput(
+                                label = "Description",
+                                placeHolder = "This is popular item contains a,b,c",
+                                state = descriptionState,
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Box(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    TextInput(
+                                        label = "Unit",
+                                        placeHolder = "5 kg, 2 piece",
+                                        state = unitAmountState,
+                                        modifier = Modifier.wrapContentHeight().weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    if (uiState.unitTypes !is Cached.NotLoaded && uiState.unitTypes.isLoading()) {
+                                        CircularProgressIndicator()
+                                    } else {
+                                        Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) {
+                                            SelectUnitType(
+                                                modifier = Modifier.width(200.dp).height(60.dp),
+                                                items = uiState.unitTypes.getCachedOrEmptyList(),
+                                                state = unitTypeIdState
                                             )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        FileChooser(state = photoState)
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                }
-                Card(
-                    modifier = Modifier.weight(3f), colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF8F8F8)
-                    ), shape = RoundedCornerShape(10.dp)
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
-                        Text("Organize", fontSize = 24.sp, fontWeight = FontWeight.W600)
-                        Spacer(modifier = Modifier.height(36.dp))
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (uiState.categoryList !is Cached.NotLoaded && uiState.categoryList.isLoading()) {
-                                item {
-                                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                                }
-                                item { }
-                            } else {
-                                val categories = uiState.categoryList.getCachedOrEmptyList()
-                                if (categories.isNotEmpty()) {
-                                    item {
-                                        Column(modifier = Modifier.fillMaxWidth()) {
-                                            SearchableDropDown(
-                                                modifier = Modifier.fillMaxWidth().height(60.dp),
-                                                label = "Category",
-                                                items = categories,
-                                            ) {
-                                                it.id?.let {
-                                                    categoryIdState.change(it.toString())
-                                                }
-                                            }
-                                            if (categoryIdState.hasError) {
+
+                                            if (unitTypeIdState.hasError) {
                                                 Text(
-                                                    text = categoryIdState.errorMessage,
+                                                    text = unitTypeIdState.errorMessage,
                                                     modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                                                     style = androidx.compose.material.MaterialTheme.typography.caption.copy(
                                                         color = androidx.compose.material.MaterialTheme.colors.error
@@ -180,64 +130,113 @@ class NewProductPage : KoinComponent {
                                                 )
                                             }
                                         }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            FileChooser(state = photoState)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                    Card(
+                        modifier = Modifier.weight(3f), colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFF8F8F8)
+                        ), shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
+                            Text("Organize", fontSize = 24.sp, fontWeight = FontWeight.W600)
+                            Spacer(modifier = Modifier.height(36.dp))
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                if (uiState.categoryList !is Cached.NotLoaded && uiState.categoryList.isLoading()) {
+                                    item {
+                                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
                                     }
                                     item { }
-                                }
-                            }
-
-                            if (uiState.customerType !is Cached.NotLoaded && uiState.customerType.isLoading()) {
-                                item {
-                                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                                }
-                                item { }
-                            } else {
-                                uiState.customerType.getCachedOrEmptyList().forEach { _customerType ->
-                                    item {
-                                        Column {
-
-                                            val priceState: TextFieldState =
-                                                uiState.formState.getState(_customerType.name)
-
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                            ) {
-                                                val typeName = _customerType.name.replaceFirst(
-                                                    _customerType.name.first(),
-                                                    _customerType.name.first().uppercaseChar()
+                                } else {
+                                    val categories = uiState.categoryList.getCachedOrEmptyList()
+                                    if (categories.isNotEmpty()) {
+                                        item {
+                                            Column(modifier = Modifier.fillMaxWidth()) {
+                                                SearchableDropDown(
+                                                    modifier = Modifier.fillMaxWidth().height(60.dp),
+                                                    label = "Category",
+                                                    items = categories,
+                                                    state = categoryIdState
                                                 )
-
-
-                                                TextField(value = priceState.value, onValueChange = {
-                                                    priceState.change(it)
-                                                }, placeholder = {
+                                                if (categoryIdState.hasError) {
                                                     Text(
-                                                        typeName
+                                                        text = categoryIdState.errorMessage,
+                                                        modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                        style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                            color = androidx.compose.material.MaterialTheme.colors.error
+                                                        )
                                                     )
-                                                }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
-                                                    containerColor = Color.White,
-                                                    textColor = contentColorFor(Color.White),
-                                                    unfocusedIndicatorColor = Color.Transparent,
-                                                    placeholderColor = Color(0xFF676767)
-                                                ), leadingIcon = {
-                                                    Text(
-                                                        currencySymbol,
-                                                        color = Color(0xFF1F1F1F),
-                                                        fontWeight = FontWeight.W500
-                                                    )
-                                                }, modifier = Modifier.weight(1f), label = {
-                                                    Text("$typeName Price")
-                                                }, isError = priceState.hasError
-                                                )
+                                                }
                                             }
-                                            if (priceState.hasError) {
-                                                Text(
-                                                    text = priceState.errorMessage,
-                                                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-                                                    style = androidx.compose.material.MaterialTheme.typography.caption.copy(
-                                                        color = androidx.compose.material.MaterialTheme.colors.error
+                                        }
+                                        item { }
+                                    }
+                                }
+
+                                if (uiState.customerType !is Cached.NotLoaded && uiState.customerType.isLoading()) {
+                                    item {
+                                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                                    }
+                                    item { }
+                                } else {
+                                    uiState.customerType.getCachedOrEmptyList().forEach { _customerType ->
+                                        item {
+                                            Column {
+
+                                                val priceState: TextFieldState =
+                                                    uiState.formState.getState(_customerType.name)
+
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    val typeName = _customerType.name.replaceFirst(
+                                                        _customerType.name.first(),
+                                                        _customerType.name.first().uppercaseChar()
                                                     )
-                                                )
+
+
+                                                    TextField(value = priceState.value, onValueChange = {
+                                                        priceState.change(it)
+                                                    }, placeholder = {
+                                                        Text(
+                                                            typeName
+                                                        )
+                                                    }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
+                                                        containerColor = Color.White,
+                                                        textColor = contentColorFor(Color.White),
+                                                        unfocusedIndicatorColor = Color.Transparent,
+                                                        placeholderColor = Color(0xFF676767)
+                                                    ), leadingIcon = {
+                                                        Text(
+                                                            currencySymbol,
+                                                            color = Color(0xFF1F1F1F),
+                                                            fontWeight = FontWeight.W500
+                                                        )
+                                                    }, modifier = Modifier.weight(1f), label = {
+                                                        Text("$typeName Price")
+                                                    }, isError = priceState.hasError
+                                                    )
+                                                }
+                                                if (priceState.hasError) {
+                                                    Text(
+                                                        text = priceState.errorMessage,
+                                                        modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                        style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                            color = androidx.compose.material.MaterialTheme.colors.error
+                                                        )
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -246,55 +245,77 @@ class NewProductPage : KoinComponent {
                         }
                     }
                 }
-            }
-            when (val saving = uiState.response) {
-                is SupabaseResource.Error -> {
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Text(saving.exception.message ?: "")
+                when (val saving = uiState.response) {
+                    is SupabaseResource.Error -> {
+                        Spacer(modifier = Modifier.height(28.dp))
+                        Text(saving.exception.message ?: "")
+                    }
+
+                    SupabaseResource.Idle -> {
+
+                    }
+
+                    SupabaseResource.Loading -> {
+                        Spacer(modifier = Modifier.height(28.dp))
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                    }
+
+                    is SupabaseResource.Success -> {
+                        Spacer(modifier = Modifier.height(28.dp))
+                        Text("Saved successfully")
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+                error.value?.let {
+                    Text(it)
                 }
 
-                SupabaseResource.Idle -> {
-
-                }
-
-                SupabaseResource.Loading -> {
-                    Spacer(modifier = Modifier.height(28.dp))
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                }
-
-                is SupabaseResource.Success -> {
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Text("Saved successfully")
-                }
-            }
-            Spacer(modifier = Modifier.height(28.dp))
-            error.value?.let {
-                Text(it)
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = {
-                        if (uiState.formState.validate()) {
-                            error.value = null
-
-                            postInput(
-                                NewProductContract.Inputs.SaveAndContinue
-                            )
-                        }
-                    }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Save")
+                    Button(
+                        onClick = {
+                            if (uiState.formState.validate()) {
+                                error.value = null
+
+                                if(uiState.productId != null){
+                                    postInput(
+                                        NewProductContract.Inputs.Update
+                                    )
+                                } else {
+                                    postInput(
+                                        NewProductContract.Inputs.SaveAndContinue
+                                    )
+                                }
+                            }
+                        }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Text("Save")
+                    }
+                    TextButton(onClick = {
+                        postInput(NewProductContract.Inputs.GoBack)
+                    }) {
+                        Text("BACK")
+                    }
                 }
-                TextButton(onClick = {
-                    postInput(NewProductContract.Inputs.GoBack)
-                }) {
-                    Text("BACK")
+            }
+            if(uiState.productId != null){
+                when(uiState.product){
+                    is SupabaseResource.Error -> {
+
+                    }
+                    SupabaseResource.Idle -> {
+
+                    }
+                    SupabaseResource.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is SupabaseResource.Success -> {
+
+                    }
                 }
             }
         }

@@ -140,7 +140,10 @@ class ProductPage : KoinComponent {
                         Text(_product.title, modifier = Modifier.weight(1f))
                         Text(_product.category?.title ?: "", modifier = Modifier.width(181.dp))
                         Text("${_product.stock}", modifier = Modifier.width(181.dp))
-                        Text(_product.unitAmount.toString(), modifier = Modifier.width(181.dp))
+                        Text(
+                            "${_product.unitAmount} ${_product.unitType?.name ?: ""}",
+                            modifier = Modifier.width(181.dp)
+                        )
                         Row(
                             modifier = Modifier.width(181.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -148,7 +151,9 @@ class ProductPage : KoinComponent {
                         ) {
                             Box(
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    .background(MaterialTheme.colorScheme.secondaryContainer).clickable {
+                                        postInput(ProductContract.Inputs.GoEdit(_product.id!!))
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(

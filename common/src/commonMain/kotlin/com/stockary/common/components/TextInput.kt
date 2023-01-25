@@ -68,7 +68,8 @@ fun TextInput(
 
 @Composable
 fun FileChooser(
-    state: TextFieldState, modifier: Modifier = Modifier.fillMaxWidth().height(90.dp)
+    state: TextFieldState,
+    modifier: Modifier = Modifier.fillMaxWidth().height(90.dp)
 ) {
     var isFileChooserOpen by remember { mutableStateOf(false) }
     Column {
@@ -79,14 +80,15 @@ fun FileChooser(
                 }, contentAlignment = Alignment.Center
         ) {
             if (state.value.isNotBlank()) {
-                println(state.value)
-                val painterResource: Resource<Painter> = lazyPainterResource(data = File(state.value))
+                println("photo -> ${state.value}")
+                val painterResource: Resource<Painter> =
+                    lazyPainterResource(data = if (state.value.contains("https://")) state.value else File(state.value))
                 KamelImage(
                     resource = painterResource,
                     contentDescription = "Product photo",
                     onLoading = { progress -> CircularProgressIndicator(progress) },
                     onFailure = { exception ->
-                        
+
                     },
                     animationSpec = tween(),
                 )

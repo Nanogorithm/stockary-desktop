@@ -5,6 +5,7 @@ import com.copperleaf.ballast.EventHandlerScope
 import com.copperleaf.ballast.navigation.routing.RouterContract
 import com.copperleaf.ballast.navigation.routing.build
 import com.copperleaf.ballast.navigation.routing.directions
+import com.copperleaf.ballast.navigation.routing.queryParameter
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.router.AppScreen
 
@@ -34,6 +35,17 @@ class ProductEventHandler(
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.NewProduct.directions().build()
+                )
+            )
+            Unit
+        }
+
+        is ProductContract.Events.GoProductEdit -> {
+            router.trySend(
+                RouterContract.Inputs.GoToDestination(
+                    AppScreen.NewProduct.directions()
+                        .queryParameter("productId", event.productId.toString())
+                        .build()
                 )
             )
             Unit

@@ -32,7 +32,7 @@ enum class AppScreen(
         "/app/products?sort={?}", "products", icon = Icons.Default.ShoppingCart
     ),
     NewProduct(
-        "/app/new-product", "Add Product"
+        "/app/new-product?productId={?}", "Add Product"
     ),
     ProductDetails("/app/products/{categoryId}", "Product Details"), NewOrder(
         "/app/new-order", "New Order"

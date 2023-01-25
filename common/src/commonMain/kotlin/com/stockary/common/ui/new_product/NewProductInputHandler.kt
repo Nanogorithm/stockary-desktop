@@ -7,13 +7,11 @@ import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.SupabaseResource
-import com.stockary.common.form_builder.BaseState
-import com.stockary.common.form_builder.FormState
-import com.stockary.common.form_builder.TextFieldState
-import com.stockary.common.form_builder.Validators
+import com.stockary.common.form_builder.*
 import com.stockary.common.repository.category.CategoryRepository
 import com.stockary.common.repository.product.ProductRepository
 import com.stockary.common.repository.product.model.Product
+import com.stockary.common.storagePrefix
 import kotlinx.coroutines.flow.map
 
 class NewProductInputHandler(
@@ -23,9 +21,14 @@ class NewProductInputHandler(
         input: NewProductContract.Inputs
     ) = when (input) {
         is NewProductContract.Inputs.Initialize -> {
+            updateState { it.copy(productId = input.productId) }
             postInput(NewProductContract.Inputs.FetchCustomerTypes(true))
             postInput(NewProductContract.Inputs.FetchCategories(true))
             postInput(NewProductContract.Inputs.FetchUnitTypes(true))
+            input.productId?.let {
+                postInput(NewProductContract.Inputs.GetProduct(it))
+            }
+            Unit
         }
 
         is NewProductContract.Inputs.GoBack -> {
@@ -46,7 +49,7 @@ class NewProductInputHandler(
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
 
-            if(currentState.uploadResponse is SupabaseResource.Success){
+            if (currentState.uploadResponse is SupabaseResource.Success) {
                 val photoPath = currentState.uploadResponse.data
                 val photoField: TextFieldState = currentState.formState.getState("photo")
                 photoField.change(photoPath)
@@ -73,6 +76,7 @@ class NewProductInputHandler(
 
         is NewProductContract.Inputs.UpdateCategories -> {
             updateState { it.copy(categoryList = input.categoryList) }
+            postInput(NewProductContract.Inputs.UpdateForm)
         }
 
         is NewProductContract.Inputs.FetchCategories -> {
@@ -108,6 +112,8 @@ class NewProductInputHandler(
                     })
                 )
             }
+
+            postInput(NewProductContract.Inputs.UpdateForm)
         }
 
         is NewProductContract.Inputs.FetchUnitTypes -> {
@@ -119,6 +125,7 @@ class NewProductInputHandler(
 
         is NewProductContract.Inputs.UpdateUnitTypes -> {
             updateState { it.copy(unitTypes = input.unitTypes) }
+            postInput(NewProductContract.Inputs.UpdateForm)
         }
 
         is NewProductContract.Inputs.UpdateUploadResponse -> {
@@ -131,6 +138,67 @@ class NewProductInputHandler(
                     productRepository.uploadPhoto(input.file)
                         .map { NewProductContract.Inputs.UpdateUploadResponse(it) })
             }
+        }
+
+        is NewProductContract.Inputs.GetProduct -> {
+            updateState { it.copy(product = SupabaseResource.Loading) }
+            observeFlows("GetProduct") {
+                listOf(
+                    productRepository.get(input.productId)
+                        .map { NewProductContract.Inputs.UpdateProduct(it) }
+                )
+            }
+        }
+
+        is NewProductContract.Inputs.UpdateProduct -> {
+            updateState { it.copy(product = input.product) }
+            postInput(NewProductContract.Inputs.UpdateForm)
+        }
+
+        NewProductContract.Inputs.UpdateForm -> {
+            val currentState = getCurrentState()
+
+            if (currentState.product is SupabaseResource.Success) {
+                val formState = currentState.formState
+                val product: Product = currentState.product.data
+
+                formState.getState<TextFieldState>("title").change(product.title)
+                formState.getState<TextFieldState>("unit_amount").change(product.unitAmount.toString())
+                formState.getState<TextFieldState>("description").change(product.description ?: "")
+                formState.getState<TextFieldState>("photo").change(product.photo?.let { "${storagePrefix}${it}" } ?: "")
+                formState.getState<ChoiceState>("unit_type_id").change(product.unitTypeId.toString())
+                formState.getState<ChoiceState>("category_id").change(product.categoryId.toString())
+
+                //set prices
+                currentState.customerType.getCachedOrEmptyList().forEach { _role ->
+                    product.productCustomerRole.firstOrNull { it.customer_role_id == _role.id }?.let {
+                        formState.getState<TextFieldState>(_role.name).change(it.price.toString())
+                    }
+                }
+            }
+            Unit
+        }
+
+        NewProductContract.Inputs.Update -> {
+            val currentState = getCurrentState()
+            updateState { it.copy(response = SupabaseResource.Loading) }
+            if (currentState.product is SupabaseResource.Success) {
+                val product: Product = currentState.product.data
+                val updated: Product = currentState.formState.getData()
+                val rawData = currentState.formState.getMap()
+
+                val prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.name] as Float }
+                val types = currentState.customerType.getCachedOrEmptyList()
+
+                observeFlows("Update") {
+                    listOf(
+                        productRepository.edit(product = product, updated = updated, prices = prices, types = types)
+                            .map { NewProductContract.Inputs.UpdateSaveResponse(it) }
+                    )
+                }
+
+            }
+            Unit
         }
     }
 }

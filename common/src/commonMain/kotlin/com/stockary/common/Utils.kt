@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 
 val currencySymbol = "৳"
+val storagePrefix = "https://nfwwajxqeilqdkvwfojz.supabase.co/storage/v1/object/public/"
 
 fun Float.toCurrencyFormat() = "${currencySymbol}${this}"
 fun Double.toCurrencyFormat() = "${currencySymbol}${this}"

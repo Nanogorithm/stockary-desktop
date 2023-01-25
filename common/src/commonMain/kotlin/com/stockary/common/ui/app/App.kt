@@ -205,7 +205,8 @@ class AppScreenView(
                                         }
 
                                         NewProduct -> {
-                                            NewProductPage().NewProduct(injector = injector)
+                                            val productId: Int? by optionalIntQuery()
+                                            NewProductPage().NewProduct(injector = injector, productId)
                                         }
 
                                         ProductDetails -> {
