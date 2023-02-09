@@ -96,8 +96,6 @@ fun pdfInvoice(
         add(myTable)
         add(Paragraph(Chunk.NEWLINE))
 
-        // 2) Add the picture to the pdf
-        add(image)
         close()
     }
 

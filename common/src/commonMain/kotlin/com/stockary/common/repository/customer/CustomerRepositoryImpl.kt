@@ -6,7 +6,9 @@ import com.copperleaf.ballast.repository.BallastRepository
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
+import com.stockary.common.repository.product.model.Product
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,5 +32,21 @@ class CustomerRepositoryImpl(
         trySend(CustomerRepositoryContract.Inputs.Initialize)
         trySend(CustomerRepositoryContract.Inputs.RefreshCustomerList(refreshCache))
         return observeStates().map { it.dataList }
+    }
+
+    override fun get(customerId: Int): Flow<SupabaseResource<Product>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun add(customer: Profile, roleId: Int): Flow<SupabaseResource<Boolean>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun edit(customer: Profile, updated: Profile): Flow<SupabaseResource<Boolean>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun delete(customer: Profile): Flow<SupabaseResource<Boolean>> {
+        TODO("Not yet implemented")
     }
 }

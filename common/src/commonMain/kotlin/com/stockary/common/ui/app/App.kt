@@ -32,7 +32,6 @@ import com.stockary.common.ui.customer.CustomerPage
 import com.stockary.common.ui.home.Overview
 import com.stockary.common.ui.login.Login
 import com.stockary.common.ui.new_category.NewCategoryPage
-import com.stockary.common.ui.new_customer.NewCustomer
 import com.stockary.common.ui.new_order.NewOrder
 import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.order.OrderPage
@@ -230,7 +229,8 @@ class AppScreenView(
                                         }
 
                                         NewCustomer -> {
-                                            NewCustomer()
+                                            val customerId: Int? by optionalIntQuery()
+//                                            NewCustomerPage().NewCustomer(injector,customerId)
                                         }
                                     }
                                 },
