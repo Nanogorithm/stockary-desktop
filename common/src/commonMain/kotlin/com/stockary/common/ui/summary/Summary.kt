@@ -101,7 +101,6 @@ private fun Content(
                 Text("Category", fontSize = 16.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
                 Text("Item", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-                Text("No of Customers", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
                 Text("Total Unit", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
             }
             Divider(color = Color(0x33000000))
@@ -120,11 +119,10 @@ private fun Content(
                         modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("${_order.profile?.firstName}")
+                        Text(_order.categoryName)
                         Spacer(modifier = Modifier.weight(1f))
-                        Text("Special Biscuit", modifier = Modifier.width(181.dp))
-                        Text("82", modifier = Modifier.width(181.dp))
-                        Text("10kg", modifier = Modifier.width(181.dp))
+                        Text(_order.title, modifier = Modifier.width(181.dp))
+                        Text("${_order.totalUnit} ${_order.unitName}", modifier = Modifier.width(181.dp))
                     }
                     Divider(color = Color(0xFFD9D9D9))
                 }

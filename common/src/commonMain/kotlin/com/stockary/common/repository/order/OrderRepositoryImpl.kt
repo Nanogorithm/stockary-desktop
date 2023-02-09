@@ -7,6 +7,7 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.repository.order.model.Order
+import com.stockary.common.repository.order.model.OrderSummary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,5 +31,10 @@ class OrderRepositoryImpl(
         trySend(OrderRepositoryContract.Inputs.Initialize)
         trySend(OrderRepositoryContract.Inputs.RefreshOrders(refreshCache))
         return observeStates().map { it.orderList }
+    }
+
+    override fun getTodayOrders(refreshCache: Boolean): Flow<Cached<List<OrderSummary>>> {
+        trySend(OrderRepositoryContract.Inputs.RefreshSummary(refreshCache))
+        return observeStates().map { it.summary }
     }
 }

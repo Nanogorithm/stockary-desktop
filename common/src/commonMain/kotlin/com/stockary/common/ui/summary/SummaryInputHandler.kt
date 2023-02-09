@@ -1,6 +1,5 @@
 package com.stockary.common.ui.summary
 
-import androidx.compose.runtime.SideEffect
 import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
@@ -24,7 +23,7 @@ class SummaryInputHandler(
 
         is SummaryContract.Inputs.FetchOrders -> {
             observeFlows("FetchOrders") {
-                listOf(orderRepository.getOrders(input.forceRefresh).map { SummaryContract.Inputs.UpdateOrders(it) })
+                listOf(orderRepository.getTodayOrders(input.forceRefresh).map { SummaryContract.Inputs.UpdateOrders(it) })
             }
         }
 
@@ -33,7 +32,9 @@ class SummaryInputHandler(
         }
 
         is SummaryContract.Inputs.Print -> {
-            pdfInvoice(fileName = System.currentTimeMillis().toString(), orders = input.orders)
+            sideJob("printSummary"){
+                pdfInvoice(fileName = System.currentTimeMillis().toString(), orders = input.orders)
+            }
         }
     }
 }

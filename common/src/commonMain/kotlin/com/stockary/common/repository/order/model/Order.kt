@@ -25,3 +25,14 @@ data class OrderItem(
     @SerialName("order_id") val orderId: Int? = null,
     @SerialName("product_id") val productId: Int? = null,
 )
+
+@Serializable
+data class OrderSummary(
+    val title: String,
+    @SerialName("category_name")
+    val categoryName: String,
+    @SerialName("unit_name")
+    val unitName: String,
+    @SerialName("total_unit")
+    val totalUnit: Int
+)

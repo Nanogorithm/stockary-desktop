@@ -3,7 +3,7 @@ package com.stockary.common.ui.summary
 import com.lowagie.text.*
 import com.lowagie.text.pdf.PdfPageEventHelper
 import com.lowagie.text.pdf.PdfWriter
-import com.stockary.common.repository.order.model.Order
+import com.stockary.common.repository.order.model.OrderSummary
 import java.awt.Color
 import java.awt.Desktop
 import java.io.File
@@ -13,7 +13,7 @@ import java.io.IOException
 
 fun pdfInvoice(
     fileName: String,
-    orders: List<Order>
+    orders: List<OrderSummary>
 ){
     // 1) Create a FileOutputStream object with the path and name of the file
     val pdfOutputFile = FileOutputStream("./${fileName}.pdf")
@@ -48,13 +48,13 @@ fun pdfInvoice(
         }
     }
 
-    val myTable = Table(4).apply {
+    val myTable = Table(3).apply {
         padding = 2f
         spacing = 1f
         width = 100f
     }
 
-    listOf("Category", "Item", "No of Customers", "Total Unit").forEach {
+    listOf("Category", "Item", "Total Unit").forEach {
         val current = Cell(Phrase(it)).apply{
             isHeader = true
             backgroundColor = Color.LIGHT_GRAY
@@ -62,13 +62,11 @@ fun pdfInvoice(
         myTable.addCell(current)
     }
 
-    orders.forEach { order ->
-
+    orders.sortedBy { it.categoryName }.forEach { order ->
         myTable.apply {
-            addCell(Cell(Phrase(order.profile?.firstName)))
-            addCell(Cell(Phrase(order.total)))
-            addCell(Cell(Phrase(order.discount)))
-            addCell(Cell(Phrase(order.orderItems.sumOf { it.quantity }.toString())))
+            addCell(Cell(Phrase(order.categoryName)))
+            addCell(Cell(Phrase(order.title)))
+            addCell(Cell(Phrase("${order.totalUnit} ${order.unitName}")))
         }
     }
 

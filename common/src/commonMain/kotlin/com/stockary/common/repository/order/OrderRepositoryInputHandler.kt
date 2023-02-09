@@ -8,6 +8,7 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.repository.order.model.Order
+import com.stockary.common.repository.order.model.OrderSummary
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
@@ -84,17 +85,13 @@ class OrderRepositoryInputHandler(
                 input = input,
                 forceRefresh = input.forceRefresh,
                 getValue = { it.summary },
-                updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
+                updateState = { OrderRepositoryContract.Inputs.UpdateSummary(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["orders"].select("*,profiles(*),order_items(*)")
-                    println(result.body)
-                    result.decodeList<Order>(json = Json {
+                    val result = supabaseClient.postgrest["today_orders"].select()
+                    result.decodeList<OrderSummary>(json = Json {
                         ignoreUnknownKeys = true
                         isLenient = true
-                    }).let {
-                        println(it)
-                        it
-                    }
+                    })
                 },
             )
         }
