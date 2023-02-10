@@ -7,6 +7,7 @@ import com.stockary.common.ui.category.CategoryViewModel
 import com.stockary.common.ui.customer.CustomerViewModel
 import com.stockary.common.ui.home.HomeViewModel
 import com.stockary.common.ui.new_category.NewCategoryViewModel
+import com.stockary.common.ui.new_customer.NewCustomerViewModel
 import com.stockary.common.ui.new_product.NewProductViewModel
 import com.stockary.common.ui.order.OrderViewModel
 import com.stockary.common.ui.product.ProductViewModel
@@ -44,4 +45,8 @@ interface ComposeDesktopInjector {
     fun newCategoryViewModel(
         coroutineScope: CoroutineScope,
     ): NewCategoryViewModel
+
+    fun newCustomerViewModel(
+        coroutineScope: CoroutineScope
+    ): NewCustomerViewModel
 }

@@ -71,5 +71,15 @@ class CustomerRepositoryInputHandler(
                 },
             )
         }
+
+        is CustomerRepositoryContract.Inputs.Add -> {
+
+        }
+        is CustomerRepositoryContract.Inputs.Delete -> {
+
+        }
+        is CustomerRepositoryContract.Inputs.Edit -> {
+
+        }
     }
 }
