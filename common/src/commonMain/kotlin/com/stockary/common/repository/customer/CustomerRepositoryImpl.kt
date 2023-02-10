@@ -9,6 +9,7 @@ import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
 import com.stockary.common.repository.product.model.Product
+import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -38,8 +39,9 @@ class CustomerRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun add(customer: Profile, roleId: Int): Flow<SupabaseResource<Boolean>> {
-        TODO("Not yet implemented")
+    override fun add(email: String, password: String, roleId: Int): Flow<SupabaseResource<Email.Result>> {
+        trySend(CustomerRepositoryContract.Inputs.Add(email = email, password = password))
+        return observeStates().map { it.saving }
     }
 
     override fun edit(customer: Profile, updated: Profile): Flow<SupabaseResource<Boolean>> {

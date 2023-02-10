@@ -47,7 +47,9 @@ class CustomerPage : KoinComponent {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun Content(uiState: CustomerContract.State, postInput: (CustomerContract.Inputs) -> Unit) {
+    private fun Content(
+        uiState: CustomerContract.State, postInput: (CustomerContract.Inputs) -> Unit
+    ) {
         var search by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -91,7 +93,7 @@ class CustomerPage : KoinComponent {
                         Text("Type")
                     }
                     Button(onClick = {
-
+                        postInput(CustomerContract.Inputs.AddNew)
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))

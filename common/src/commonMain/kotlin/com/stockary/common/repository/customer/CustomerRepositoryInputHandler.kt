@@ -7,7 +7,10 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.stockary.common.SupabaseResource
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.gotrue.gotrue
+import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
@@ -73,13 +76,32 @@ class CustomerRepositoryInputHandler(
         }
 
         is CustomerRepositoryContract.Inputs.Add -> {
-
+            sideJob("AddCustomer") {
+                val supabaseResponse: SupabaseResource<Email.Result> = try {
+                    val response = supabaseClient.gotrue.signUpWith(Email) {
+                        email = input.email
+                        password = input.password
+                    }
+                    SupabaseResource.Success(response)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    SupabaseResource.Error(e)
+                }
+                //update state
+                postInput(CustomerRepositoryContract.Inputs.UpdateSignupResponse(supabaseResponse))
+            }
         }
+
         is CustomerRepositoryContract.Inputs.Delete -> {
 
         }
+
         is CustomerRepositoryContract.Inputs.Edit -> {
 
+        }
+
+        is CustomerRepositoryContract.Inputs.UpdateSignupResponse -> {
+            updateState { it.copy(saving = input.saving) }
         }
     }
 }

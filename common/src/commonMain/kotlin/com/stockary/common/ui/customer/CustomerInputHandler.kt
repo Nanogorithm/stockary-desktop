@@ -31,5 +31,9 @@ class CustomerInputHandler(
         is CustomerContract.Inputs.UpdateCustomerList -> {
             updateState { it.copy(customers = input.customers) }
         }
+
+        is CustomerContract.Inputs.AddNew -> {
+            postEvent(CustomerContract.Events.AddNew)
+        }
     }
 }

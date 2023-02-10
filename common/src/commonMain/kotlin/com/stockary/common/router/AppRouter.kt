@@ -14,10 +14,13 @@ enum class AppScreen(
     val icon: ImageVector? = null,
     override val annotations: Set<RouteAnnotation> = emptySet(),
 ) : Route {
-    Home("/app/home", "Home", icon = Icons.Default.Book), Login("/app/login", "Login"), CustomerList(
+    Login("/app/login", "Login"),
+    Home("/app/home", "Home", icon = Icons.Default.Book),
+    CustomerList(
         "/app/customers?sort={?}", "Customers", icon = Icons.Default.Person
     ),
-    NewCustomer("/app/new-customers", "New Customer"), CustomerDetails(
+    NewCustomer("/app/new-customers?customerId={?}", "New Customer"),
+    CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
     NewCategory(
