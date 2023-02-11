@@ -6,7 +6,6 @@ import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.CategoryRepository
-import com.stockary.common.ui.product.ProductContract
 import kotlinx.coroutines.flow.map
 
 class CategoryInputHandler(
@@ -26,7 +25,7 @@ class CategoryInputHandler(
 
         is CategoryContract.Inputs.FetchHotList -> {
             observeFlows("FetchHotListCategory") {
-                listOf(categoryRepository.getCategoryList(refreshCache = input.forceRefresh)
+                listOf(categoryRepository.getCategoryListt(refreshCache = input.forceRefresh)
                     .map { CategoryContract.Inputs.HotListUpdated(it) })
             }
         }

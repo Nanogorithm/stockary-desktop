@@ -29,7 +29,7 @@ version = "1.0-SNAPSHOT"
                 api(compose.material3)
                 api(compose.materialIconsExtended)
 //                implementation("io.realm.kotlin:library-sync:1.5.0")
-//                implementation("io.appwrite:sdk-for-kotlin:1.1.0")
+                implementation("io.appwrite:sdk-for-kotlin:1.2.0")
 
                 api("io.insert-koin:koin-core:$koin_version")
                 implementation("io.insert-koin:koin-androidx-compose:$koin_android_compose_version")

@@ -23,13 +23,16 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.repository.category.model.Category
+import io.appwrite.extensions.jsonCast
 import org.koin.core.component.KoinComponent
 
 class CategoryPage : KoinComponent {
     @Composable
     fun Categories(injector: ComposeDesktopInjector) {
         val viewModelCoroutineScope = rememberCoroutineScope()
-        val vm: CategoryViewModel = remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
+        val vm: CategoryViewModel =
+            remember(viewModelCoroutineScope) { injector.categoryViewModel(viewModelCoroutineScope) }
         val uiState by vm.observeStates().collectAsState()
 
         LaunchedEffect(vm) {
@@ -91,7 +94,7 @@ class CategoryPage : KoinComponent {
             Row(
                 modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("ID", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(100.dp))
+//                Text("ID", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(100.dp))
                 Text("Category Name", fontSize = 12.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
                 Text("No of Products", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
@@ -119,9 +122,10 @@ class CategoryPage : KoinComponent {
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_category?.id}", modifier = Modifier.width(100.dp))
-                        Text(_category.title, modifier = Modifier.weight(1f))
-                        Text("${_category.products.size}", modifier = Modifier.width(181.dp))
+                        val category: Category = _category.data.jsonCast()
+//                        Text(_category.id, modifier = Modifier.width(100.dp))
+                        Text(category.title, modifier = Modifier.weight(1f))
+                        Text("1", modifier = Modifier.width(181.dp))
                         Text("0", modifier = Modifier.width(181.dp))
                         Row(
                             modifier = Modifier.width(181.dp),
@@ -143,9 +147,8 @@ class CategoryPage : KoinComponent {
                             Box(
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.errorContainer).clickable {
-                                        postInput(CategoryContract.Inputs.Delete(_category))
-                                    },
-                                contentAlignment = Alignment.Center
+//                                        postInput(CategoryContract.Inputs.Delete(_category))
+                                    }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onErrorContainer)
                             }

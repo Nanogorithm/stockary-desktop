@@ -9,10 +9,11 @@ import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
-import com.stockary.common.repository.product.ProductRepositoryContract
+import io.appwrite.Client
+import io.appwrite.ID
+import io.appwrite.services.Databases
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
-import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -21,6 +22,7 @@ class CategoryRepositoryInputHandler(
 ) : InputHandler<CategoryRepositoryContract.Inputs, Any, CategoryRepositoryContract.State>, KoinComponent {
 
     val supabaseClient: SupabaseClient by inject()
+    val appWriteClient: Client by inject()
 
     override suspend fun InputHandlerScope<CategoryRepositoryContract.Inputs, Any, CategoryRepositoryContract.State>.handleInput(
         input: CategoryRepositoryContract.Inputs
@@ -57,7 +59,7 @@ class CategoryRepositoryInputHandler(
         }
 
         is CategoryRepositoryContract.Inputs.CategoryListUpdated -> {
-            updateState { it.copy(categories = input.dataList) }
+            updateState { it.copy(categoriess = input.dataList) }
         }
 
         is CategoryRepositoryContract.Inputs.RefreshCategoryList -> {
@@ -65,21 +67,37 @@ class CategoryRepositoryInputHandler(
             fetchWithCache(
                 input = input,
                 forceRefresh = input.forceRefresh,
-                getValue = { it.categories },
+                getValue = { it.categoriess },
                 updateState = { CategoryRepositoryContract.Inputs.CategoryListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["categories"].select("id,title,icon,products(*)")
-                    println(result.body)
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+                    val databases = Databases(appWriteClient)
+                    val categories = databases.listDocuments(
+                        databaseId = "63e66eda428462984490",
+                        collectionId = "categories"
+                    )
+                    categories.documents
+                    /*val result = supabaseClient.postgrest["categories"].select("id,title,icon,products(*)")
+              println(result.body)
+              result.decodeList(json = Json {
+                  ignoreUnknownKeys = true
+              })*/
                 },
             )
         }
 
         is CategoryRepositoryContract.Inputs.Add -> {
             try {
-                val result = supabaseClient.postgrest["categories"].insert(input.category)
+                val databases = Databases(appWriteClient)
+                val response = databases.createDocument(
+                    databaseId = "63e66eda428462984490",
+                    collectionId = "categories",
+                    documentId = ID.unique(),
+                    data = mapOf(
+                        "title" to input.category.title, "description" to input.category.description
+                    ),
+                )
+
+//                val result = supabaseClient.postgrest["categories"].insert(input.category)
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
                 postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
             } catch (e: Exception) {

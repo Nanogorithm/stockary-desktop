@@ -8,6 +8,7 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
+import io.appwrite.models.Document
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -35,6 +36,10 @@ class CategoryRepositoryImpl(
 
     override fun getCategoryList(refreshCache: Boolean): Flow<Cached<List<Category>>> {
         return observeStates().map { it.categories }
+    }
+
+    override fun getCategoryListt(refreshCache: Boolean): Flow<Cached<List<Document<Any>>>> {
+        return observeStates().map { it.categoriess }
     }
 
     override fun add(category: Category): Flow<SupabaseResource<Boolean>> {
