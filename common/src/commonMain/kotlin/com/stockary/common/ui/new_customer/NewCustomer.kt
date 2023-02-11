@@ -10,9 +10,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.copperleaf.ballast.repository.cache.Cached
+import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
+import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.SupabaseResource
+import com.stockary.common.components.SelectCustomerType
 import com.stockary.common.components.TextInput
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.form_builder.TextFieldState
 import org.koin.core.component.KoinComponent
 
@@ -42,7 +47,7 @@ class NewCustomerPage : KoinComponent {
         val emailState: TextFieldState = uiState.formState.getState("email")
         val nameState: TextFieldState = uiState.formState.getState("name")
         val addressState: TextFieldState = uiState.formState.getState("address")
-        val roleState: TextFieldState = uiState.formState.getState("role")
+        val roleState: ChoiceState = uiState.formState.getState("role")
 
         Box {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
@@ -86,12 +91,28 @@ class NewCustomerPage : KoinComponent {
                                 modifier = Modifier.width(300.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
-                            TextInput(
-                                label = "Role",
-                                placeHolder = "",
-                                state = roleState,
-                                modifier = Modifier.width(300.dp)
-                            )
+
+                            Column(modifier = Modifier.width(300.dp)) {
+                                if (uiState.customerType !is Cached.NotLoaded && uiState.customerType.isLoading()) {
+                                    CircularProgressIndicator()
+                                } else {
+                                    SelectCustomerType(
+                                        modifier = Modifier.fillMaxWidth().height(60.dp),
+                                        items = uiState.customerType.getCachedOrEmptyList(),
+                                        state = roleState
+                                    )
+                                    if (roleState.hasError) {
+                                        Text(
+                                            text = roleState.errorMessage,
+                                            modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                            style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                color = androidx.compose.material.MaterialTheme.colors.error
+                                            )
+                                        )
+                                    }
+                                }
+
+                            }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }

@@ -72,11 +72,17 @@ class NewProductPage : KoinComponent {
 
         Box {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
-                Text(if(uiState.productId != null) "Editing ${uiState.productId}" else "New Product", fontSize = 32.sp, fontWeight = FontWeight.W600)
+                Text(
+                    if (uiState.productId != null) "Editing ${uiState.productId}" else "New Product",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.W600
+                )
                 Spacer(modifier = Modifier.height(38.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(34.dp)) {
                     Card(
-                        modifier = Modifier.weight(4f), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(
+                        modifier = Modifier.weight(4f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(
                             containerColor = Color(0xFFF8F8F8)
                         )
                     ) {
@@ -134,7 +140,7 @@ class NewProductPage : KoinComponent {
                                 }
                             }
                             Spacer(modifier = Modifier.height(16.dp))
-                            FileChooser(state = photoState)
+                            FileChooser(state = photoState, uploadResponse = uiState.uploadResponse)
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
@@ -206,26 +212,35 @@ class NewProductPage : KoinComponent {
                                                     )
 
 
-                                                    TextField(value = priceState.value, onValueChange = {
-                                                        priceState.change(it)
-                                                    }, placeholder = {
-                                                        Text(
-                                                            typeName
-                                                        )
-                                                    }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
-                                                        containerColor = Color.White,
-                                                        textColor = contentColorFor(Color.White),
-                                                        unfocusedIndicatorColor = Color.Transparent,
-                                                        placeholderColor = Color(0xFF676767)
-                                                    ), leadingIcon = {
-                                                        Text(
-                                                            currencySymbol,
-                                                            color = Color(0xFF1F1F1F),
-                                                            fontWeight = FontWeight.W500
-                                                        )
-                                                    }, modifier = Modifier.weight(1f), label = {
-                                                        Text("$typeName Price")
-                                                    }, isError = priceState.hasError
+                                                    TextField(
+                                                        value = priceState.value,
+                                                        onValueChange = {
+                                                            priceState.change(it)
+                                                        },
+                                                        placeholder = {
+                                                            Text(
+                                                                typeName
+                                                            )
+                                                        },
+                                                        singleLine = true,
+                                                        colors = TextFieldDefaults.textFieldColors(
+                                                            containerColor = Color.White,
+                                                            textColor = contentColorFor(Color.White),
+                                                            unfocusedIndicatorColor = Color.Transparent,
+                                                            placeholderColor = Color(0xFF676767)
+                                                        ),
+                                                        leadingIcon = {
+                                                            Text(
+                                                                currencySymbol,
+                                                                color = Color(0xFF1F1F1F),
+                                                                fontWeight = FontWeight.W500
+                                                            )
+                                                        },
+                                                        modifier = Modifier.weight(1f),
+                                                        label = {
+                                                            Text("$typeName Price")
+                                                        },
+                                                        isError = priceState.hasError
                                                     )
                                                 }
                                                 if (priceState.hasError) {
@@ -278,7 +293,7 @@ class NewProductPage : KoinComponent {
                             if (uiState.formState.validate()) {
                                 error.value = null
 
-                                if(uiState.productId != null){
+                                if (uiState.productId != null) {
                                     postInput(
                                         NewProductContract.Inputs.Update
                                     )
@@ -302,17 +317,20 @@ class NewProductPage : KoinComponent {
                     }
                 }
             }
-            if(uiState.productId != null){
-                when(uiState.product){
+            if (uiState.productId != null) {
+                when (uiState.product) {
                     is SupabaseResource.Error -> {
 
                     }
+
                     SupabaseResource.Idle -> {
 
                     }
+
                     SupabaseResource.Loading -> {
                         CircularProgressIndicator()
                     }
+
                     is SupabaseResource.Success -> {
 
                     }

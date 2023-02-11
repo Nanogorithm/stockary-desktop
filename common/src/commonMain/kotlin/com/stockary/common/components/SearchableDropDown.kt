@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.repository.category.model.Category
+import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.UnitType
 
 @Composable
@@ -43,7 +44,10 @@ fun SearchableDropDown(
             ) {
                 Text(label, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(if (state.value =="") "Select ${label.lowercase()}" else items.firstOrNull { it.id.toString() == state.value }?.title ?: "Select Category")
+                Text(
+                    if (state.value == "") "Select ${label.lowercase()}" else items.firstOrNull { it.id.toString() == state.value }?.title
+                        ?: "Select Category"
+                )
             }
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
@@ -91,7 +95,61 @@ fun SelectUnitType(
                 modifier = Modifier.weight(1f).wrapContentHeight()
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(if (state.value == "") "Select Unit type" else items.firstOrNull { it.id.toString() == state.value }?.name ?: "Select Unit type")
+                Text(
+                    if (state.value == "") "Select Unit type" else items.firstOrNull { it.id.toString() == state.value }?.name
+                        ?: "Select Unit type"
+                )
+            }
+            Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
+        }
+
+        DropdownMenu(
+            expanded = showPop, onDismissRequest = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
+        ) {
+            TextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search") })
+            items.filter {
+                it.name.contains(search)
+            }.forEachIndexed { index, element ->
+                DropdownMenuItem(onClick = {
+                    state.change(element.id.toString())
+                    showPop = false
+                    search = ""
+                }) { Text(text = element.name) }
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectCustomerType(
+    items: List<Role>,
+    modifier: Modifier = Modifier,
+    state: ChoiceState
+) {
+    var showPop by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf("") }
+
+    Box(
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(60.dp)
+                .background(Color.White)
+                .clickable {
+                    showPop = true
+                }
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f).wrapContentHeight()
+            ) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    if (state.value == "") "Select Customer type" else items.firstOrNull { it.id.toString() == state.value }?.name
+                        ?: "Select Customer type"
+                )
             }
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }

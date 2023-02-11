@@ -1,14 +1,14 @@
 package com.stockary.common.ui.new_customer
 
+import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
-import com.stockary.common.form_builder.BaseState
-import com.stockary.common.form_builder.FormState
-import com.stockary.common.form_builder.TextFieldState
-import com.stockary.common.form_builder.Validators
+import com.stockary.common.form_builder.*
+import com.stockary.common.repository.customer.model.Role
 
 object NewCustomerContract {
     data class State(
-        val loading: Boolean = false, val customerId: Int? = null, val formState: FormState<BaseState<*>> = FormState(
+        val loading: Boolean = false, val customerId: Int? = null,
+        val formState: FormState<BaseState<*>> = FormState(
             fields = listOf(
                 TextFieldState(
                     name = "email",
@@ -23,7 +23,7 @@ object NewCustomerContract {
                     validators = listOf(
                         Validators.Required()
                     ),
-                ), TextFieldState(
+                ), ChoiceState(
                     name = "role",
                     validators = listOf(
                         Validators.Required()
@@ -31,7 +31,8 @@ object NewCustomerContract {
                 )
             )
         ),
-        val savingResponse: SupabaseResource<Boolean> = SupabaseResource.Idle
+        val savingResponse: SupabaseResource<Boolean> = SupabaseResource.Idle,
+        val customerType: Cached<List<Role>> = Cached.NotLoaded(),
     )
 
     sealed class Inputs {
@@ -39,6 +40,10 @@ object NewCustomerContract {
         object AddNew : Inputs()
         object Update : Inputs()
         data class UpdateSavingResponse(val savingResponse: SupabaseResource<Boolean>) : Inputs()
+
+        data class FetchCustomerTypes(val forceRefresh: Boolean) : Inputs()
+        data class UpdateCustomerTypes(val customerTypes: Cached<List<Role>>) : Inputs()
+
         object GoBack : Inputs()
     }
 

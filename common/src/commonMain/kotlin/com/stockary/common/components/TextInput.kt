@@ -9,6 +9,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
+import com.stockary.common.SupabaseResource
 import com.stockary.common.currencySymbol
 import com.stockary.common.dashedBorder
 import com.stockary.common.form_builder.TextFieldState
@@ -69,7 +71,8 @@ fun TextInput(
 @Composable
 fun FileChooser(
     state: TextFieldState,
-    modifier: Modifier = Modifier.fillMaxWidth().height(90.dp)
+    modifier: Modifier = Modifier.fillMaxWidth().height(90.dp),
+    uploadResponse: SupabaseResource<String>
 ) {
     var isFileChooserOpen by remember { mutableStateOf(false) }
     Column {
@@ -94,6 +97,28 @@ fun FileChooser(
                 )
             } else {
                 Icon(Icons.Default.AddAPhoto, null)
+            }
+            when (uploadResponse) {
+                is SupabaseResource.Error -> {
+                    Text(uploadResponse.data.toString())
+                }
+
+                SupabaseResource.Idle -> {
+
+                }
+
+                SupabaseResource.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+
+                is SupabaseResource.Success -> {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        "",
+                        modifier = Modifier.align(alignment = Alignment.BottomEnd),
+                        tint = Color.Green
+                    )
+                }
             }
         }
         if (state.hasError) {

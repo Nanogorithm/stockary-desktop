@@ -8,8 +8,8 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
+import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,6 +33,11 @@ class CustomerRepositoryImpl(
         trySend(CustomerRepositoryContract.Inputs.Initialize)
         trySend(CustomerRepositoryContract.Inputs.RefreshCustomerList(refreshCache))
         return observeStates().map { it.dataList }
+    }
+
+    override fun getCustomerTypes(refreshCache: Boolean): Flow<Cached<List<Role>>> {
+        trySend(CustomerRepositoryContract.Inputs.RefreshCustomerTypes(refreshCache))
+        return observeStates().map { it.customerTypes }
     }
 
     override fun get(customerId: Int): Flow<SupabaseResource<Product>> {

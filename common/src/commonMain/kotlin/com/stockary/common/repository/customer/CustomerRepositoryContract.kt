@@ -3,7 +3,7 @@ package com.stockary.common.repository.customer
 import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
-import io.github.jan.supabase.gotrue.providers.builtin.Email
+import com.stockary.common.repository.customer.model.Role
 
 object CustomerRepositoryContract {
     data class State(
@@ -11,6 +11,8 @@ object CustomerRepositoryContract {
 
         val dataListInitialized: Boolean = false,
         val dataList: Cached<List<Profile>> = Cached.NotLoaded(),
+        val customerTypes: Cached<List<Role>> = Cached.NotLoaded(),
+
         val saving: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val editing: SupabaseResource<Boolean> = SupabaseResource.Idle,
         val deleting: SupabaseResource<Boolean> = SupabaseResource.Idle,
@@ -23,6 +25,9 @@ object CustomerRepositoryContract {
 
         data class RefreshCustomerList(val forceRefresh: Boolean) : Inputs()
         data class CustomerListUpdated(val customerList: Cached<List<Profile>>) : Inputs()
+
+        data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
+        data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()
 
         data class Add(val email: String, val name: String, val address: String, val roleId: Int) : Inputs()
         data class UpdateSignupResponse(val saving: SupabaseResource<Boolean>) : Inputs()

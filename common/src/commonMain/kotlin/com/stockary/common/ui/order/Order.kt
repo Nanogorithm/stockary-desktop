@@ -124,7 +124,7 @@ class OrderPage : KoinComponent {
                             modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("${_order.profile?.firstName} ${_order.profile?.lastName}")
+                            Text("${_order.profile?.name}")
                             Spacer(modifier = Modifier.weight(1f))
                             //                            Text("$79.49", modifier = Modifier.width(181.dp))
                             Text("${_order.orderItems.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))

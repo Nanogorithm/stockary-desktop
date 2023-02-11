@@ -126,8 +126,8 @@ class CustomerPage : KoinComponent {
                     Row(
                         modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_customer.id}", modifier = Modifier.width(100.dp))
-                        Text("${_customer.firstName} ${_customer.lastName}", modifier = Modifier.weight(1f))
+                        Text("#${_customer.id.split("-").first()}", modifier = Modifier.width(100.dp))
+                        Text(_customer.name, modifier = Modifier.weight(1f))
                         Text(_customer.company.toString(), modifier = Modifier.width(181.dp))
                         Text(_customer.address.toString(), modifier = Modifier.width(300.dp))
                         Box(modifier = Modifier.width(181.dp)) {
@@ -163,7 +163,7 @@ class CustomerPage : KoinComponent {
 
                                 }, contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Approval, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                                Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                             }
                         }
                     }

@@ -111,5 +111,25 @@ class CustomerRepositoryInputHandler(
         is CustomerRepositoryContract.Inputs.UpdateSignupResponse -> {
             updateState { it.copy(saving = input.saving) }
         }
+
+        is CustomerRepositoryContract.Inputs.RefreshCustomerTypes -> {
+            fetchWithCache(
+                input = input,
+                forceRefresh = input.forceRefresh,
+                getValue = { it.customerTypes },
+                updateState = { CustomerRepositoryContract.Inputs.UpdateCustomerTypes(it) },
+                doFetch = {
+                    val result = supabaseClient.postgrest["customer_roles"].select("*")
+                    println("Customer types => ${result.body}")
+                    result.decodeList(json = Json {
+                        ignoreUnknownKeys = true
+                    })
+                },
+            )
+        }
+
+        is CustomerRepositoryContract.Inputs.UpdateCustomerTypes -> {
+            updateState { it.copy(customerTypes = input.dataList) }
+        }
     }
 }

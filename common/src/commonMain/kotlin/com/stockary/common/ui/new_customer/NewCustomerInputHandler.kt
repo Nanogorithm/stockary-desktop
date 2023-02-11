@@ -3,6 +3,8 @@ package com.stockary.common.ui.new_customer
 import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
+import com.copperleaf.ballast.postInput
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.CustomerRepository
 import kotlinx.coroutines.flow.map
 
@@ -14,6 +16,7 @@ class NewCustomerInputHandler(
     ) = when (input) {
         is NewCustomerContract.Inputs.Initialize -> {
             updateState { it.copy(customerId = input.customerId) }
+            postInput(NewCustomerContract.Inputs.FetchCustomerTypes(true))
         }
 
         is NewCustomerContract.Inputs.GoBack -> {
@@ -24,6 +27,7 @@ class NewCustomerInputHandler(
             val currentState = getCurrentState()
             val rawData = currentState.formState.getMap()
             println("formData => $rawData")
+            updateState { it.copy(savingResponse = SupabaseResource.Loading) }
             observeFlows("AddNewCustomer") {
                 listOf(customerRepository.add(
                     email = rawData["email"] as String,
@@ -40,6 +44,17 @@ class NewCustomerInputHandler(
 
         NewCustomerContract.Inputs.Update -> {
 
+        }
+
+        is NewCustomerContract.Inputs.FetchCustomerTypes -> {
+            observeFlows("FetchCustomerTypes") {
+                listOf(customerRepository.getCustomerTypes(input.forceRefresh)
+                    .map { NewCustomerContract.Inputs.UpdateCustomerTypes(it) })
+            }
+        }
+
+        is NewCustomerContract.Inputs.UpdateCustomerTypes -> {
+            updateState { it.copy(customerType = input.customerTypes) }
         }
     }
 }

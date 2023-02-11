@@ -133,20 +133,17 @@ class NewProductInputHandler(
         }
 
         is NewProductContract.Inputs.UploadPhoto -> {
+            updateState { it.copy(uploadResponse = SupabaseResource.Loading) }
             observeFlows("UploadPhoto") {
-                listOf(
-                    productRepository.uploadPhoto(input.file)
-                        .map { NewProductContract.Inputs.UpdateUploadResponse(it) })
+                listOf(productRepository.uploadPhoto(input.file)
+                    .map { NewProductContract.Inputs.UpdateUploadResponse(it) })
             }
         }
 
         is NewProductContract.Inputs.GetProduct -> {
             updateState { it.copy(product = SupabaseResource.Loading) }
             observeFlows("GetProduct") {
-                listOf(
-                    productRepository.get(input.productId)
-                        .map { NewProductContract.Inputs.UpdateProduct(it) }
-                )
+                listOf(productRepository.get(input.productId).map { NewProductContract.Inputs.UpdateProduct(it) })
             }
         }
 
@@ -191,10 +188,8 @@ class NewProductInputHandler(
                 val types = currentState.customerType.getCachedOrEmptyList()
 
                 observeFlows("Update") {
-                    listOf(
-                        productRepository.edit(product = product, updated = updated, prices = prices, types = types)
-                            .map { NewProductContract.Inputs.UpdateSaveResponse(it) }
-                    )
+                    listOf(productRepository.edit(product = product, updated = updated, prices = prices, types = types)
+                        .map { NewProductContract.Inputs.UpdateSaveResponse(it) })
                 }
 
             }
