@@ -5,7 +5,6 @@ import com.stockary.common.form_builder.BaseState
 import com.stockary.common.form_builder.FormState
 import com.stockary.common.form_builder.TextFieldState
 import com.stockary.common.form_builder.Validators
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 
 object NewCustomerContract {
     data class State(
@@ -13,24 +12,33 @@ object NewCustomerContract {
             fields = listOf(
                 TextFieldState(
                     name = "email",
-                    validators = listOf(Validators.Required()),
-                ),
-                TextFieldState(
-                    name = "password",
+                    validators = listOf(Validators.Required(), Validators.Email()),
+                ), TextFieldState(
+                    name = "name",
                     validators = listOf(
-                        Validators.Required(),
-                        Validators.Min(8, message = "minimum 8 characters required")
+                        Validators.Required()
+                    ),
+                ), TextFieldState(
+                    name = "address",
+                    validators = listOf(
+                        Validators.Required()
+                    ),
+                ), TextFieldState(
+                    name = "role",
+                    validators = listOf(
+                        Validators.Required()
                     ),
                 )
             )
-        ), val savingResponse: SupabaseResource<Email.Result> = SupabaseResource.Idle
+        ),
+        val savingResponse: SupabaseResource<Boolean> = SupabaseResource.Idle
     )
 
     sealed class Inputs {
         data class Initialize(val customerId: Int?) : Inputs()
         object AddNew : Inputs()
         object Update : Inputs()
-        data class UpdateSavingResponse(val savingResponse: SupabaseResource<Email.Result>) : Inputs()
+        data class UpdateSavingResponse(val savingResponse: SupabaseResource<Boolean>) : Inputs()
         object GoBack : Inputs()
     }
 

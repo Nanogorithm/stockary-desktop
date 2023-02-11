@@ -23,9 +23,13 @@ class NewCustomerInputHandler(
         is NewCustomerContract.Inputs.AddNew -> {
             val currentState = getCurrentState()
             val rawData = currentState.formState.getMap()
+            println("formData => $rawData")
             observeFlows("AddNewCustomer") {
                 listOf(customerRepository.add(
-                    email = rawData["email"] as String, password = rawData["password"] as String, roleId = 1
+                    email = rawData["email"] as String,
+                    name = rawData["name"] as String,
+                    roleId = (rawData["role"] as String).toInt(),
+                    address = rawData["address"] as String
                 ).map { NewCustomerContract.Inputs.UpdateSavingResponse(it) })
             }
         }

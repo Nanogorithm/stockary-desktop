@@ -8,11 +8,13 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.stockary.common.SupabaseResource
+import com.stockary.common.repository.customer.model.InviteInput
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.gotrue
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -77,12 +79,18 @@ class CustomerRepositoryInputHandler(
 
         is CustomerRepositoryContract.Inputs.Add -> {
             sideJob("AddCustomer") {
-                val supabaseResponse: SupabaseResource<Email.Result> = try {
-                    val response = supabaseClient.gotrue.signUpWith(Email) {
-                        email = input.email
-                        password = input.password
-                    }
-                    SupabaseResource.Success(response)
+                val supabaseResponse: SupabaseResource<Boolean> = try {
+                    val data = InviteInput(
+                        email = input.email,
+                        name = input.name,
+                        address = input.address,
+                        roleId = input.roleId
+                    )
+                    supabaseClient.gotrue.importAuthToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3dhanhxZWlscWRrdndmb2p6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MzUxNDc1MSwiZXhwIjoxOTg5MDkwNzUxfQ.VqIPOoipJOmqylpBWMvjeHpbVCZAPiipTJB2DpAa1XE")
+                    supabaseClient.gotrue.admin.inviteUserByEmail(
+                        email = input.email, data = Json.encodeToJsonElement(data).jsonObject
+                    )
+                    SupabaseResource.Success(true)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     SupabaseResource.Error(e)

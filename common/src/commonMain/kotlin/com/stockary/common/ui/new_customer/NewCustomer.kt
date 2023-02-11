@@ -40,7 +40,9 @@ class NewCustomerPage : KoinComponent {
         uiState: NewCustomerContract.State, postInput: (NewCustomerContract.Inputs) -> Unit
     ) {
         val emailState: TextFieldState = uiState.formState.getState("email")
-        val passwordState: TextFieldState = uiState.formState.getState("password")
+        val nameState: TextFieldState = uiState.formState.getState("name")
+        val addressState: TextFieldState = uiState.formState.getState("address")
+        val roleState: TextFieldState = uiState.formState.getState("role")
 
         Box {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
@@ -71,9 +73,23 @@ class NewCustomerPage : KoinComponent {
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             TextInput(
-                                label = "Password",
+                                label = "Name",
                                 placeHolder = "",
-                                state = passwordState,
+                                state = nameState,
+                                modifier = Modifier.width(300.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TextInput(
+                                label = "Address",
+                                placeHolder = "",
+                                state = addressState,
+                                modifier = Modifier.width(300.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TextInput(
+                                label = "Role",
+                                placeHolder = "",
+                                state = roleState,
                                 modifier = Modifier.width(300.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
@@ -97,7 +113,7 @@ class NewCustomerPage : KoinComponent {
 
                     is SupabaseResource.Success -> {
                         Spacer(modifier = Modifier.height(28.dp))
-                        Text("Saved successfully")
+                        Text("Invitation sent to email. Please click on verify link to active the account and set password")
                     }
                 }
                 Spacer(modifier = Modifier.height(28.dp))

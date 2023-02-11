@@ -39,8 +39,8 @@ class CustomerRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun add(email: String, password: String, roleId: Int): Flow<SupabaseResource<Email.Result>> {
-        trySend(CustomerRepositoryContract.Inputs.Add(email = email, password = password))
+    override fun add(email: String, name: String, roleId: Int, address: String): Flow<SupabaseResource<Boolean>> {
+        trySend(CustomerRepositoryContract.Inputs.Add(email = email, name = name, roleId = roleId, address = address))
         return observeStates().map { it.saving }
     }
 

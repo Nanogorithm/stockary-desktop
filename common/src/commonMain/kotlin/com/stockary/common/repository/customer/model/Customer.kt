@@ -21,3 +21,13 @@ data class Profile(
 data class Role(
     val id: Int, val name: String
 )
+
+@Serializable
+data class InviteInput(
+    val email: String,
+    @SerialName("full_name") val name: String,
+    val address: String,
+    @SerialName("role_id") val roleId: Int,
+    @SerialName("avatar_url")
+    val avatar: String = ""
+)

@@ -4,7 +4,6 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
 import com.stockary.common.repository.product.model.Product
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.flow.Flow
 
 interface CustomerRepository {
@@ -12,7 +11,7 @@ interface CustomerRepository {
     fun getCustomerList(refreshCache: Boolean = false): Flow<Cached<List<Profile>>>
 
     fun get(customerId: Int): Flow<SupabaseResource<Product>>
-    fun add(email: String, password: String, roleId: Int): Flow<SupabaseResource<Email.Result>>
+    fun add(email: String, name: String, roleId: Int, address: String): Flow<SupabaseResource<Boolean>>
     fun edit(
         customer: Profile, updated: Profile
     ): Flow<SupabaseResource<Boolean>>
