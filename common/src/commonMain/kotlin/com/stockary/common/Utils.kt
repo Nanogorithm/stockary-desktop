@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
+import java.io.OutputStream
 
 val currencySymbol = "৳"
 val storagePrefix = "https://nfwwajxqeilqdkvwfojz.supabase.co/storage/v1/object/public/"
@@ -22,24 +23,22 @@ sealed interface SupabaseResource<out R> {
     object Idle : SupabaseResource<Nothing>
 }
 
-fun Modifier.dashedBorder(width: Dp, radius: Dp, color: Color) =
-    drawBehind {
-        drawIntoCanvas {
-            val paint = Paint()
-                .apply {
-                    strokeWidth = width.toPx()
-                    this.color = color
-                    style = PaintingStyle.Stroke
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                }
-            it.drawRoundRect(
-                width.toPx(),
-                width.toPx(),
-                size.width - width.toPx(),
-                size.height - width.toPx(),
-                radius.toPx(),
-                radius.toPx(),
-                paint
-            )
-        }
+fun Modifier.dashedBorder(width: Dp, radius: Dp, color: Color) = drawBehind {
+    drawIntoCanvas {
+        val paint = Paint().apply {
+                strokeWidth = width.toPx()
+                this.color = color
+                style = PaintingStyle.Stroke
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+            }
+        it.drawRoundRect(
+            width.toPx(),
+            width.toPx(),
+            size.width - width.toPx(),
+            size.height - width.toPx(),
+            radius.toPx(),
+            radius.toPx(),
+            paint
+        )
     }
+}

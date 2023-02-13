@@ -37,8 +37,8 @@ fun Login(
     Column(modifier = Modifier.fillMaxSize().padding(start = 64.dp)) {
         Text("Hello there, Shaad", fontSize = 32.sp, fontWeight = FontWeight.W600)
         Spacer(modifier = Modifier.height(38.dp))
-        var username by remember { mutableStateOf("anwar@programming-hero.com") }
-        var password by remember { mutableStateOf("34722645") }
+        var username by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
 
         TextField(value = username, onValueChange = { username = it }, placeholder = { Text("Email") })
         TextField(value = password, onValueChange = { password = it }, placeholder = { Text("Password") })

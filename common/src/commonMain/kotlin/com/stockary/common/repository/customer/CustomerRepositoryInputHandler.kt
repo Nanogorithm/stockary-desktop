@@ -81,14 +81,13 @@ class CustomerRepositoryInputHandler(
             sideJob("AddCustomer") {
                 val supabaseResponse: SupabaseResource<Boolean> = try {
                     val data = InviteInput(
-                        email = input.email,
-                        name = input.name,
-                        address = input.address,
-                        roleId = input.roleId
+                        email = input.email, name = input.name, address = input.address, roleId = input.roleId
                     )
                     supabaseClient.gotrue.importAuthToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3dhanhxZWlscWRrdndmb2p6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MzUxNDc1MSwiZXhwIjoxOTg5MDkwNzUxfQ.VqIPOoipJOmqylpBWMvjeHpbVCZAPiipTJB2DpAa1XE")
                     supabaseClient.gotrue.admin.inviteUserByEmail(
-                        email = input.email, data = Json.encodeToJsonElement(data).jsonObject
+                        email = input.email,
+                        data = Json.encodeToJsonElement(data).jsonObject,
+                        redirectTo = "https://stockary.co/welcome"
                     )
                     SupabaseResource.Success(true)
                 } catch (e: Exception) {

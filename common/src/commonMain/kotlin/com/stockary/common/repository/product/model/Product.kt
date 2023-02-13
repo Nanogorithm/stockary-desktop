@@ -16,6 +16,7 @@ data class Product(
     @SerialName("unit_type_id") val unitTypeId: Int? = null,
 
     val photo: String? = null,
+    val code: String? = null,
 
     @SerialName("categories") var category: Category? = null,
     @SerialName("unit_types") var unitType: UnitType? = null,
