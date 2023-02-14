@@ -46,6 +46,7 @@ compose.desktop {
                 iconFile.set(project.file("icon.ico"))
                 menuGroup = "stockary"
                 upgradeUuid = "1d5b6cb4-1061-4db2-8f40-53d3c9a68305"
+                console = true
             }
 
             linux {
