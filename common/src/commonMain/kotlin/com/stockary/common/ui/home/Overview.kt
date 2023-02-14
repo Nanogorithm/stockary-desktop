@@ -106,7 +106,7 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
         ) {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = "Top Selling Products",
+                text = "Recent orders",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.W600,
                 modifier = Modifier.padding(horizontal = 32.dp)
@@ -117,9 +117,8 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
             ) {
                 Text("Name", fontSize = 16.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
-                Text("Price", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-                Text("Quantity", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-                Text("Amount", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                Text("Total Quantity", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                Text("Total", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
             }
             Divider(color = Color(0x33000000))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -137,11 +136,10 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
                         modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("ASOS Ridley Hight Waist")
+                        Text(_order.profile?.name.toString())
                         Spacer(modifier = Modifier.weight(1f))
-                        Text("$79.49", modifier = Modifier.width(181.dp))
-                        Text("82", modifier = Modifier.width(181.dp))
-                        Text("$6518.18", modifier = Modifier.width(181.dp))
+                        Text("${_order.orderItems.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))
+                        Text(_order.total.toCurrencyFormat(), modifier = Modifier.width(181.dp))
                     }
                     Divider(color = Color(0xFFD9D9D9))
                 }
