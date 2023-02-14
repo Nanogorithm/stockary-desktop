@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.*
 import com.copperleaf.ballast.navigation.routing.*
+import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
@@ -74,28 +75,44 @@ class AppScreenView(
             Scaffold(
                 modifier = Modifier.fillMaxSize()
             ) { innerPaddings ->
-                PermanentNavigationDrawer(
-                    drawerContent = {
-                        Spacer(modifier = Modifier.height(48.dp))
-                        Box(modifier = Modifier.height(40.dp).padding(start = 40.dp)) {
-                            Image(painter = painterResource("images/stockary_logo.png"), null)
-                        }
-                        Spacer(Modifier.height(48.dp))
-                        navItems.forEach { item ->
-                            NavigationDrawerItem(
-                                icon = {
-                                    item.icon?.let {
-                                        Icon(it, contentDescription = null)
-                                    }
-                                },
-                                label = { Text(item.title) },
-                                selected = routerState.currentRouteOrNull == item,
-                                onClick = {
-                                    router.trySend(
-                                        RouterContract.Inputs.GoToDestination(
-                                            item.directions().build()
+                if (routerState.currentRouteOrNull != Login) {
+                    PermanentNavigationDrawer(
+                        drawerContent = {
+                            Spacer(modifier = Modifier.height(48.dp))
+                            Box(modifier = Modifier.height(40.dp).padding(start = 40.dp)) {
+                                Image(painter = painterResource("images/stockary_logo.png"), null)
+                            }
+                            Spacer(Modifier.height(48.dp))
+                            navItems.forEach { item ->
+                                NavigationDrawerItem(
+                                    icon = {
+                                        item.icon?.let {
+                                            Icon(it, contentDescription = null)
+                                        }
+                                    },
+                                    label = { Text(item.title) },
+                                    selected = routerState.currentRouteOrNull == item,
+                                    onClick = {
+                                        router.trySend(
+                                            RouterContract.Inputs.GoToDestination(
+                                                item.directions().build()
+                                            )
                                         )
+                                    },
+                                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                    colors = NavigationDrawerItemDefaults.colors(
+                                        selectedContainerColor = Color(0xFFD6E2F8),
+                                        unselectedContainerColor = Color.Transparent
                                     )
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            NavigationDrawerItem(
+                                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                label = { Text("Settings") },
+                                selected = false,
+                                onClick = {
+
                                 },
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                                 colors = NavigationDrawerItemDefaults.colors(
@@ -103,149 +120,147 @@ class AppScreenView(
                                     unselectedContainerColor = Color.Transparent
                                 )
                             )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                        NavigationDrawerItem(
-                            icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                            label = { Text("Settings") },
-                            selected = false,
-                            onClick = {
-
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                            colors = NavigationDrawerItemDefaults.colors(
-                                selectedContainerColor = Color(0xFFD6E2F8), unselectedContainerColor = Color.Transparent
-                            )
-                        )
-                        Spacer(modifier = Modifier.height(56.dp))
-                    },
-                    modifier = Modifier.padding(innerPaddings),
-                    drawerContainerColor = Color(0xFFF0F6FF),
-                    drawerContentColor = contentColorFor(Color(0xFFF0F6FF))
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Spacer(modifier = Modifier.height(48.dp))
-                        Box(
-                            modifier = Modifier.padding(end = 50.dp).align(Alignment.End),
-                            contentAlignment = Alignment.TopEnd
-                        ) {
-                            var expandMenu by remember { mutableStateOf(false) }
-
-                            when (uiState.sessionStatus) {
-                                is SessionStatus.Authenticated, SessionStatus.LoadingFromStorage -> {
-                                    Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
-                                        expandMenu = true
-                                    }) {
-                                        Box(
-                                            modifier = Modifier.size(24.dp).clip(CircleShape)
-                                                .background(Color(0xFFE2E3FF)), contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(Icons.Default.Person, null)
-                                        }
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Shaad & Co", fontSize = 14.sp)
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Icon(Icons.Default.ArrowDropDown, null)
-                                    }
-                                }
-
-                                SessionStatus.NetworkError -> {}
-                                SessionStatus.NotAuthenticated -> {}
-                            }
-
-                            DropdownMenu(expanded = expandMenu, onDismissRequest = {
-                                expandMenu = false
-                            }) {
-                                DropdownMenuItem(onClick = {
-                                    expandMenu = false
-                                    vm.trySend(AppContract.Inputs.Logout)
-                                }) {
-                                    Text("Logout")
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(48.dp))
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            routerState.renderCurrentDestination(
-                                route = { appScreen ->
-                                    // the last entry in the backstack was matched to a route. We will switch on which route was matched,
-                                    // and pull path and query parameters from the destination
-                                    when (appScreen) {
-                                        Login -> {
-                                            Login(router)
-                                        }
-
-                                        Home -> {
-                                            Overview(injector)
-                                        }
-
-                                        CategoryList -> {
-                                            val sort: String? by optionalStringQuery()
-                                            CategoryPage().Categories(injector)
-                                        }
-
-                                        CategoryDetails -> {
-                                            val categoryId: Long by longPath()
-                                        }
-
-                                        NewCategory -> {
-                                            NewCategoryPage().NewCategory(injector = injector)
-                                        }
-
-                                        CustomerList -> {
-                                            CustomerPage().Customer(injector)
-                                        }
-
-                                        CustomerDetails -> {
-
-                                        }
-
-                                        ProductList -> {
-                                            ProductPage().Product(injector = injector)
-                                        }
-
-                                        NewProduct -> {
-                                            val productId: Int? by optionalIntQuery()
-                                            NewProductPage().NewProduct(injector = injector, productId)
-                                        }
-
-                                        ProductDetails -> {
-
-                                        }
-
-                                        OrderList -> {
-                                            OrderPage().Orders(injector = injector)
-                                        }
-
-                                        OrderDetails -> {
-
-                                        }
-
-                                        NewOrder -> {
-                                            NewOrder()
-                                        }
-
-                                        OrderSummary -> {
-                                            Summary(injector)
-                                        }
-
-                                        NewCustomer -> {
-                                            val customerId: Int? by optionalIntQuery()
-                                            NewCustomerPage().NewCustomer(injector, customerId)
-                                        }
-                                    }
-                                },
-                                notFound = {
-                                    // the last entry in the backstack could not be matched to a route
-                                    Text("Not found")
-                                },
-                            )
-                        }
+                            Spacer(modifier = Modifier.height(56.dp))
+                        },
+                        modifier = Modifier.padding(innerPaddings),
+                        drawerContainerColor = Color(0xFFF0F6FF),
+                        drawerContentColor = contentColorFor(Color(0xFFF0F6FF))
+                    ) {
+                        AppContent(uiState, vm, routerState, router)
                     }
+                } else {
+                    AppContent(uiState, vm, routerState, router)
                 }
             }
         }
+    }
 
+    @Composable
+    fun AppContent(
+        uiState: AppContract.State,
+        vm: AppViewModel,
+        routerState: Backstack<AppScreen>,
+        router: Router<AppScreen>
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.height(48.dp))
+            Box(
+                modifier = Modifier.padding(end = 50.dp).align(Alignment.End),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                var expandMenu by remember { mutableStateOf(false) }
+
+                when (uiState.sessionStatus) {
+                    is SessionStatus.Authenticated, SessionStatus.LoadingFromStorage -> {
+                        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
+                            expandMenu = true
+                        }) {
+                            Box(
+                                modifier = Modifier.size(24.dp).clip(CircleShape)
+                                    .background(Color(0xFFE2E3FF)), contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Person, null)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Shaad & Co", fontSize = 14.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(Icons.Default.ArrowDropDown, null)
+                        }
+                    }
+
+                    SessionStatus.NetworkError -> {}
+                    SessionStatus.NotAuthenticated -> {}
+                }
+
+                DropdownMenu(expanded = expandMenu, onDismissRequest = {
+                    expandMenu = false
+                }) {
+                    DropdownMenuItem(onClick = {
+                        expandMenu = false
+                        vm.trySend(AppContract.Inputs.Logout)
+                    }) {
+                        Text("Logout")
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(48.dp))
+            Box(modifier = Modifier.fillMaxSize()) {
+                routerState.renderCurrentDestination(
+                    route = { appScreen ->
+                        // the last entry in the backstack was matched to a route. We will switch on which route was matched,
+                        // and pull path and query parameters from the destination
+                        when (appScreen) {
+                            Login -> {
+                                Login(router)
+                            }
+
+                            Home -> {
+                                Overview(injector)
+                            }
+
+                            CategoryList -> {
+                                val sort: String? by optionalStringQuery()
+                                CategoryPage().Categories(injector)
+                            }
+
+                            CategoryDetails -> {
+                                val categoryId: Long by longPath()
+                            }
+
+                            NewCategory -> {
+                                NewCategoryPage().NewCategory(injector = injector)
+                            }
+
+                            CustomerList -> {
+                                CustomerPage().Customer(injector)
+                            }
+
+                            CustomerDetails -> {
+
+                            }
+
+                            ProductList -> {
+                                ProductPage().Product(injector = injector)
+                            }
+
+                            NewProduct -> {
+                                val productId: Int? by optionalIntQuery()
+                                NewProductPage().NewProduct(injector = injector, productId)
+                            }
+
+                            ProductDetails -> {
+
+                            }
+
+                            OrderList -> {
+                                OrderPage().Orders(injector = injector)
+                            }
+
+                            OrderDetails -> {
+
+                            }
+
+                            NewOrder -> {
+                                NewOrder()
+                            }
+
+                            OrderSummary -> {
+                                Summary(injector)
+                            }
+
+                            NewCustomer -> {
+                                val customerId: Int? by optionalIntQuery()
+                                NewCustomerPage().NewCustomer(injector, customerId)
+                            }
+                        }
+                    },
+                    notFound = {
+                        // the last entry in the backstack could not be matched to a route
+                        Text("Not found")
+                    },
+                )
+            }
+        }
     }
 }
 

@@ -5,6 +5,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,7 +35,11 @@ fun Login(
         vm.trySend(LoginContract.Inputs.Initialize)
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(start = 64.dp)) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(start = 64.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text("Hello there, Shaad", fontSize = 32.sp, fontWeight = FontWeight.W600)
         Spacer(modifier = Modifier.height(38.dp))
         var username by remember { mutableStateOf("") }
