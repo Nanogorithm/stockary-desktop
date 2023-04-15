@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.stockary.common.components
 
 import androidx.compose.animation.core.tween

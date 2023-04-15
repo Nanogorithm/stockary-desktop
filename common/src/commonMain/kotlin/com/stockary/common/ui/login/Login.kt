@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.stockary.common.ui.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*

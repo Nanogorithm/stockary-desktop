@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("io.realm.kotlin:gradle-plugin:1.5.0")
+        classpath("io.realm.kotlin:gradle-plugin:1.6.0")
     }
 }
 

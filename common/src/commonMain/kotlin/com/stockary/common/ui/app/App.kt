@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.*
 import com.copperleaf.ballast.navigation.routing.*
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.di.injector.ComposeDesktopInjector
@@ -73,31 +72,48 @@ class AppScreenView(
             }
         } else {
             Scaffold(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+
             ) { innerPaddings ->
                 if (routerState.currentRouteOrNull != Login) {
                     PermanentNavigationDrawer(
                         drawerContent = {
-                            Spacer(modifier = Modifier.height(48.dp))
-                            Box(modifier = Modifier.height(40.dp).padding(start = 40.dp)) {
-                                Image(painter = painterResource("images/stockary_logo.png"), null)
-                            }
-                            Spacer(Modifier.height(48.dp))
-                            navItems.forEach { item ->
-                                NavigationDrawerItem(
-                                    icon = {
-                                        item.icon?.let {
-                                            Icon(it, contentDescription = null)
-                                        }
-                                    },
-                                    label = { Text(item.title) },
-                                    selected = routerState.currentRouteOrNull == item,
-                                    onClick = {
-                                        router.trySend(
-                                            RouterContract.Inputs.GoToDestination(
-                                                item.directions().build()
+                            Column(modifier = Modifier.fillMaxHeight().width(250.dp)) {
+                                Spacer(modifier = Modifier.height(48.dp))
+                                Box(modifier = Modifier.height(40.dp).padding(start = 40.dp)) {
+                                    Image(painter = painterResource("images/stockary_logo.png"), null)
+                                }
+                                Spacer(Modifier.height(48.dp))
+                                navItems.forEach { item ->
+                                    NavigationDrawerItem(
+                                        icon = {
+                                            item.icon?.let {
+                                                Icon(it, contentDescription = null)
+                                            }
+                                        },
+                                        label = { Text(item.title) },
+                                        selected = routerState.currentRouteOrNull == item,
+                                        onClick = {
+                                            router.trySend(
+                                                RouterContract.Inputs.GoToDestination(
+                                                    item.directions().build()
+                                                )
                                             )
+                                        },
+                                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                        colors = NavigationDrawerItemDefaults.colors(
+                                            selectedContainerColor = Color(0xFFD6E2F8),
+                                            unselectedContainerColor = Color.Transparent
                                         )
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                NavigationDrawerItem(
+                                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                    label = { Text("Settings") },
+                                    selected = false,
+                                    onClick = {
+
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                                     colors = NavigationDrawerItemDefaults.colors(
@@ -105,26 +121,10 @@ class AppScreenView(
                                         unselectedContainerColor = Color.Transparent
                                     )
                                 )
+                                Spacer(modifier = Modifier.height(56.dp))
                             }
-                            Spacer(modifier = Modifier.weight(1f))
-                            NavigationDrawerItem(
-                                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                                label = { Text("Settings") },
-                                selected = false,
-                                onClick = {
-
-                                },
-                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                                colors = NavigationDrawerItemDefaults.colors(
-                                    selectedContainerColor = Color(0xFFD6E2F8),
-                                    unselectedContainerColor = Color.Transparent
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(56.dp))
                         },
                         modifier = Modifier.padding(innerPaddings),
-                        drawerContainerColor = Color(0xFFF0F6FF),
-                        drawerContentColor = contentColorFor(Color(0xFFF0F6FF))
                     ) {
                         AppContent(uiState, vm, routerState, router)
                     }
