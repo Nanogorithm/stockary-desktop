@@ -10,7 +10,7 @@ import java.io.File
 
 interface ProductRepository {
     fun clearAllCaches()
-    fun getDataList(refreshCache: Boolean = false): Flow<Cached<List<Product>>>
+    fun getProductList(refreshCache: Boolean = false): Flow<Cached<List<Product>>>
     fun getCustomerTypes(refreshCache: Boolean = false): Flow<Cached<List<Role>>>
     fun getProductUnitTypes(refreshCache: Boolean = false): Flow<Cached<List<UnitType>>>
 

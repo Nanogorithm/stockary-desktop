@@ -7,12 +7,11 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.cloud.firestore.SetOptions
+import com.google.firebase.cloud.FirestoreClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
-import com.stockary.common.repository.product.ProductRepositoryContract
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.postgrest
-import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -68,18 +67,36 @@ class CategoryRepositoryInputHandler(
                 getValue = { it.categories },
                 updateState = { CategoryRepositoryContract.Inputs.CategoryListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["categories"].select("id,title,icon,products(*)")
-                    println(result.body)
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+
+                    val firestore = FirestoreClient.getFirestore()
+
+                    val future = firestore.collection("categories").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnapshot ->
+                        try {
+                            val cat = docSnapshot.toObject(Category::class.java)
+                            cat.apply {
+                                id = docSnapshot.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }
 
         is CategoryRepositoryContract.Inputs.Add -> {
             try {
-                val result = supabaseClient.postgrest["categories"].insert(input.category)
+                val firestore = FirestoreClient.getFirestore()
+                val category = firestore.collection("categories").add(
+                    mapOf(
+                        "title" to input.category.title
+                    )
+                )
+
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
                 postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
             } catch (e: Exception) {
@@ -90,10 +107,10 @@ class CategoryRepositoryInputHandler(
 
         is CategoryRepositoryContract.Inputs.Delete -> {
             try {
-                val result = supabaseClient.postgrest["categories"].delete { Category::id eq input.category.id }
+                val firestore = FirestoreClient.getFirestore()
+                val category = firestore.collection("categories").document(input.category.id!!).delete()
                 updateState { it.copy(deleting = SupabaseResource.Success(true)) }
-                println("category deleted => ${result.body}")
-                postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(forceRefresh = true))
+                postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(deleting = SupabaseResource.Error(e)) }
@@ -102,17 +119,15 @@ class CategoryRepositoryInputHandler(
 
         is CategoryRepositoryContract.Inputs.Edit -> {
             try {
-                val result = supabaseClient.postgrest["categories"].update({
-                    if (input.category.title != input.updated.title) {
-                        Category::title setTo input.updated.title
-                    }
-
-                    if (input.category.description != input.updated.description) {
-                        Category::description setTo input.updated.description
-                    }
-                }) {
-                    Category::id eq input.category.id
-                }
+                val firestore = FirestoreClient.getFirestore()
+                val category = firestore.collection("categories").document(input.category.id!!).set(
+                    mutableMapOf<String?, Any?>().apply {
+                        if (input.category.title != input.updated.title) {
+                            "title" to input.updated.title
+                        }
+                    },
+                    SetOptions.merge()
+                )
                 updateState { it.copy(editing = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -107,7 +107,8 @@ class NewCategoryPage : KoinComponent {
                 Button(
                     onClick = {
                         postInput(NewCategoryContract.Inputs.Save(
-                            title = categoryName, description = categoryDescription
+                            title = categoryName,
+                            description = categoryDescription
                         ))
                     }, shape = RoundedCornerShape(15.dp), enabled = categoryName.isNotBlank()
                 ) {

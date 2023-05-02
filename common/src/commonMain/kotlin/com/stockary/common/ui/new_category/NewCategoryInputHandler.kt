@@ -34,7 +34,12 @@ class NewCategoryInputHandler(
         is NewCategoryContract.Inputs.SaveAndContinue -> {
             updateState { it.copy(response = SupabaseResource.Loading) }
             observeFlows("SavingNewCategory") {
-                listOf(categoryRepository.add(Category(title = input.title, description = input.description)).map {
+                listOf(categoryRepository.add(
+                    Category(
+                        title = input.title,
+                        description = input.description
+                    )
+                ).map {
                     NewCategoryContract.Inputs.UpdateSaveResponse(it, true)
                 })
             }

@@ -135,7 +135,7 @@ class CustomerPage : KoinComponent {
                                 modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFF79CFFF))
                             ) {
                                 Text(
-                                    _customer.role?.name?.capitalize() ?: "",
+                                    _customer.role?.title ?: "",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     color = contentColorFor(Color(0xFF79CFFF))
                                 )

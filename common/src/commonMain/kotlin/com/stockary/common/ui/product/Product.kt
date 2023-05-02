@@ -23,6 +23,7 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.removeEmptyFraction
 import org.koin.core.component.KoinComponent
 
 class ProductPage : KoinComponent {
@@ -31,7 +32,6 @@ class ProductPage : KoinComponent {
         injector: ComposeDesktopInjector
     ) {
         val viewModelCoroutineScope = rememberCoroutineScope()
-//        val vm: ProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
         val vm = remember(viewModelCoroutineScope) { injector.productViewModel(viewModelCoroutineScope) }
 
         val uiState by vm.observeStates().collectAsState()
@@ -136,12 +136,12 @@ class ProductPage : KoinComponent {
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_product.id}", modifier = Modifier.width(100.dp))
+                        Text("#${_product.id?.substring(0, 6)}", modifier = Modifier.width(100.dp))
                         Text(_product.title, modifier = Modifier.weight(1f))
-                        Text(_product.category?.title ?: "", modifier = Modifier.width(181.dp))
+                        Text(_product.category ?: "", modifier = Modifier.width(181.dp))
                         Text("${_product.stock}", modifier = Modifier.width(181.dp))
                         Text(
-                            "${_product.unitAmount} ${_product.unitType?.name ?: ""}",
+                            "${_product.units?.amount?.removeEmptyFraction() ?: ""} ${_product.units?.type ?: ""}",
                             modifier = Modifier.width(181.dp)
                         )
                         Row(
@@ -153,8 +153,7 @@ class ProductPage : KoinComponent {
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.secondaryContainer).clickable {
                                         postInput(ProductContract.Inputs.GoEdit(_product.id!!))
-                                    },
-                                contentAlignment = Alignment.Center
+                                    }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Default.Edit,

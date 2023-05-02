@@ -17,7 +17,9 @@ data class Profile(
 
 @Serializable
 data class Role(
-    val id: Int, val name: String
+    var id: String? = null,
+    var title: String? = null,
+    val slug: String? = ""
 )
 
 @Serializable
@@ -26,6 +28,5 @@ data class InviteInput(
     @SerialName("full_name") val name: String,
     val address: String,
     @SerialName("role_id") val roleId: Int,
-    @SerialName("avatar_url")
-    val avatar: String = ""
+    @SerialName("avatar_url") val avatar: String = ""
 )

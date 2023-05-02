@@ -7,15 +7,22 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.cloud.storage.Bucket
+import com.google.firebase.cloud.FirestoreClient
+import com.google.firebase.cloud.StorageClient
 import com.stockary.common.SupabaseResource
+import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Product
-import com.stockary.common.repository.product.model.ProductCustomerRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.IOException
+import java.net.MalformedURLException
+import java.net.URL
+
 
 class ProductRepositoryInputHandler(
     private val eventBus: EventBus,
@@ -50,7 +57,7 @@ class ProductRepositoryInputHandler(
             // then refresh all the caches in this repository
             val currentState = getCurrentState()
             if (currentState.dataListInitialized) {
-                postInput(ProductRepositoryContract.Inputs.RefreshDataList(true))
+                postInput(ProductRepositoryContract.Inputs.RefreshProductList(true))
             }
             if (currentState.customerTypesInitialized) {
                 postInput(ProductRepositoryContract.Inputs.RefreshCustomerTypes(true))
@@ -59,46 +66,65 @@ class ProductRepositoryInputHandler(
             Unit
         }
 
-        is ProductRepositoryContract.Inputs.DataListUpdated -> {
-            updateState { it.copy(dataList = input.dataList) }
+        is ProductRepositoryContract.Inputs.ProductListUpdated -> {
+            updateState { it.copy(productList = input.dataList) }
         }
 
-        is ProductRepositoryContract.Inputs.RefreshDataList -> {
+        is ProductRepositoryContract.Inputs.RefreshProductList -> {
             updateState { it.copy(dataListInitialized = true) }
             fetchWithCache(
                 input = input,
                 forceRefresh = input.forceRefresh,
-                getValue = { it.dataList },
-                updateState = { ProductRepositoryContract.Inputs.DataListUpdated(it) },
+                getValue = { it.productList },
+                updateState = { ProductRepositoryContract.Inputs.ProductListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["products"].select("*,categories(*),unit_types(*)")
-                    println("products => ${result.body}")
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+                    val firestore = FirestoreClient.getFirestore()
+
+                    val future = firestore.collection("products").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnap ->
+                        try {
+                            val product = docSnap.toObject(Product::class.java)
+                            product?.apply {
+                                id = docSnap.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }
 
         is ProductRepositoryContract.Inputs.Add -> {
             try {
-                val result = supabaseClient.postgrest["products"].insert(input.product)
-                //create prices
-                val product = result.decodeSingle<Product>(json = Json { ignoreUnknownKeys = true })
-                val prices = mutableListOf<ProductCustomerRole>().apply {
-                    input.prices.forEachIndexed { index, price ->
-                        add(
-                            ProductCustomerRole(
-                                product_id = product.id!!, customer_role_id = input.types[index].id, price = price
-                            )
-                        )
+                val firestore = FirestoreClient.getFirestore()
+
+                val prices = mutableMapOf<String, Any>().apply {
+                    input.types.forEachIndexed { index, role ->
+                        put(role.slug!!, input.prices[index])
                     }
                 }
-                if (prices.isNotEmpty()) {
-                    supabaseClient.postgrest["product_customer_roles"].insert(
-                        prices
+
+                val units = mapOf(
+                    "amount" to input.product.unitAmount,
+                    "type" to input.product.unitType
+                )
+
+                println("saving => $prices $units")
+
+                val product = firestore.collection("products").add(
+                    mapOf(
+                        "title" to input.product.title,
+                        "category" to input.product.category,
+                        "photo" to input.product.photo,
+                        "prices" to prices,
+                        "units" to units
                     )
-                }
+                )
+
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -111,7 +137,7 @@ class ProductRepositoryInputHandler(
                 val result = supabaseClient.postgrest["products"].delete { Product::id eq input.product.id }
                 println("product delete => ${result.body}")
                 updateState { it.copy(deleting = SupabaseResource.Success(true)) }
-                postInput(ProductRepositoryContract.Inputs.RefreshDataList(true))
+                postInput(ProductRepositoryContract.Inputs.RefreshProductList(true))
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(deleting = SupabaseResource.Error(e)) }
@@ -140,8 +166,8 @@ class ProductRepositoryInputHandler(
                     if (input.product.unitAmount != input.updated.unitAmount) {
                         Product::unitAmount setTo input.updated.unitAmount
                     }
-                    if (input.product.unitTypeId != input.updated.unitTypeId) {
-                        Product::unitTypeId setTo input.updated.unitTypeId
+                    if (input.product.unitType != input.updated.unitType) {
+                        Product::unitType setTo input.updated.unitType
                     }
                 }) {
                     Product::id eq input.product.id
@@ -162,17 +188,27 @@ class ProductRepositoryInputHandler(
                 getValue = { it.customerTypes },
                 updateState = { ProductRepositoryContract.Inputs.UpdateCustomerTypes(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["customer_roles"].select("*")
-                    println("Customer types => ${result.body}")
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+                    val firestore = FirestoreClient.getFirestore()
+                    val future = firestore.collection("types").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnap ->
+                        try {
+                            val role = docSnap.toObject(Role::class.java)
+                            role?.apply {
+                                id = docSnap.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }
 
         is ProductRepositoryContract.Inputs.UpdateCustomerTypes -> {
-            updateState { it.copy(customerTypes = input.dataList) }
+            updateState { it.copy(customerTypes = input.roles) }
         }
 
         is ProductRepositoryContract.Inputs.RefreshUnitTypes -> {
@@ -201,11 +237,21 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.UploadPhoto -> {
             updateState { it.copy(photoUploadResponse = SupabaseResource.Loading) }
-            val result = supabaseClient.storage["shad"].upload(
-                "products/${System.currentTimeMillis()}.${input.file.extension}", input.file.readBytes()
-            )
-            println("upload path => $result")
-            updateState { it.copy(photoUploadResponse = SupabaseResource.Success(result)) }
+
+            //upload to firebase storage
+            val bucket: Bucket? = StorageClient.getInstance().bucket()
+            bucket?.let {
+                val objectName = "products/${System.currentTimeMillis()}.${input.file.extension}"
+                val contentType = getMimeType(input.file.toURI().toURL())
+                if (contentType != null && contentType != "") {
+                    it.create(objectName, input.file.inputStream(), contentType, Bucket.BlobWriteOption.doesNotExist())
+                } else {
+                    it.create(objectName, input.file.inputStream(), Bucket.BlobWriteOption.doesNotExist())
+                }
+                updateState { it.copy(photoUploadResponse = SupabaseResource.Success(objectName)) }
+            }
+
+            Unit
         }
 
         is ProductRepositoryContract.Inputs.GetProduct -> {
@@ -229,4 +275,10 @@ class ProductRepositoryInputHandler(
             println("imagePath $result")
         }
     }
+}
+
+@Throws(IOException::class, MalformedURLException::class)
+fun getMimeType(fileUrl: URL): String? {
+    val uc = fileUrl.openConnection()
+    return uc.contentType
 }

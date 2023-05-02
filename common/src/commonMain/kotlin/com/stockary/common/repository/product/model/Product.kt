@@ -1,26 +1,35 @@
 package com.stockary.common.repository.product.model
 
-import com.stockary.common.repository.category.model.Category
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Product(
-    val id: Int? = null,
-    val title: String,
+    var id: String? = null,
+    val title: String = "",
     val description: String? = null,
     val stock: Int = 0,
     val sort: Int = 0,
-    @SerialName("unit_amount") val unitAmount: Float = 0f,
-    @SerialName("category_id") val categoryId: Int? = null,
-    @SerialName("unit_type_id") val unitTypeId: Int? = null,
+    val unitAmount: Float = 0f,
+    val categoryId: Int? = null,
+    val unitType: String? = null,
 
     val photo: String? = null,
     val code: String? = null,
+    val prices: Map<String, Double>? = null,
+    val units: Units? = null,
 
-    @SerialName("categories") var category: Category? = null,
-    @SerialName("unit_types") var unitType: UnitType? = null,
-    @SerialName("product_customer_roles") val productCustomerRole: List<ProductCustomerRole> = emptyList()
+    var category: String? = null,
+    val productCustomerRole: List<ProductCustomerRole> = emptyList()
+)
+
+@Serializable
+data class Price(
+    val dealer: Double = 0.0, val customer: Double = 0.0
+)
+
+@Serializable
+data class Units(
+    val amount: Float = 0f, val type: String? = null
 )
 
 @Serializable

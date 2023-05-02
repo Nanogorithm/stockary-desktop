@@ -23,9 +23,7 @@ import com.stockary.common.repository.product.model.UnitType
 
 @Composable
 fun SearchableDropDown(
-    items: List<Category>, modifier: Modifier = Modifier,
-    label: String = "Category",
-    state: ChoiceState
+    items: List<Category>, modifier: Modifier = Modifier, label: String = "Category", state: ChoiceState
 ) {
     var showPop by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
@@ -45,7 +43,7 @@ fun SearchableDropDown(
                 Text(label, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (state.value == "") "Select ${label.lowercase()}" else items.firstOrNull { it.id.toString() == state.value }?.title
+                    if (state.value == "") "Select ${label.lowercase()}" else items.firstOrNull { it.title == state.value }?.title
                         ?: "Select Category"
                 )
             }
@@ -60,7 +58,7 @@ fun SearchableDropDown(
                 it.title.contains(search)
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
-                    state.change(element.id.toString())
+                    state.change(element.title)
                     showPop = false
                     search = ""
                 }) { Text(text = element.title) }
@@ -71,9 +69,7 @@ fun SearchableDropDown(
 
 @Composable
 fun SelectUnitType(
-    items: List<UnitType>,
-    modifier: Modifier = Modifier,
-    state: ChoiceState
+    items: List<UnitType>, modifier: Modifier = Modifier, state: ChoiceState
 ) {
     var showPop by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
@@ -82,12 +78,9 @@ fun SelectUnitType(
         modifier = modifier,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(60.dp)
-                .background(Color.White)
-                .clickable {
-                    showPop = true
-                }
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().height(60.dp).background(Color.White).clickable {
+                showPop = true
+            }.padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -96,7 +89,7 @@ fun SelectUnitType(
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (state.value == "") "Select Unit type" else items.firstOrNull { it.id.toString() == state.value }?.name
+                    if (state.value == "") "Select Unit type" else items.firstOrNull { it.name == state.value }?.name
                         ?: "Select Unit type"
                 )
             }
@@ -111,7 +104,7 @@ fun SelectUnitType(
                 it.name.contains(search)
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
-                    state.change(element.id.toString())
+                    state.change(element.name)
                     showPop = false
                     search = ""
                 }) { Text(text = element.name) }
@@ -122,9 +115,7 @@ fun SelectUnitType(
 
 @Composable
 fun SelectCustomerType(
-    items: List<Role>,
-    modifier: Modifier = Modifier,
-    state: ChoiceState
+    items: List<Role>, modifier: Modifier = Modifier, state: ChoiceState
 ) {
     var showPop by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
@@ -133,12 +124,9 @@ fun SelectCustomerType(
         modifier = modifier,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(60.dp)
-                .background(Color.White)
-                .clickable {
-                    showPop = true
-                }
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().height(60.dp).background(Color.White).clickable {
+                showPop = true
+            }.padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -147,7 +135,7 @@ fun SelectCustomerType(
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (state.value == "") "Select Customer type" else items.firstOrNull { it.id.toString() == state.value }?.name
+                    if (state.value == "") "Select Customer type" else items.firstOrNull { it.id.toString() == state.value }?.title
                         ?: "Select Customer type"
                 )
             }
@@ -159,13 +147,13 @@ fun SelectCustomerType(
         ) {
             TextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search") })
             items.filter {
-                it.name.contains(search)
+                it.title?.contains(search) == true
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
                     state.change(element.id.toString())
                     showPop = false
                     search = ""
-                }) { Text(text = element.name) }
+                }) { Text(text = element.title ?: "") }
             }
         }
     }

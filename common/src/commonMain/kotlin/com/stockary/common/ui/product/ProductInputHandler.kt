@@ -24,7 +24,7 @@ class ProductInputHandler(
 
         is ProductContract.Inputs.FetchProductList -> {
             observeFlows("FetchProductList") {
-                listOf(productRepository.getDataList(refreshCache = input.forceRefresh)
+                listOf(productRepository.getProductList(refreshCache = input.forceRefresh)
                     .map { ProductContract.Inputs.UpdateProductList(it) })
             }
         }
