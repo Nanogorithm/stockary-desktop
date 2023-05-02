@@ -29,7 +29,7 @@ object CustomerRepositoryContract {
         data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()
 
-        data class Add(val email: String, val name: String, val address: String, val roleId: Int) : Inputs()
+        data class Add(val email: String, val name: String, val address: String, val role: String, val phone: String) : Inputs()
         data class UpdateSignupResponse(val saving: SupabaseResource<Boolean>) : Inputs()
         data class Edit(val category: Profile, val updated: Profile) : Inputs()
         data class Delete(val category: Profile) : Inputs()

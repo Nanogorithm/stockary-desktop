@@ -7,23 +7,30 @@ import com.stockary.common.repository.customer.model.Role
 
 object NewCustomerContract {
     data class State(
-        val loading: Boolean = false, val customerId: Int? = null,
+        val loading: Boolean = false, val customerId: String? = null,
         val formState: FormState<BaseState<*>> = FormState(
             fields = listOf(
                 TextFieldState(
                     name = "email",
-                    validators = listOf(Validators.Required(), Validators.Email()),
-                ), TextFieldState(
+                    validators = listOf(Validators.Email()),
+                ),
+                TextFieldState(
+                    name = "phone",
+                    validators = listOf(Validators.Required(), Validators.Phone()),
+                ),
+                TextFieldState(
                     name = "name",
                     validators = listOf(
                         Validators.Required()
                     ),
-                ), TextFieldState(
+                ),
+                TextFieldState(
                     name = "address",
                     validators = listOf(
                         Validators.Required()
                     ),
-                ), ChoiceState(
+                ),
+                ChoiceState(
                     name = "role",
                     validators = listOf(
                         Validators.Required()
@@ -36,7 +43,7 @@ object NewCustomerContract {
     )
 
     sealed class Inputs {
-        data class Initialize(val customerId: Int?) : Inputs()
+        data class Initialize(val customerId: String?) : Inputs()
         object AddNew : Inputs()
         object Update : Inputs()
         data class UpdateSavingResponse(val savingResponse: SupabaseResource<Boolean>) : Inputs()

@@ -7,5 +7,6 @@ data class Category(
     var id: String? = null,
     var title: String = "",
     var icon: String? = null,
-    var description: String? = null
+    var description: String? = null,
+    var sort: Int? = null,
 )

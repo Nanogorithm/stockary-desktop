@@ -249,7 +249,7 @@ class AppScreenView(
                             }
 
                             NewCustomer -> {
-                                val customerId: Int? by optionalIntQuery()
+                                val customerId: String? by optionalStringQuery()
                                 NewCustomerPage().NewCustomer(injector, customerId)
                             }
                         }

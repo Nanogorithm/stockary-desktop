@@ -7,18 +7,22 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.cloud.firestore.SetOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserRecord
 import com.google.firebase.cloud.FirestoreClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.InviteInput
 import com.stockary.common.repository.customer.model.Profile
+import com.stockary.common.repository.customer.model.Role
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.gotrue
-import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+
 
 class CustomerRepositoryInputHandler(
     private val eventBus: EventBus,
@@ -92,15 +96,37 @@ class CustomerRepositoryInputHandler(
         is CustomerRepositoryContract.Inputs.Add -> {
             sideJob("AddCustomer") {
                 val supabaseResponse: SupabaseResource<Boolean> = try {
-                    val data = InviteInput(
-                        email = input.email, name = input.name, address = input.address, roleId = input.roleId
+
+                    val firebaseAuth = FirebaseAuth.getInstance()
+
+                    val request = UserRecord.CreateRequest().apply {
+                        if (input.email.isNotBlank()) {
+                            setEmail(input.email)
+                            setEmailVerified(true)
+                        }
+                        setPhoneNumber(input.phone)
+                    }.setDisplayName(input.name).setDisabled(false)
+
+                    val user = firebaseAuth.createUser(request)
+
+                    val claims = mapOf(
+                        "role" to input.role
                     )
-                    supabaseClient.gotrue.importAuthToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5md3dhanhxZWlscWRrdndmb2p6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY3MzUxNDc1MSwiZXhwIjoxOTg5MDkwNzUxfQ.VqIPOoipJOmqylpBWMvjeHpbVCZAPiipTJB2DpAa1XE")
-                    supabaseClient.gotrue.admin.inviteUserByEmail(
-                        email = input.email,
-                        data = Json.encodeToJsonElement(data).jsonObject,
-                        redirectTo = "https://stockary.co/welcome"
+
+                    firebaseAuth.setCustomUserClaims(user.uid, claims)
+
+                    val firestore = FirestoreClient.getFirestore()
+
+                    val response = firestore.collection("users").document(user.uid).set(
+                        mapOf(
+                            "name" to input.name,
+                            "role" to input.role,
+                            "address" to input.address,
+                            "phone" to input.phone,
+                            "uid" to user.uid
+                        ), SetOptions.merge()
                     )
+
                     SupabaseResource.Success(true)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -130,11 +156,21 @@ class CustomerRepositoryInputHandler(
                 getValue = { it.customerTypes },
                 updateState = { CustomerRepositoryContract.Inputs.UpdateCustomerTypes(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["customer_roles"].select("*")
-                    println("Customer types => ${result.body}")
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+                    val firestore = FirestoreClient.getFirestore()
+                    val future = firestore.collection("types").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnap ->
+                        try {
+                            val role = docSnap.toObject(Role::class.java)
+                            role?.apply {
+                                id = docSnap.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }

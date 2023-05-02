@@ -135,7 +135,7 @@ fun SelectCustomerType(
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (state.value == "") "Select Customer type" else items.firstOrNull { it.id.toString() == state.value }?.title
+                    if (state.value == "") "Select Customer type" else items.firstOrNull { it.slug.toString() == state.value }?.title
                         ?: "Select Customer type"
                 )
             }
@@ -150,7 +150,7 @@ fun SelectCustomerType(
                 it.title?.contains(search) == true
             }.forEachIndexed { index, element ->
                 DropdownMenuItem(onClick = {
-                    state.change(element.id.toString())
+                    state.change(element.slug ?: "")
                     showPop = false
                     search = ""
                 }) { Text(text = element.title ?: "") }

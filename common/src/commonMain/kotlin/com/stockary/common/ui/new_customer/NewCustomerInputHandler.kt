@@ -32,14 +32,25 @@ class NewCustomerInputHandler(
                 listOf(customerRepository.add(
                     email = rawData["email"] as String,
                     name = rawData["name"] as String,
-                    roleId = (rawData["role"] as String).toInt(),
-                    address = rawData["address"] as String
+                    role = (rawData["role"] as String),
+                    address = rawData["address"] as String,
+                    phone = rawData["phone"] as String
                 ).map { NewCustomerContract.Inputs.UpdateSavingResponse(it) })
             }
         }
 
         is NewCustomerContract.Inputs.UpdateSavingResponse -> {
             updateState { it.copy(savingResponse = input.savingResponse) }
+            val currentState = getCurrentState()
+            when (input.savingResponse) {
+                is SupabaseResource.Success -> {
+                    
+                }
+
+                else -> {
+
+                }
+            }
         }
 
         NewCustomerContract.Inputs.Update -> {

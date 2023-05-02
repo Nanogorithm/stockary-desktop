@@ -14,7 +14,7 @@ interface CustomerRepository {
     fun getCustomerTypes(refreshCache: Boolean = false): Flow<Cached<List<Role>>>
 
     fun get(customerId: Int): Flow<SupabaseResource<Product>>
-    fun add(email: String, name: String, roleId: Int, address: String): Flow<SupabaseResource<Boolean>>
+    fun add(email: String, name: String, role: String, address: String, phone: String): Flow<SupabaseResource<Boolean>>
     fun edit(
         customer: Profile, updated: Profile
     ): Flow<SupabaseResource<Boolean>>

@@ -109,8 +109,8 @@ class CategoryRepositoryInputHandler(
             try {
                 val firestore = FirestoreClient.getFirestore()
                 val category = firestore.collection("categories").document(input.category.id!!).delete()
-                updateState { it.copy(deleting = SupabaseResource.Success(true)) }
                 postInput(CategoryRepositoryContract.Inputs.RefreshCategoryList(true))
+                updateState { it.copy(deleting = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()
                 updateState { it.copy(deleting = SupabaseResource.Error(e)) }

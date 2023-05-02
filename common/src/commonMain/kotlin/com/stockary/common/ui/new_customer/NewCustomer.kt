@@ -24,7 +24,7 @@ import org.koin.core.component.KoinComponent
 class NewCustomerPage : KoinComponent {
     @Composable
     fun NewCustomer(
-        injector: ComposeDesktopInjector, customerId: Int?
+        injector: ComposeDesktopInjector, customerId: String?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewCustomerViewModel = remember(viewModelScope) { injector.newCustomerViewModel(viewModelScope) }
@@ -46,6 +46,7 @@ class NewCustomerPage : KoinComponent {
     ) {
         val emailState: TextFieldState = uiState.formState.getState("email")
         val nameState: TextFieldState = uiState.formState.getState("name")
+        val phoneState: TextFieldState = uiState.formState.getState("phone")
         val addressState: TextFieldState = uiState.formState.getState("address")
         val roleState: ChoiceState = uiState.formState.getState("role")
 
@@ -71,6 +72,13 @@ class NewCustomerPage : KoinComponent {
                             Text("Information", fontSize = 24.sp, fontWeight = FontWeight.W600)
                             Spacer(modifier = Modifier.height(36.dp))
                             TextInput(
+                                label = "Phone",
+                                placeHolder = "+8801738312933",
+                                state = phoneState,
+                                modifier = Modifier.width(300.dp)
+                            )
+                            Spacer(modifier = Modifier.height(36.dp))
+                            TextInput(
                                 label = "Email",
                                 placeHolder = "jhon@gmail.com",
                                 state = emailState,
@@ -78,10 +86,7 @@ class NewCustomerPage : KoinComponent {
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             TextInput(
-                                label = "Name",
-                                placeHolder = "",
-                                state = nameState,
-                                modifier = Modifier.width(300.dp)
+                                label = "Name", placeHolder = "", state = nameState, modifier = Modifier.width(300.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             TextInput(
@@ -133,8 +138,15 @@ class NewCustomerPage : KoinComponent {
                     }
 
                     is SupabaseResource.Success -> {
+                        LaunchedEffect(Unit) {
+                            emailState.change("")
+                            phoneState.change("")
+                            addressState.change("")
+                            nameState.change("")
+                            roleState.change("")
+                        }
                         Spacer(modifier = Modifier.height(28.dp))
-                        Text("Invitation sent to email. Please click on verify link to active the account and set password")
+                        Text("Customer registered successfully")
                     }
                 }
                 Spacer(modifier = Modifier.height(28.dp))
