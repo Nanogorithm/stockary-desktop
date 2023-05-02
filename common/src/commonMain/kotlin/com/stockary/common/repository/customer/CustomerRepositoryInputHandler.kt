@@ -7,8 +7,10 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.firebase.cloud.FirestoreClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.InviteInput
+import com.stockary.common.repository.customer.model.Profile
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.gotrue
 import io.github.jan.supabase.postgrest.postgrest
@@ -70,9 +72,19 @@ class CustomerRepositoryInputHandler(
                 getValue = { it.dataList },
                 updateState = { CustomerRepositoryContract.Inputs.CustomerListUpdated(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["profiles"].select("*,customer_roles(*)")
-                    println(result.body)
-                    result.decodeList(json = Json { ignoreUnknownKeys = true })
+                    val firestore = FirestoreClient.getFirestore()
+
+                    val future = firestore.collection("users").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnap ->
+                        try {
+                            docSnap.toObject(Profile::class.java)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }

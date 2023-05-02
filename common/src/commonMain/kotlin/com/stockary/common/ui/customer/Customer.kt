@@ -126,7 +126,7 @@ class CustomerPage : KoinComponent {
                     Row(
                         modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_customer.id.split("-").first()}", modifier = Modifier.width(100.dp))
+                        Text("#${_customer.uid?.substring(0, 6)}", modifier = Modifier.width(100.dp))
                         Text(_customer.name, modifier = Modifier.weight(1f))
                         Text(_customer.company.toString(), modifier = Modifier.width(181.dp))
                         Text(_customer.address.toString(), modifier = Modifier.width(300.dp))
@@ -135,7 +135,7 @@ class CustomerPage : KoinComponent {
                                 modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFF79CFFF))
                             ) {
                                 Text(
-                                    _customer.role?.title ?: "",
+                                    _customer.role ?: "",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     color = contentColorFor(Color(0xFF79CFFF))
                                 )

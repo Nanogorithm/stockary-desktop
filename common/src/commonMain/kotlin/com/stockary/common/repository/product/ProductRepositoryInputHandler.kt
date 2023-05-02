@@ -134,8 +134,9 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.Delete -> {
             try {
-                val result = supabaseClient.postgrest["products"].delete { Product::id eq input.product.id }
-                println("product delete => ${result.body}")
+                val firestore = FirestoreClient.getFirestore()
+                val delete = firestore.collection("products").document(input.product.id!!).delete()
+
                 updateState { it.copy(deleting = SupabaseResource.Success(true)) }
                 postInput(ProductRepositoryContract.Inputs.RefreshProductList(true))
             } catch (e: Exception) {

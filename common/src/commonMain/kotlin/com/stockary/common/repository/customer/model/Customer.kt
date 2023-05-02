@@ -5,21 +5,19 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Profile(
-    val id: String,
-    val email: String,
-    @SerialName("name") val name: String,
+    var uid: String? = null,
+    val email: String? = null,
+    val name: String = "",
     val company: String? = null,
     val address: String? = null,
+    val phone: String? = null,
     val avatar: String? = null,
-    @SerialName("role_id") val roleId: Int?,
-    @SerialName("customer_roles") val role: Role? = null
+    val role: String? = null
 )
 
 @Serializable
 data class Role(
-    var id: String? = null,
-    var title: String? = null,
-    val slug: String? = ""
+    var id: String? = null, var title: String? = null, val slug: String? = ""
 )
 
 @Serializable
