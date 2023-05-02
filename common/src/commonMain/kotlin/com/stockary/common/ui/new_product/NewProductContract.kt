@@ -30,26 +30,33 @@ object NewProductContract {
                 TextFieldState(
                     name = Product::title.name,
                     validators = listOf(Validators.Required()),
-                ), TextFieldState(
+                ),
+                TextFieldState(
                     name = Product::description.name,
                     validators = listOf(Validators.Required()),
-                ), TextFieldState(
+                ),
+                TextFieldState(
                     name = "photo",
                     validators = listOf(),
                     transform = {
-                        if(it.contains("https://")) it.replace(storagePrefix, "") else it
+                        if (it.contains("https://")) it.replace(storagePrefix, "") else it
                     }
-                ), TextFieldState(name = "unit_amount", validators = listOf(
+                ),
+                TextFieldState(name = Product::unitAmount.name, validators = listOf(
                     Validators.Required()
                 ), transform = {
                     it.toFloatOrNull() ?: 0f
-                }), ChoiceState(name = "category_id", validators = listOf(
-                    Validators.Required()
-                ), transform = {
-                    it.toInt()
-                }), ChoiceState(name = "unit_type_id", validators = listOf(
-                    Validators.Required()
-                ), transform = { it.toInt() })
+                }),
+                ChoiceState(
+                    name = Product::category.name, validators = listOf(
+                        Validators.Required()
+                    )
+                ),
+                ChoiceState(
+                    name = Product::unitType.name, validators = listOf(
+                        Validators.Required()
+                    )
+                )
             )
         )
     )
@@ -76,7 +83,7 @@ object NewProductContract {
         data class FetchCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val customerTypes: Cached<List<Role>>) : Inputs()
 
-        data class GetProduct(val productId: Int):Inputs()
+        data class GetProduct(val productId: Int) : Inputs()
         data class UpdateProduct(val product: SupabaseResource<Product>) : Inputs()
 
     }

@@ -3,7 +3,6 @@ package com.stockary.common.repository.category
 import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.category.model.Category
-import kotlinx.coroutines.flow.Flow
 
 object CategoryRepositoryContract {
     data class State(

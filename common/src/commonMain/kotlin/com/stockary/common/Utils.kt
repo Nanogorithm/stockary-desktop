@@ -16,6 +16,21 @@ val storagePrefix = "https://nfwwajxqeilqdkvwfojz.supabase.co/storage/v1/object/
 fun Float.toCurrencyFormat() = "${currencySymbol}${this}"
 fun Double.toCurrencyFormat() = "${currencySymbol}${this}"
 
+fun Float.removeEmptyFraction(): String {
+    if (this.toString().split(".").last().toInt() > 0) {
+        return this.toString()
+    }
+    return this.toInt().toString()
+}
+
+fun Double.removeEmptyFraction(): String {
+    if (this.toString().split(".").last().toInt() > 0) {
+        return this.toString()
+    }
+    return this.toInt().toString()
+}
+
+
 sealed interface SupabaseResource<out R> {
     class Success<out T>(val data: T) : SupabaseResource<T>
     class Error<out T>(val exception: Throwable, val data: T? = null) : SupabaseResource<T>
@@ -26,11 +41,11 @@ sealed interface SupabaseResource<out R> {
 fun Modifier.dashedBorder(width: Dp, radius: Dp, color: Color) = drawBehind {
     drawIntoCanvas {
         val paint = Paint().apply {
-                strokeWidth = width.toPx()
-                this.color = color
-                style = PaintingStyle.Stroke
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-            }
+            strokeWidth = width.toPx()
+            this.color = color
+            style = PaintingStyle.Stroke
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+        }
         it.drawRoundRect(
             width.toPx(),
             width.toPx(),

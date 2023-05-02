@@ -30,10 +30,10 @@ class ProductRepositoryImpl(
         trySend(ProductRepositoryContract.Inputs.ClearCaches)
     }
 
-    override fun getDataList(refreshCache: Boolean): Flow<Cached<List<Product>>> {
+    override fun getProductList(refreshCache: Boolean): Flow<Cached<List<Product>>> {
         trySend(ProductRepositoryContract.Inputs.Initialize)
-        trySend(ProductRepositoryContract.Inputs.RefreshDataList(refreshCache))
-        return observeStates().map { it.dataList }
+        trySend(ProductRepositoryContract.Inputs.RefreshProductList(refreshCache))
+        return observeStates().map { it.productList }
     }
 
     override fun getCustomerTypes(refreshCache: Boolean): Flow<Cached<List<Role>>> {
@@ -56,13 +56,17 @@ class ProductRepositoryImpl(
         return observeStates().map { it.product }
     }
 
-    override fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
+    override fun add(
+        product: Product, prices: List<Float>, types: List<Role>
+    ): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types))
         return observeStates().map { it.saving }
     }
 
-    override fun edit(product: Product, updated: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>> {
-        trySend(ProductRepositoryContract.Inputs.Edit(product,updated, prices, types))
+    override fun edit(
+        product: Product, updated: Product, prices: List<Float>, types: List<Role>
+    ): Flow<SupabaseResource<Boolean>> {
+        trySend(ProductRepositoryContract.Inputs.Edit(product, updated, prices, types))
         return observeStates().map { it.updating }
     }
 
@@ -71,7 +75,7 @@ class ProductRepositoryImpl(
         return observeStates().map { it.deleting }
     }
 
-    override fun getPhotoUrl(url: String){
+    override fun getPhotoUrl(url: String) {
         trySend(ProductRepositoryContract.Inputs.GetPhotoUrl(url))
     }
 }

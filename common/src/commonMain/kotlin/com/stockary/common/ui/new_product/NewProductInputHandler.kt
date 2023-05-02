@@ -1,6 +1,5 @@
 package com.stockary.common.ui.new_product
 
-import androidx.compose.ui.text.input.TextFieldValue
 import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
@@ -15,7 +14,8 @@ import com.stockary.common.storagePrefix
 import kotlinx.coroutines.flow.map
 
 class NewProductInputHandler(
-    val productRepository: ProductRepository, val categoryRepository: CategoryRepository
+    val productRepository: ProductRepository,
+    val categoryRepository: CategoryRepository
 ) : InputHandler<NewProductContract.Inputs, NewProductContract.Events, NewProductContract.State> {
     override suspend fun InputHandlerScope<NewProductContract.Inputs, NewProductContract.Events, NewProductContract.State>.handleInput(
         input: NewProductContract.Inputs
@@ -61,7 +61,7 @@ class NewProductInputHandler(
             observeFlows("SavingNewProduct") {
                 listOf(productRepository.add(
                     product = formData,
-                    prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.name] as Float },
+                    prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float },
                     types = currentState.customerType.getCachedOrEmptyList()
                 ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
             }
@@ -95,11 +95,12 @@ class NewProductInputHandler(
 
         is NewProductContract.Inputs.UpdateCustomerTypes -> {
             val types = input.customerTypes.getCachedOrEmptyList()
-            val names = types.map { it.name }
+            val names = types.mapNotNull { it.slug }
             val currentState = getCurrentState()
             updateState {
                 it.copy(
-                    customerType = input.customerTypes, formState = FormState(mutableListOf<BaseState<*>>().apply {
+                    customerType = input.customerTypes,
+                    formState = FormState(mutableListOf<BaseState<*>>().apply {
                         addAll(currentState.formState.fields)
                         val fields = currentState.formState.fields.map {
                             it.name
@@ -159,17 +160,18 @@ class NewProductInputHandler(
                 val formState = currentState.formState
                 val product: Product = currentState.product.data
 
-                formState.getState<TextFieldState>("title").change(product.title)
+                formState.getState<TextFieldState>(Product::title.name).change(product.title)
                 formState.getState<TextFieldState>("unit_amount").change(product.unitAmount.toString())
                 formState.getState<TextFieldState>("description").change(product.description ?: "")
                 formState.getState<TextFieldState>("photo").change(product.photo?.let { "${storagePrefix}${it}" } ?: "")
-                formState.getState<ChoiceState>("unit_type_id").change(product.unitTypeId.toString())
-                formState.getState<ChoiceState>("category_id").change(product.categoryId.toString())
+                formState.getState<ChoiceState>("unit_type_id").change(product.unitType.toString())
+                formState.getState<ChoiceState>(Product::category.name).change(product.categoryId.toString())
 
                 //set prices
                 currentState.customerType.getCachedOrEmptyList().forEach { _role ->
-                    product.productCustomerRole.firstOrNull { it.customer_role_id == _role.id }?.let {
-                        formState.getState<TextFieldState>(_role.name).change(it.price.toString())
+                    product.prices?.let {
+                        val price = it[_role.slug!!] as Float
+                        formState.getState<TextFieldState>(_role.slug).change(price.toString())
                     }
                 }
             }
@@ -184,7 +186,7 @@ class NewProductInputHandler(
                 val updated: Product = currentState.formState.getData()
                 val rawData = currentState.formState.getMap()
 
-                val prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.name] as Float }
+                val prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float }
                 val types = currentState.customerType.getCachedOrEmptyList()
 
                 observeFlows("Update") {

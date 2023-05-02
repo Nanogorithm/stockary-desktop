@@ -12,7 +12,7 @@ object ProductRepositoryContract {
         val initialized: Boolean = false,
 
         val dataListInitialized: Boolean = false,
-        val dataList: Cached<List<Product>> = Cached.NotLoaded(),
+        val productList: Cached<List<Product>> = Cached.NotLoaded(),
 
         val customerTypesInitialized: Boolean = false,
         val customerTypes: Cached<List<Role>> = Cached.NotLoaded(),
@@ -31,14 +31,14 @@ object ProductRepositoryContract {
         object Initialize : Inputs()
         object RefreshAllCaches : Inputs()
 
-        data class RefreshDataList(val forceRefresh: Boolean) : Inputs()
-        data class DataListUpdated(val dataList: Cached<List<Product>>) : Inputs()
+        data class RefreshProductList(val forceRefresh: Boolean) : Inputs()
+        data class ProductListUpdated(val dataList: Cached<List<Product>>) : Inputs()
 
         data class RefreshUnitTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateUnitTypes(val unitTypes: Cached<List<UnitType>>) : Inputs()
 
         data class RefreshCustomerTypes(val forceRefresh: Boolean) : Inputs()
-        data class UpdateCustomerTypes(val dataList: Cached<List<Role>>) : Inputs()
+        data class UpdateCustomerTypes(val roles: Cached<List<Role>>) : Inputs()
 
         data class UploadPhoto(val file: File) : Inputs()
         data class UpdateUploadResponse(val photoUploadResponse: SupabaseResource<String>) : Inputs()

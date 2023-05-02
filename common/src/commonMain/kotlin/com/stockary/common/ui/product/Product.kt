@@ -1,5 +1,6 @@
 package com.stockary.common.ui.product
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,14 +17,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.google.cloud.storage.Bucket
+import com.google.firebase.cloud.StorageClient
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.removeEmptyFraction
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.lazyPainterResource
 import org.koin.core.component.KoinComponent
+import java.util.concurrent.TimeUnit
 
 class ProductPage : KoinComponent {
     @Composable
@@ -31,7 +40,6 @@ class ProductPage : KoinComponent {
         injector: ComposeDesktopInjector
     ) {
         val viewModelCoroutineScope = rememberCoroutineScope()
-//        val vm: ProductViewModel = remember(viewModelScope) { get { parametersOf(viewModelScope) } }
         val vm = remember(viewModelCoroutineScope) { injector.productViewModel(viewModelCoroutineScope) }
 
         val uiState by vm.observeStates().collectAsState()
@@ -106,6 +114,7 @@ class ProductPage : KoinComponent {
                 modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("ID", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(100.dp))
+                Text("Photo", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(80.dp))
                 Text("Name", fontSize = 12.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
                 Text("Category", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
@@ -133,15 +142,45 @@ class ProductPage : KoinComponent {
                 }
 
                 items(uiState.products.getCachedOrEmptyList()) { _product ->
+                    val image = remember { mutableStateOf("") }
+                    LaunchedEffect(_product.photo) {
+                        _product.photo?.let {
+                            if (it.contains("https://")) {
+                                image.value = it
+                            } else {
+                                val bucket: Bucket? = StorageClient.getInstance().bucket()
+                                try {
+                                    val url = bucket?.get(it)?.signUrl(1, TimeUnit.HOURS)
+                                    println("public url => $url")
+                                    image.value = url.toString()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    }
                     Row(
                         modifier = Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("#${_product.id}", modifier = Modifier.width(100.dp))
+                        Text("#${_product.id?.substring(0, 6)}", modifier = Modifier.width(100.dp))
+                        Box(modifier = Modifier.width(80.dp)) {
+                            val painterResource: Resource<Painter> = lazyPainterResource(data = image.value)
+                            KamelImage(
+                                resource = painterResource,
+                                contentDescription = "Product photo",
+                                onLoading = { progress -> CircularProgressIndicator(progress) },
+                                onFailure = { exception ->
+
+                                },
+                                animationSpec = tween(),
+                                modifier = Modifier.height(80.dp).width(80.dp)
+                            )
+                        }
                         Text(_product.title, modifier = Modifier.weight(1f))
-                        Text(_product.category?.title ?: "", modifier = Modifier.width(181.dp))
+                        Text(_product.category ?: "", modifier = Modifier.width(181.dp))
                         Text("${_product.stock}", modifier = Modifier.width(181.dp))
                         Text(
-                            "${_product.unitAmount} ${_product.unitType?.name ?: ""}",
+                            "${_product.units?.amount?.removeEmptyFraction() ?: ""} ${_product.units?.type ?: ""}",
                             modifier = Modifier.width(181.dp)
                         )
                         Row(
@@ -153,8 +192,7 @@ class ProductPage : KoinComponent {
                                 modifier = Modifier.size(32.dp).clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.secondaryContainer).clickable {
                                         postInput(ProductContract.Inputs.GoEdit(_product.id!!))
-                                    },
-                                contentAlignment = Alignment.Center
+                                    }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Default.Edit,

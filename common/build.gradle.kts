@@ -83,6 +83,7 @@ version = "1.0-SNAPSHOT"
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
+                api("com.google.firebase:firebase-admin:9.1.1")
             }
         }
         val desktopTest by getting {

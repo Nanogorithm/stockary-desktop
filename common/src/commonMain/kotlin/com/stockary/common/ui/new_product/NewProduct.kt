@@ -32,8 +32,7 @@ import java.io.File
 class NewProductPage : KoinComponent {
     @Composable
     fun NewProduct(
-        injector: ComposeDesktopInjector,
-        productId: Int?
+        injector: ComposeDesktopInjector, productId: Int?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewProductViewModel = remember(viewModelScope) { injector.newProductViewModel(viewModelScope) }
@@ -58,17 +57,16 @@ class NewProductPage : KoinComponent {
         val titleState: TextFieldState = uiState.formState.getState(Product::title.name)
         val descriptionState: TextFieldState = uiState.formState.getState(Product::description.name)
         val photoState: TextFieldState = uiState.formState.getState("photo")
-        val unitAmountState: TextFieldState = uiState.formState.getState("unit_amount")
+        val unitAmountState: TextFieldState = uiState.formState.getState(Product::unitAmount.name)
 
-        val categoryIdState: ChoiceState = uiState.formState.getState("category_id")
-        val unitTypeIdState: ChoiceState = uiState.formState.getState("unit_type_id")
+        val categoryState: ChoiceState = uiState.formState.getState(Product::category.name)
+        val unitTypeState: ChoiceState = uiState.formState.getState(Product::unitType.name)
 
         LaunchedEffect(photoState.value) {
             if (photoState.value.isNotBlank() && !photoState.value.contains(storagePrefix)) {
                 postInput(NewProductContract.Inputs.UploadPhoto(file = File(photoState.value)))
             }
         }
-
 
         Box {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
@@ -123,12 +121,12 @@ class NewProductPage : KoinComponent {
                                             SelectUnitType(
                                                 modifier = Modifier.width(200.dp).height(60.dp),
                                                 items = uiState.unitTypes.getCachedOrEmptyList(),
-                                                state = unitTypeIdState
+                                                state = unitTypeState
                                             )
 
-                                            if (unitTypeIdState.hasError) {
+                                            if (unitTypeState.hasError) {
                                                 Text(
-                                                    text = unitTypeIdState.errorMessage,
+                                                    text = unitTypeState.errorMessage,
                                                     modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                                                     style = androidx.compose.material.MaterialTheme.typography.caption.copy(
                                                         color = androidx.compose.material.MaterialTheme.colors.error
@@ -172,11 +170,11 @@ class NewProductPage : KoinComponent {
                                                     modifier = Modifier.fillMaxWidth().height(60.dp),
                                                     label = "Category",
                                                     items = categories,
-                                                    state = categoryIdState
+                                                    state = categoryState
                                                 )
-                                                if (categoryIdState.hasError) {
+                                                if (categoryState.hasError) {
                                                     Text(
-                                                        text = categoryIdState.errorMessage,
+                                                        text = categoryState.errorMessage,
                                                         modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                                                         style = androidx.compose.material.MaterialTheme.typography.caption.copy(
                                                             color = androidx.compose.material.MaterialTheme.colors.error
@@ -200,16 +198,13 @@ class NewProductPage : KoinComponent {
                                             Column {
 
                                                 val priceState: TextFieldState =
-                                                    uiState.formState.getState(_customerType.name)
+                                                    uiState.formState.getState(_customerType.slug!!)
 
                                                 Row(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                                 ) {
-                                                    val typeName = _customerType.name.replaceFirst(
-                                                        _customerType.name.first(),
-                                                        _customerType.name.first().uppercaseChar()
-                                                    )
+                                                    val typeName = _customerType.title ?: ""
 
 
                                                     TextField(
