@@ -35,5 +35,9 @@ class CustomerInputHandler(
         is CustomerContract.Inputs.AddNew -> {
             postEvent(CustomerContract.Events.AddNew)
         }
+
+        CustomerContract.Inputs.GoCustomerType -> {
+            postEvent(CustomerContract.Events.NavigateCustomerType)
+        }
     }
 }

@@ -1,29 +1,27 @@
 package com.stockary.common.repository.order.model
 
-import com.stockary.common.repository.customer.model.Profile
+import com.stockary.common.repository.product.model.Units
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Order(
-    val id: Int? = null,
-    val total: Float = 0f,
-    val discount: Float = 0f,
-    val status: String,
-    @SerialName("customer_id") val customerId: String,
-    @SerialName("profiles") val profile: Profile? = null,
-    @SerialName("order_items") val orderItems: List<OrderItem> = emptyList()
+    var id: String? = null,
+    val total: Double = 0.0,
+    val discount: Double? = null,
+    val status: String? = null,
+    val user_id: String? = null,
+    val items: List<OrderItem> = emptyList()
 )
 
 @Serializable
 data class OrderItem(
-    val id: Int? = null,
     val quantity: Int = 0,
-    val discount: Float = 0f,
-    @SerialName("product_name") val productName: String? = null,
-    @SerialName("unit_price") val unitPrice: Float = 0f,
-    @SerialName("order_id") val orderId: Int? = null,
-    @SerialName("product_id") val productId: Int? = null,
+    val discount: Double = 0.0,
+    val title: String? = null,
+    val price: Double = 0.0,
+    val product_id: String? = null,
+    val units: Units? = null
 )
 
 @Serializable

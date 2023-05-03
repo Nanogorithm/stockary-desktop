@@ -67,14 +67,21 @@ class OrderRepositoryInputHandler(
                 getValue = { it.orderList },
                 updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["orders"].select("*,profiles(*),order_items(*)")
-                    println(result.body)
-                    result.decodeList<Order>(json = Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                    }).let {
-                        println(it)
-                        it
+
+                    val firestore = com.google.firebase.cloud.FirestoreClient.getFirestore()
+                    val future = firestore.collection("orders").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { snap ->
+                        try {
+                            val order = snap.toObject(Order::class.java)
+                            order?.apply {
+                                id = snap.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
                     }
                 },
             )

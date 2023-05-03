@@ -9,9 +9,11 @@ import com.stockary.common.ui.home.HomeViewModel
 import com.stockary.common.ui.new_category.NewCategoryViewModel
 import com.stockary.common.ui.new_customer.NewCustomerViewModel
 import com.stockary.common.ui.new_product.NewProductViewModel
+import com.stockary.common.ui.new_types.NewCustomerTypeViewModel
 import com.stockary.common.ui.order.OrderViewModel
 import com.stockary.common.ui.product.ProductViewModel
 import com.stockary.common.ui.summary.SummaryViewModel
+import com.stockary.common.ui.types.TypeViewModel
 import kotlinx.coroutines.CoroutineScope
 
 interface ComposeDesktopInjector {
@@ -27,6 +29,7 @@ interface ComposeDesktopInjector {
 
     fun orderViewModel(coroutineScope: CoroutineScope): OrderViewModel
     fun summaryViewModel(coroutineScope: CoroutineScope): SummaryViewModel
+    fun typeViewModel(coroutineScope: CoroutineScope): TypeViewModel
 
     fun categoryViewModel(
         coroutineScope: CoroutineScope,
@@ -49,4 +52,8 @@ interface ComposeDesktopInjector {
     fun newCustomerViewModel(
         coroutineScope: CoroutineScope
     ): NewCustomerViewModel
+
+    fun newCustomerTypeViewModel(
+        coroutineScope: CoroutineScope
+    ): NewCustomerTypeViewModel
 }

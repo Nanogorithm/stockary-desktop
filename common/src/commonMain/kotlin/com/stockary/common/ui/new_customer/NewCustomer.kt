@@ -24,7 +24,8 @@ import org.koin.core.component.KoinComponent
 class NewCustomerPage : KoinComponent {
     @Composable
     fun NewCustomer(
-        injector: ComposeDesktopInjector, customerId: String?
+        injector: ComposeDesktopInjector,
+        customerId: String?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewCustomerViewModel = remember(viewModelScope) { injector.newCustomerViewModel(viewModelScope) }
@@ -42,7 +43,8 @@ class NewCustomerPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: NewCustomerContract.State, postInput: (NewCustomerContract.Inputs) -> Unit
+        uiState: NewCustomerContract.State,
+        postInput: (NewCustomerContract.Inputs) -> Unit
     ) {
         val emailState: TextFieldState = uiState.formState.getState("email")
         val nameState: TextFieldState = uiState.formState.getState("name")

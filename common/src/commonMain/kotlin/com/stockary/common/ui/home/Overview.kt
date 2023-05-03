@@ -66,7 +66,7 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
                         CircularProgressIndicator()
                     } else {
                         Text(
-                            uiState.orders.getCachedOrEmptyList().sumOf { it.total.toDouble() }.toCurrencyFormat(),
+                            uiState.orders.getCachedOrEmptyList().sumOf { it.total }.toCurrencyFormat(),
                             fontSize = 32.sp
                         )
                     }
@@ -136,9 +136,9 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
                         modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(_order.profile?.name.toString())
+                        Text(_order.user_id ?: "NaN")
                         Spacer(modifier = Modifier.weight(1f))
-                        Text("${_order.orderItems.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))
+                        Text("${_order.items.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))
                         Text(_order.total.toCurrencyFormat(), modifier = Modifier.width(181.dp))
                     }
                     Divider(color = Color(0xFFD9D9D9))

@@ -48,7 +48,8 @@ class CustomerPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: CustomerContract.State, postInput: (CustomerContract.Inputs) -> Unit
+        uiState: CustomerContract.State,
+        postInput: (CustomerContract.Inputs) -> Unit
     ) {
         var search by remember { mutableStateOf("") }
 
@@ -66,7 +67,8 @@ class CustomerPage : KoinComponent {
                 ) {
                     Box(
                         modifier = Modifier.width(200.dp).height(28.dp).clip(RoundedCornerShape(8.dp))
-                            .background(Color.White), contentAlignment = Alignment.CenterStart
+                            .background(Color.White),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Spacer(modifier = Modifier.width(2.dp))
@@ -82,7 +84,7 @@ class CustomerPage : KoinComponent {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = {
-
+                            postInput(CustomerContract.Inputs.GoCustomerType)
                         }, colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = contentColorFor(MaterialTheme.colorScheme.secondaryContainer)

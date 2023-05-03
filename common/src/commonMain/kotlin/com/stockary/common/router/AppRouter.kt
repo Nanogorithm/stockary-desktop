@@ -19,8 +19,7 @@ enum class AppScreen(
     CustomerList(
         "/app/customers?sort={?}", "Customers", icon = Icons.Default.Person
     ),
-    NewCustomer("/app/new-customers?customerId={?}", "New Customer"),
-    CustomerDetails(
+    NewCustomer("/app/new-customers?customerId={?}", "New Customer"), CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
     NewCategory(
@@ -30,23 +29,28 @@ enum class AppScreen(
         "/app/categories?sort={?}", "Categories"
     ),
     CategoryDetails("/app/categories/{categoryId}", "Category Details"),
-
+    CustomerTypeList(
+        "/app/customer-types?sort={?}", "Customer types"
+    ),
+    NewCustomerType(
+        "/app/new-customer-type?typeId={?}", "Add Customer Type"
+    ),
     ProductList(
         "/app/products?sort={?}", "products", icon = Icons.Default.ShoppingCart
     ),
     NewProduct(
         "/app/new-product?productId={?}", "Add Product"
     ),
-    ProductDetails("/app/products/{categoryId}", "Product Details"), NewOrder(
+    ProductDetails("/app/products/{categoryId}", "Product Details"),
+    NewOrder(
         "/app/new-order", "New Order"
     ),
     OrderList(
         "/app/orders?sort={?}", "Orders", icon = Icons.Default.Shop2
     ),
-    OrderDetails("/app/orders/{orderId}", "Order Details"), OrderSummary(
-        "/app/summary",
-        "Order Summary",
-        icon = Icons.Default.BarChart
+    OrderDetails("/app/orders/{orderId}", "Order Details"),
+    OrderSummary(
+        "/app/summary", "Order Summary", icon = Icons.Default.BarChart
     ), ;
 
     override val matcher: RouteMatcher = RouteMatcher.create(routeFormat)

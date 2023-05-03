@@ -44,7 +44,7 @@ class ProductEventHandler(
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.NewProduct.directions()
-                        .queryParameter("productId", event.productId.toString())
+                        .queryParameter("productId", event.productId)
                         .build()
                 )
             )

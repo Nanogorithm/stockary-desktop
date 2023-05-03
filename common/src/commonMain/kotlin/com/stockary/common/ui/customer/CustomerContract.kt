@@ -12,12 +12,14 @@ object CustomerContract {
         object Initialize : Inputs()
         object GoBack : Inputs()
         object AddNew : Inputs()
+        object GoCustomerType : Inputs()
         data class FetchCustomerList(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerList(val customers: Cached<List<Profile>>) : Inputs()
     }
 
     sealed class Events {
         object NavigateUp : Events()
+        object NavigateCustomerType : Events()
         object AddNew : Events()
     }
 }

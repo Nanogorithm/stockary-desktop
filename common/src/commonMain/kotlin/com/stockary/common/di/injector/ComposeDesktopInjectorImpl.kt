@@ -26,6 +26,9 @@ import com.stockary.common.repository.order.OrderRepositoryInputHandler
 import com.stockary.common.repository.product.ProductRepositoryContract
 import com.stockary.common.repository.product.ProductRepositoryImpl
 import com.stockary.common.repository.product.ProductRepositoryInputHandler
+import com.stockary.common.repository.type.CustomerTypeRepositoryContract
+import com.stockary.common.repository.type.CustomerTypeRepositoryImpl
+import com.stockary.common.repository.type.CustomerTypeRepositoryInputHandler
 import com.stockary.common.router.AppScreen
 import com.stockary.common.ui.app.AppContract
 import com.stockary.common.ui.app.AppEventHandler
@@ -55,6 +58,10 @@ import com.stockary.common.ui.new_product.NewProductContract
 import com.stockary.common.ui.new_product.NewProductEventHandler
 import com.stockary.common.ui.new_product.NewProductInputHandler
 import com.stockary.common.ui.new_product.NewProductViewModel
+import com.stockary.common.ui.new_types.NewCustomerTypeContract
+import com.stockary.common.ui.new_types.NewCustomerTypeEventHandler
+import com.stockary.common.ui.new_types.NewCustomerTypeInputHandler
+import com.stockary.common.ui.new_types.NewCustomerTypeViewModel
 import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderEventHandler
 import com.stockary.common.ui.order.OrderInputHandler
@@ -67,7 +74,10 @@ import com.stockary.common.ui.summary.SummaryContract
 import com.stockary.common.ui.summary.SummaryEventHandler
 import com.stockary.common.ui.summary.SummaryInputHandler
 import com.stockary.common.ui.summary.SummaryViewModel
-import io.ktor.client.*
+import com.stockary.common.ui.types.TypeContract
+import com.stockary.common.ui.types.TypeEventHandler
+import com.stockary.common.ui.types.TypeInputHandler
+import com.stockary.common.ui.types.TypeViewModel
 import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
 import org.koin.core.component.KoinComponent
@@ -139,6 +149,16 @@ class ComposeDesktopInjectorImpl(
         )
     }
 
+    override fun typeViewModel(coroutineScope: CoroutineScope): TypeViewModel {
+        return TypeViewModel(
+            coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
+                inputHandler = TypeInputHandler(customerTypeRepository = customerTypeRepository),
+                initialState = TypeContract.State(),
+                name = "SummaryScreen",
+            ), eventHandler = TypeEventHandler(router)
+        )
+    }
+
     private val eventBus = EventBusImpl()
 
     private val authRepository by lazy {
@@ -156,6 +176,20 @@ class ComposeDesktopInjectorImpl(
                 initialState = OrderRepositoryContract.State(),
                 name = "Order Repository",
             ).withRepository(),
+        )
+    }
+
+    private val customerTypeRepository by lazy {
+        CustomerTypeRepositoryImpl(
+            coroutineScope = applicationScope,
+            eventBus = eventBus,
+            configBuilder = commonBuilder().withViewModel(
+                    inputHandler = CustomerTypeRepositoryInputHandler(
+                        eventBus = eventBus,
+                    ),
+                    initialState = CustomerTypeRepositoryContract.State(),
+                    name = "Customer Type Repository",
+                ).withRepository(),
         )
     }
 
@@ -260,6 +294,18 @@ class ComposeDesktopInjectorImpl(
                 inputHandler = NewCustomerInputHandler(customerRepository),
                 name = "NewCustomerScreen"
             ), eventHandler = NewCustomerEventHandler(router)
+        )
+    }
+
+    override fun newCustomerTypeViewModel(coroutineScope: CoroutineScope): NewCustomerTypeViewModel {
+        return NewCustomerTypeViewModel(
+            coroutineScope = coroutineScope,
+            configBuilder = commonBuilder().withViewModel(
+                    initialState = NewCustomerTypeContract.State(),
+                    inputHandler = NewCustomerTypeInputHandler(customerTypeRepository),
+                    name = "NewCustomerTypeScreen"
+                ),
+            eventHandler = NewCustomerTypeEventHandler(router)
         )
     }
 

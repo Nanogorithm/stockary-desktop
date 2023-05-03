@@ -10,14 +10,8 @@ import com.stockary.common.router.AppScreen
 
 class CustomerEventHandler(
     val router: Router<AppScreen>
-) : EventHandler<
-        CustomerContract.Inputs,
-        CustomerContract.Events,
-        CustomerContract.State> {
-    override suspend fun EventHandlerScope<
-            CustomerContract.Inputs,
-            CustomerContract.Events,
-            CustomerContract.State>.handleEvent(
+) : EventHandler<CustomerContract.Inputs, CustomerContract.Events, CustomerContract.State> {
+    override suspend fun EventHandlerScope<CustomerContract.Inputs, CustomerContract.Events, CustomerContract.State>.handleEvent(
         event: CustomerContract.Events
     ) = when (event) {
         is CustomerContract.Events.NavigateUp -> {
@@ -28,6 +22,15 @@ class CustomerEventHandler(
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.NewCustomer.directions().build()
+                )
+            )
+            Unit
+        }
+
+        CustomerContract.Events.NavigateCustomerType -> {
+            router.trySend(
+                RouterContract.Inputs.GoToDestination(
+                    AppScreen.CustomerTypeList.directions().build()
                 )
             )
             Unit

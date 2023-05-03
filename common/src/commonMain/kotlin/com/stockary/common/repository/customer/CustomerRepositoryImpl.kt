@@ -19,11 +19,7 @@ class CustomerRepositoryImpl(
     eventBus: EventBus,
     configBuilder: BallastViewModelConfiguration.Builder,
 ) : BallastRepository<CustomerRepositoryContract.Inputs, CustomerRepositoryContract.State>(
-    coroutineScope = coroutineScope, eventBus = eventBus, config = configBuilder.apply {
-        inputHandler = CustomerRepositoryInputHandler(eventBus)
-        initialState = CustomerRepositoryContract.State()
-        name = "Customer Repository"
-    }.withRepository().build()
+    coroutineScope = coroutineScope, eventBus = eventBus, config = configBuilder.build()
 ), CustomerRepository {
     override fun clearAllCaches() {
         trySend(CustomerRepositoryContract.Inputs.ClearCaches)
@@ -44,8 +40,22 @@ class CustomerRepositoryImpl(
         TODO("Not yet implemented")
     }
 
-    override fun add(email: String, name: String, role: String, address: String, phone: String): Flow<SupabaseResource<Boolean>> {
-        trySend(CustomerRepositoryContract.Inputs.Add(email = email, name = name, role = role, address = address, phone = phone))
+    override fun add(
+        email: String,
+        name: String,
+        role: String,
+        address: String,
+        phone: String
+    ): Flow<SupabaseResource<Boolean>> {
+        trySend(
+            CustomerRepositoryContract.Inputs.Add(
+                email = email,
+                name = name,
+                role = role,
+                address = address,
+                phone = phone
+            )
+        )
         return observeStates().map { it.saving }
     }
 

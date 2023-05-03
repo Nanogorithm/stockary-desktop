@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.*
 import com.copperleaf.ballast.navigation.routing.*
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.di.injector.ComposeDesktopInjector
@@ -36,9 +35,11 @@ import com.stockary.common.ui.new_category.NewCategoryPage
 import com.stockary.common.ui.new_customer.NewCustomerPage
 import com.stockary.common.ui.new_order.NewOrder
 import com.stockary.common.ui.new_product.NewProductPage
+import com.stockary.common.ui.new_types.NewCustomerTypePage
 import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import com.stockary.common.ui.summary.Summary
+import com.stockary.common.ui.types.TypePage
 import io.github.jan.supabase.gotrue.SessionStatus
 import org.koin.core.component.KoinComponent
 
@@ -137,16 +138,12 @@ class AppScreenView(
 
     @Composable
     fun AppContent(
-        uiState: AppContract.State,
-        vm: AppViewModel,
-        routerState: Backstack<AppScreen>,
-        router: Router<AppScreen>
+        uiState: AppContract.State, vm: AppViewModel, routerState: Backstack<AppScreen>, router: Router<AppScreen>
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(48.dp))
             Box(
-                modifier = Modifier.padding(end = 50.dp).align(Alignment.End),
-                contentAlignment = Alignment.TopEnd
+                modifier = Modifier.padding(end = 50.dp).align(Alignment.End), contentAlignment = Alignment.TopEnd
             ) {
                 var expandMenu by remember { mutableStateOf(false) }
 
@@ -156,8 +153,8 @@ class AppScreenView(
                             expandMenu = true
                         }) {
                             Box(
-                                modifier = Modifier.size(24.dp).clip(CircleShape)
-                                    .background(Color(0xFFE2E3FF)), contentAlignment = Alignment.Center
+                                modifier = Modifier.size(24.dp).clip(CircleShape).background(Color(0xFFE2E3FF)),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Icon(Icons.Default.Person, null)
                             }
@@ -251,6 +248,15 @@ class AppScreenView(
                             NewCustomer -> {
                                 val customerId: String? by optionalStringQuery()
                                 NewCustomerPage().NewCustomer(injector, customerId)
+                            }
+
+                            CustomerTypeList -> {
+                                TypePage(injector = injector)
+                            }
+
+                            NewCustomerType -> {
+                                val typeId: String? by optionalStringQuery()
+                                NewCustomerTypePage(injector = injector, typeId = typeId)
                             }
                         }
                     },
