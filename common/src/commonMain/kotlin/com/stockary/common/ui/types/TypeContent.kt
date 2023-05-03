@@ -103,12 +103,12 @@ fun TypeContent(
                     }
                 }
             }
-            items(uiState.types.getCachedOrEmptyList()) { _customer ->
+            items(uiState.types.getCachedOrEmptyList()) { customerType ->
                 Row(
                     modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("#${_customer.id?.substring(0, 6)}", modifier = Modifier.width(100.dp))
-                    Text(_customer.title ?: "", modifier = Modifier.weight(1f))
+                    Text("#${customerType.id?.substring(0, 6)}", modifier = Modifier.width(100.dp))
+                    Text(customerType.title ?: "", modifier = Modifier.weight(1f))
                     Text(modifier = Modifier.width(181.dp), text = "--")
                     Row(
                         modifier = Modifier.width(181.dp),
@@ -129,7 +129,7 @@ fun TypeContent(
                         }
                         Box(
                             modifier = Modifier.size(32.dp).clip(CircleShape).clickable {
-
+                                postInput(TypeContract.Inputs.Delete(customerType))
                             }, contentAlignment = Alignment.Center
                         ) {
                             Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)

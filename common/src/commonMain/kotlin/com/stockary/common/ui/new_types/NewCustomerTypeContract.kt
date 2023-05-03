@@ -27,6 +27,10 @@ object NewCustomerTypeContract {
 
     sealed class Inputs {
         data class Initialize(val typeId: String?) : Inputs()
+        data class UpdateSavingResponse(val savingResponse: SupabaseResource<Boolean>) : Inputs()
+
+        object AddNew : Inputs()
+        object Update : Inputs()
         object GoBack : Inputs()
     }
 

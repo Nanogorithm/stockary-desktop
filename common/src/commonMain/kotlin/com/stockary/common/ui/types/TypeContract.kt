@@ -14,6 +14,9 @@ object TypeContract {
         data class GoNewCustomerType(val typeId: String?) : Inputs()
         data class RefreshCustomerTypeList(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypeList(val types: Cached<List<Role>>) : Inputs()
+
+        data class Edit(val type: Role) : Inputs()
+        data class Delete(val type: Role) : Inputs()
     }
 
     sealed class Events {

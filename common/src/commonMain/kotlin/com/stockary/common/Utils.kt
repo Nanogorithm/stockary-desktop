@@ -8,7 +8,8 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
-import java.io.OutputStream
+import java.text.Normalizer
+import java.util.*
 
 val currencySymbol = "৳"
 val storagePrefix = "https://nfwwajxqeilqdkvwfojz.supabase.co/storage/v1/object/public/"
@@ -29,6 +30,11 @@ fun Double.removeEmptyFraction(): String {
     }
     return this.toInt().toString()
 }
+
+fun String.slugify(replacement: String = "_") =
+    Normalizer.normalize(this, Normalizer.Form.NFD).replace("[^\\p{ASCII}]".toRegex(), "")
+        .replace("[^a-zA-Z0-9\\s]+".toRegex(), "").trim().replace("\\s+".toRegex(), replacement)
+        .lowercase(Locale.getDefault())
 
 
 sealed interface SupabaseResource<out R> {

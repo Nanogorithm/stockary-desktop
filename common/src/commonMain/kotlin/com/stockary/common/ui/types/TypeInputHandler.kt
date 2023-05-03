@@ -35,5 +35,15 @@ class TypeInputHandler(
         is TypeContract.Inputs.GoNewCustomerType -> {
             postEvent(TypeContract.Events.NavigateNewCustomerType(input.typeId))
         }
+
+        is TypeContract.Inputs.Delete -> {
+            sideJob("DeleteType") {
+                customerTypeRepository.delete(input.type)
+            }
+        }
+
+        is TypeContract.Inputs.Edit -> {
+
+        }
     }
 }

@@ -15,11 +15,11 @@ import com.stockary.common.components.TextInput
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.form_builder.TextFieldState
 import com.stockary.common.repository.customer.model.Role
+import com.stockary.common.slugify
 
 @Composable
 fun NewCustomerTypePage(
-    injector: ComposeDesktopInjector,
-    typeId: String?
+    injector: ComposeDesktopInjector, typeId: String?
 ) {
     val viewModelScope = rememberCoroutineScope()
     val vm: NewCustomerTypeViewModel = remember(viewModelScope) { injector.newCustomerTypeViewModel(viewModelScope) }
@@ -37,11 +37,12 @@ fun NewCustomerTypePage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
-    uiState: NewCustomerTypeContract.State,
-    postInput: (NewCustomerTypeContract.Inputs) -> Unit
+    uiState: NewCustomerTypeContract.State, postInput: (NewCustomerTypeContract.Inputs) -> Unit
 ) {
     val titleState: TextFieldState = uiState.formState.getState(Role::title.name)
     val slugState: TextFieldState = uiState.formState.getState(Role::slug.name)
+
+    slugState.change(titleState.value.slugify())
 
     Box {
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
@@ -55,9 +56,7 @@ private fun Content(
                 modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(34.dp)
             ) {
                 Card(
-                    modifier = Modifier.weight(4f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(
+                    modifier = Modifier.weight(4f), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFF8F8F8)
                     )
                 ) {
@@ -109,7 +108,7 @@ private fun Content(
                 Button(
                     onClick = {
                         if (uiState.formState.validate()) {
-
+                            postInput(NewCustomerTypeContract.Inputs.AddNew)
                         }
                     }, shape = RoundedCornerShape(15.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
