@@ -67,7 +67,7 @@ class ProductRepositoryImpl(
         product: Product, updated: Product, prices: List<Float>, types: List<Role>
     ): Flow<SupabaseResource<Boolean>> {
         trySend(ProductRepositoryContract.Inputs.Edit(product, updated, prices, types))
-        return observeStates().map { it.updating }
+        return observeStates().map { it.saving }
     }
 
     override fun delete(product: Product): Flow<SupabaseResource<Boolean>> {

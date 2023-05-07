@@ -33,20 +33,23 @@ object NewProductContract {
                 ),
                 TextFieldState(
                     name = Product::description.name,
-                    validators = listOf(Validators.Required()),
+                    validators = listOf(),
                 ),
                 TextFieldState(
                     name = "photo",
                     validators = listOf(),
                     transform = {
-                        if (it.contains("https://")) it.replace(storagePrefix, "") else it
+                        it
                     }
                 ),
-                TextFieldState(name = Product::unitAmount.name, validators = listOf(
-                    Validators.Required()
-                ), transform = {
-                    it.toFloatOrNull() ?: 0f
-                }),
+                TextFieldState(name = Product::unitAmount.name,
+                    validators = listOf(
+                        Validators.Required()
+                    ),
+                    transform = {
+                        it.toFloatOrNull() ?: 0f
+                    }
+                ),
                 ChoiceState(
                     name = Product::category.name, validators = listOf(
                         Validators.Required()

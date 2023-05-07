@@ -53,12 +53,12 @@ class NewProductInputHandler(
                 photoField.change(photoPath)
             }
 
-            val formData: Product = currentState.formState.getData()
+            val product: Product = currentState.formState.getData()
             val rawData = currentState.formState.getMap()
 
             observeFlows("SavingNewProduct") {
                 listOf(productRepository.add(
-                    product = formData,
+                    product = product,
                     prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float },
                     types = currentState.customerType.getCachedOrEmptyList()
                 ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
@@ -179,17 +179,26 @@ class NewProductInputHandler(
         NewProductContract.Inputs.Update -> {
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
+            if (currentState.uploadResponse is SupabaseResource.Success) {
+                val photoPath = currentState.uploadResponse.data
+                val photoField: TextFieldState = currentState.formState.getState("photo")
+                photoField.change(photoPath)
+            }
+
             if (currentState.product is SupabaseResource.Success) {
-                val product: Product = currentState.product.data
+
                 val updated: Product = currentState.formState.getData()
                 val rawData = currentState.formState.getMap()
 
-                val prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float }
-                val types = currentState.customerType.getCachedOrEmptyList()
+                val product: Product = currentState.product.data
 
                 observeFlows("Update") {
-                    listOf(productRepository.edit(product = product, updated = updated, prices = prices, types = types)
-                        .map { NewProductContract.Inputs.UpdateSaveResponse(it) })
+                    listOf(productRepository.edit(
+                        product = product,
+                        updated = updated,
+                        prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float },
+                        types = currentState.customerType.getCachedOrEmptyList()
+                    ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
                 }
 
             }

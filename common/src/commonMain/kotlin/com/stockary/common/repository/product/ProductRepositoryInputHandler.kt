@@ -7,6 +7,7 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.cloud.firestore.SetOptions
 import com.google.cloud.storage.Bucket
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.cloud.StorageClient
@@ -118,6 +119,7 @@ class ProductRepositoryInputHandler(
                 val product = firestore.collection("products").add(
                     mapOf(
                         "title" to input.product.title,
+                        "description" to input.product.description,
                         "category" to input.product.category,
                         "photo" to input.product.photo,
                         "prices" to prices,
@@ -147,37 +149,37 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.Edit -> {
             try {
-                println("${input.product} ${input.updated}")
-                val result = supabaseClient.postgrest["products"].update({
-                    if (input.product.title != input.updated.title) {
-                        Product::title setTo input.updated.title
-                    }
-                    if (input.product.description != input.updated.description) {
-                        Product::description setTo input.updated.description
-                    }
+                val firestore = FirestoreClient.getFirestore()
 
-                    if (input.product.photo != input.updated.photo) {
-                        Product::photo setTo input.updated.photo
+                val prices = mutableMapOf<String, Any>().apply {
+                    input.types.forEachIndexed { index, role ->
+                        put(role.slug!!, input.prices[index])
                     }
-
-                    if (input.product.categoryId != input.updated.categoryId) {
-                        Product::categoryId setTo input.updated.categoryId
-                    }
-
-                    if (input.product.unitAmount != input.updated.unitAmount) {
-                        Product::unitAmount setTo input.updated.unitAmount
-                    }
-                    if (input.product.unitType != input.updated.unitType) {
-                        Product::unitType setTo input.updated.unitType
-                    }
-                }) {
-                    Product::id eq input.product.id
                 }
 
-                updateState { it.copy(updating = SupabaseResource.Success(true)) }
+                val units = mapOf(
+                    "amount" to input.updated.unitAmount,
+                    "type" to input.updated.unitType
+                )
+
+                println("updating => $prices $units")
+
+                val product = firestore.collection("products").document(input.product.id!!).set(
+                    mapOf(
+                        "title" to input.updated.title,
+                        "description" to input.updated.description,
+                        "category" to input.updated.category,
+                        "photo" to input.updated.photo,
+                        "prices" to prices,
+                        "units" to units
+                    ),
+                    SetOptions.merge()
+                )
+
+                updateState { it.copy(saving = SupabaseResource.Success(true)) }
             } catch (e: Exception) {
                 e.printStackTrace()
-                updateState { it.copy(updating = SupabaseResource.Error(e)) }
+                updateState { it.copy(saving = SupabaseResource.Error(e)) }
             }
         }
 
