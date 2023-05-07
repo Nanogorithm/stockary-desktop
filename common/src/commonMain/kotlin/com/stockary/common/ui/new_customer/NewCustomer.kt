@@ -19,13 +19,13 @@ import com.stockary.common.components.TextInput
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.form_builder.TextFieldState
+import com.stockary.common.repository.customer.model.Profile
 import org.koin.core.component.KoinComponent
 
 class NewCustomerPage : KoinComponent {
     @Composable
     fun NewCustomer(
-        injector: ComposeDesktopInjector,
-        customerId: String?
+        injector: ComposeDesktopInjector, customerId: String?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewCustomerViewModel = remember(viewModelScope) { injector.newCustomerViewModel(viewModelScope) }
@@ -43,19 +43,18 @@ class NewCustomerPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: NewCustomerContract.State,
-        postInput: (NewCustomerContract.Inputs) -> Unit
+        uiState: NewCustomerContract.State, postInput: (NewCustomerContract.Inputs) -> Unit
     ) {
-        val emailState: TextFieldState = uiState.formState.getState("email")
-        val nameState: TextFieldState = uiState.formState.getState("name")
-        val phoneState: TextFieldState = uiState.formState.getState("phone")
-        val addressState: TextFieldState = uiState.formState.getState("address")
-        val roleState: ChoiceState = uiState.formState.getState("role")
+        val emailState: TextFieldState = uiState.formState.getState(Profile::email.name)
+        val nameState: TextFieldState = uiState.formState.getState(Profile::name.name)
+        val phoneState: TextFieldState = uiState.formState.getState(Profile::phone.name)
+        val addressState: TextFieldState = uiState.formState.getState(Profile::address.name)
+        val roleState: ChoiceState = uiState.formState.getState(Profile::role.name)
 
         Box {
             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
                 Text(
-                    if (uiState.customerId != null) "Editing ${uiState.customerId}" else "New Product",
+                    if (uiState.customerId != null) "Editing ${uiState.customerId}" else "New Customer",
                     fontSize = 32.sp,
                     fontWeight = FontWeight.W600
                 )
@@ -148,7 +147,7 @@ class NewCustomerPage : KoinComponent {
                             roleState.change("")
                         }
                         Spacer(modifier = Modifier.height(28.dp))
-                        Text("Customer registered successfully")
+                        Text("Customer ${if (uiState.customerId != null) "updated" else "registered"} successfully")
                     }
                 }
                 Spacer(modifier = Modifier.height(28.dp))

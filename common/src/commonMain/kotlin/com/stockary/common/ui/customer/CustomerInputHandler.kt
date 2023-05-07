@@ -32,12 +32,16 @@ class CustomerInputHandler(
             updateState { it.copy(customers = input.customers) }
         }
 
-        is CustomerContract.Inputs.AddNew -> {
-            postEvent(CustomerContract.Events.AddNew)
+        is CustomerContract.Inputs.GoAddNewCustomer -> {
+            postEvent(CustomerContract.Events.NavigateAddNewCustomer)
         }
 
         CustomerContract.Inputs.GoCustomerType -> {
             postEvent(CustomerContract.Events.NavigateCustomerType)
+        }
+
+        is CustomerContract.Inputs.GoEditCustomer -> {
+            postEvent(CustomerContract.Events.NavigateEditCustomer(input.customerId))
         }
     }
 }

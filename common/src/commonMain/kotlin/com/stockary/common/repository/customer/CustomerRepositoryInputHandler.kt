@@ -12,14 +12,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserRecord
 import com.google.firebase.cloud.FirestoreClient
 import com.stockary.common.SupabaseResource
-import com.stockary.common.repository.customer.model.InviteInput
 import com.stockary.common.repository.customer.model.Profile
 import com.stockary.common.repository.customer.model.Role
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.gotrue.gotrue
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -142,7 +137,61 @@ class CustomerRepositoryInputHandler(
         }
 
         is CustomerRepositoryContract.Inputs.Edit -> {
+            try {
+                val firestore = FirestoreClient.getFirestore()
+                //update role claims
+                val firebaseAuth = FirebaseAuth.getInstance()
 
+                val data = firestore.collection("users").document(input.customer.uid!!).set(
+                    mapOf(
+                        "name" to input.updated.name,
+                        "address" to input.updated.address,
+                        "role" to input.updated.role,
+                        "phone" to input.updated.phone,
+                        "email" to input.updated.email
+                    ), SetOptions.merge()
+                )
+
+                //update data
+                if (input.updated.role != input.customer.role) {
+                    val claims = mapOf(
+                        "role" to input.updated.role
+                    )
+
+                    firebaseAuth.setCustomUserClaims(input.customer.uid!!, claims)
+                }
+
+                //update auth user data
+                if (input.customer.phone != input.updated.phone || input.customer.email != input.updated.email || input.customer.name != input.updated.name) {
+                    val request: UserRecord.UpdateRequest = UserRecord.UpdateRequest(input.customer.uid).apply {
+                        if (input.customer.phone != input.updated.phone) {
+                            if (!input.updated.phone.isNullOrBlank()) {
+                                setPhoneNumber(input.updated.phone)
+                            }
+                        }
+
+                        if (input.customer.name != input.updated.name) {
+                            if (input.updated.name.isNotBlank()) {
+                                setDisplayName(input.updated.name)
+                            }
+                        }
+
+                        if (input.customer.email != input.updated.email) {
+                            if (!input.updated.email.isNullOrBlank()) {
+                                setEmail(input.updated.email)
+                            }
+                        }
+                    }
+
+                    val response = firebaseAuth.updateUser(request)
+                }
+
+                postInput(CustomerRepositoryContract.Inputs.UpdateSignupResponse(SupabaseResource.Success(true)))
+            } catch (e: Exception) {
+                e.printStackTrace()
+                postInput(CustomerRepositoryContract.Inputs.UpdateSignupResponse(SupabaseResource.Error(e)))
+            }
+            Unit
         }
 
         is CustomerRepositoryContract.Inputs.UpdateSignupResponse -> {
@@ -177,6 +226,32 @@ class CustomerRepositoryInputHandler(
 
         is CustomerRepositoryContract.Inputs.UpdateCustomerTypes -> {
             updateState { it.copy(customerTypes = input.dataList) }
+        }
+
+        is CustomerRepositoryContract.Inputs.GetCustomer -> {
+            try {
+                val firestore = FirestoreClient.getFirestore()
+                val data = firestore.collection("users").document(input.customerId).get().get()
+                val customer = data.toObject(Profile::class.java)
+
+                val firebaseAuth = FirebaseAuth.getInstance()
+                val userRole = firebaseAuth.getUser(input.customerId).customClaims["role"] as String?
+
+                println("actual role => $userRole")
+
+                customer?.apply {
+                    role = userRole
+                }
+
+                updateState { it.copy(customer = SupabaseResource.Success(customer!!)) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                updateState { it.copy(customer = SupabaseResource.Error(e)) }
+            }
+        }
+
+        is CustomerRepositoryContract.Inputs.UpdateCustomer -> {
+            updateState { it.copy(customer = input.customer) }
         }
     }
 }

@@ -19,7 +19,8 @@ enum class AppScreen(
     CustomerList(
         "/app/customers?sort={?}", "Customers", icon = Icons.Default.Person
     ),
-    NewCustomer("/app/new-customers?customerId={?}", "New Customer"), CustomerDetails(
+    NewCustomer("/app/new-customers?customerId={?}", "New Customer"),
+    CustomerDetails(
         "/app/customers/{customerId}", "Customers Details"
     ),
     NewCategory(

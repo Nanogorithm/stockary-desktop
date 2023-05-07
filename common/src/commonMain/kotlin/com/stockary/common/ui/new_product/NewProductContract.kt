@@ -23,7 +23,7 @@ object NewProductContract {
 
         val productName: TextFieldValue = TextFieldValue(),
         val productDescription: TextFieldValue = TextFieldValue(),
-        val productId: Int? = null,
+        val productId: String? = null,
         val product: SupabaseResource<Product> = SupabaseResource.Idle,
         val formState: FormState<BaseState<*>> = FormState(
             fields = listOf(
@@ -62,7 +62,7 @@ object NewProductContract {
     )
 
     sealed class Inputs {
-        data class Initialize(val productId: Int? = null) : Inputs()
+        data class Initialize(val productId: String? = null) : Inputs()
         object GoBack : Inputs()
         object Update : Inputs()
 
@@ -83,7 +83,7 @@ object NewProductContract {
         data class FetchCustomerTypes(val forceRefresh: Boolean) : Inputs()
         data class UpdateCustomerTypes(val customerTypes: Cached<List<Role>>) : Inputs()
 
-        data class GetProduct(val productId: Int) : Inputs()
+        data class GetProduct(val productId: String) : Inputs()
         data class UpdateProduct(val product: SupabaseResource<Product>) : Inputs()
 
     }

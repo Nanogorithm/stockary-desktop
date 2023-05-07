@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Profile(
     var uid: String? = null,
-    val email: String? = null,
-    val name: String = "",
-    val company: String? = null,
-    val address: String? = null,
-    val phone: String? = null,
-    val avatar: String? = null,
-    val role: String? = null
+    var email: String? = null,
+    var name: String = "",
+    var company: String? = null,
+    var address: String? = null,
+    var phone: String? = null,
+    var avatar: String? = null,
+    var role: String? = null
 )
 
 @Serializable

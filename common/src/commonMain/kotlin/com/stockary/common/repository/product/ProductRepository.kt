@@ -16,7 +16,7 @@ interface ProductRepository {
 
     fun uploadPhoto(file: File): Flow<SupabaseResource<String>>
 
-    fun get(productId: Int): Flow<SupabaseResource<Product>>
+    fun get(productId: String): Flow<SupabaseResource<Product>>
     fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
     fun edit(product: Product, updated: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
     fun delete(product: Product): Flow<SupabaseResource<Boolean>>

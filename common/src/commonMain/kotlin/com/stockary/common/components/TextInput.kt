@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
+import com.google.cloud.storage.Bucket
+import com.google.firebase.cloud.StorageClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.currencySymbol
 import com.stockary.common.dashedBorder
@@ -30,6 +32,7 @@ import io.kamel.image.lazyPainterResource
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 
 @Composable
@@ -83,9 +86,27 @@ fun FileChooser(
                 }, contentAlignment = Alignment.Center
         ) {
             if (state.value.isNotBlank()) {
-                println("photo -> ${state.value}")
+                //get from firebase storage
+                val image = remember { mutableStateOf("") }
+                LaunchedEffect(state.value) {
+                    state.value.let {
+                        if (it.contains("https://")) {
+                            image.value = it
+                        } else {
+                            val bucket: Bucket? = StorageClient.getInstance().bucket()
+                            try {
+                                val url = bucket?.get(it)?.signUrl(1, TimeUnit.HOURS)
+                                println("public url => $url")
+                                image.value = url.toString()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+
                 val painterResource: Resource<Painter> =
-                    lazyPainterResource(data = if (state.value.contains("https://")) state.value else File(state.value))
+                    lazyPainterResource(data = if (image.value.contains("https://")) image.value else File(image.value))
                 KamelImage(
                     resource = painterResource,
                     contentDescription = "Product photo",

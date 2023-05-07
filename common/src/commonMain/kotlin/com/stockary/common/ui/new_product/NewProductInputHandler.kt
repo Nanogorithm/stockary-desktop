@@ -10,12 +10,10 @@ import com.stockary.common.form_builder.*
 import com.stockary.common.repository.category.CategoryRepository
 import com.stockary.common.repository.product.ProductRepository
 import com.stockary.common.repository.product.model.Product
-import com.stockary.common.storagePrefix
 import kotlinx.coroutines.flow.map
 
 class NewProductInputHandler(
-    val productRepository: ProductRepository,
-    val categoryRepository: CategoryRepository
+    val productRepository: ProductRepository, val categoryRepository: CategoryRepository
 ) : InputHandler<NewProductContract.Inputs, NewProductContract.Events, NewProductContract.State> {
     override suspend fun InputHandlerScope<NewProductContract.Inputs, NewProductContract.Events, NewProductContract.State>.handleInput(
         input: NewProductContract.Inputs
@@ -99,8 +97,7 @@ class NewProductInputHandler(
             val currentState = getCurrentState()
             updateState {
                 it.copy(
-                    customerType = input.customerTypes,
-                    formState = FormState(mutableListOf<BaseState<*>>().apply {
+                    customerType = input.customerTypes, formState = FormState(mutableListOf<BaseState<*>>().apply {
                         addAll(currentState.formState.fields)
                         val fields = currentState.formState.fields.map {
                             it.name
@@ -161,16 +158,17 @@ class NewProductInputHandler(
                 val product: Product = currentState.product.data
 
                 formState.getState<TextFieldState>(Product::title.name).change(product.title)
-                formState.getState<TextFieldState>("unit_amount").change(product.unitAmount.toString())
-                formState.getState<TextFieldState>("description").change(product.description ?: "")
-                formState.getState<TextFieldState>("photo").change(product.photo?.let { "${storagePrefix}${it}" } ?: "")
-                formState.getState<ChoiceState>("unit_type_id").change(product.unitType.toString())
-                formState.getState<ChoiceState>(Product::category.name).change(product.categoryId.toString())
+                formState.getState<TextFieldState>(Product::unitAmount.name)
+                    .change(product.units?.amount?.toString() ?: "")
+                formState.getState<TextFieldState>(Product::description.name).change(product.description ?: "")
+                formState.getState<TextFieldState>("photo").change(product.photo ?: "")
+                formState.getState<ChoiceState>(Product::unitType.name).change(product.units?.type ?: "")
+                formState.getState<ChoiceState>(Product::category.name).change(product.category ?: "")
 
                 //set prices
                 currentState.customerType.getCachedOrEmptyList().forEach { _role ->
                     product.prices?.let {
-                        val price = it[_role.slug!!] as Float
+                        val price = it[_role.slug!!] as Double
                         formState.getState<TextFieldState>(_role.slug).change(price.toString())
                     }
                 }

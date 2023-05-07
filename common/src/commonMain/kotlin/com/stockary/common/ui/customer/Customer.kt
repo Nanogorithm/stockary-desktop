@@ -24,7 +24,6 @@ import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import org.koin.core.component.KoinComponent
-import java.util.*
 
 class CustomerPage : KoinComponent {
     @Composable
@@ -48,8 +47,7 @@ class CustomerPage : KoinComponent {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Content(
-        uiState: CustomerContract.State,
-        postInput: (CustomerContract.Inputs) -> Unit
+        uiState: CustomerContract.State, postInput: (CustomerContract.Inputs) -> Unit
     ) {
         var search by remember { mutableStateOf("") }
 
@@ -67,8 +65,7 @@ class CustomerPage : KoinComponent {
                 ) {
                     Box(
                         modifier = Modifier.width(200.dp).height(28.dp).clip(RoundedCornerShape(8.dp))
-                            .background(Color.White),
-                        contentAlignment = Alignment.CenterStart
+                            .background(Color.White), contentAlignment = Alignment.CenterStart
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Spacer(modifier = Modifier.width(2.dp))
@@ -95,7 +92,7 @@ class CustomerPage : KoinComponent {
                         Text("Type")
                     }
                     Button(onClick = {
-                        postInput(CustomerContract.Inputs.AddNew)
+                        postInput(CustomerContract.Inputs.GoAddNewCustomer)
                     }) {
                         Icon(Icons.Default.Add, null)
                         Spacer(modifier = Modifier.width(4.dp))
@@ -150,7 +147,7 @@ class CustomerPage : KoinComponent {
                         ) {
                             Box(
                                 modifier = Modifier.size(32.dp).clip(CircleShape).clickable {
-
+                                    postInput(CustomerContract.Inputs.GoEditCustomer(_customer.uid!!))
                                 }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(

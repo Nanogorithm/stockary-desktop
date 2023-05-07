@@ -5,6 +5,7 @@ import com.copperleaf.ballast.EventHandlerScope
 import com.copperleaf.ballast.navigation.routing.RouterContract
 import com.copperleaf.ballast.navigation.routing.build
 import com.copperleaf.ballast.navigation.routing.directions
+import com.copperleaf.ballast.navigation.routing.queryParameter
 import com.copperleaf.ballast.navigation.vm.Router
 import com.stockary.common.router.AppScreen
 
@@ -18,7 +19,7 @@ class CustomerEventHandler(
 
         }
 
-        CustomerContract.Events.AddNew -> {
+        CustomerContract.Events.NavigateAddNewCustomer -> {
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.NewCustomer.directions().build()
@@ -31,6 +32,17 @@ class CustomerEventHandler(
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.CustomerTypeList.directions().build()
+                )
+            )
+            Unit
+        }
+
+        is CustomerContract.Events.NavigateEditCustomer -> {
+            router.trySend(
+                RouterContract.Inputs.GoToDestination(
+                    AppScreen.NewCustomer.directions()
+                        .queryParameter("customerId", event.customerId)
+                        .build()
                 )
             )
             Unit

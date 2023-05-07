@@ -257,13 +257,13 @@ class ProductRepositoryInputHandler(
 
         is ProductRepositoryContract.Inputs.GetProduct -> {
             try {
-                val result = supabaseClient.postgrest["products"].select("*,product_customer_roles(*)") {
-                    Product::id eq input.productId
+                val firestore = FirestoreClient.getFirestore()
+                val data = firestore.collection("products").document(input.productId).get().get()
+                val product = data.toObject(Product::class.java)
+
+                product!!.apply {
+                    id = data.id
                 }
-                println("get ${result.body}")
-                val product: Product = result.decodeSingle(json = Json {
-                    ignoreUnknownKeys = true
-                })
                 updateState { it.copy(product = SupabaseResource.Success(product)) }
             } catch (e: Exception) {
                 e.printStackTrace()

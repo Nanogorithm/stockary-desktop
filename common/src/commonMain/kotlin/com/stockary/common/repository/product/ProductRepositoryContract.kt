@@ -44,7 +44,7 @@ object ProductRepositoryContract {
         data class UpdateUploadResponse(val photoUploadResponse: SupabaseResource<String>) : Inputs()
 
 
-        data class GetProduct(val productId: Int) : Inputs()
+        data class GetProduct(val productId: String) : Inputs()
         data class GetPhotoUrl(val path: String) : Inputs()
 
         data class Add(val product: Product, val prices: List<Float>, val types: List<Role>) : Inputs()

@@ -32,7 +32,7 @@ import java.io.File
 class NewProductPage : KoinComponent {
     @Composable
     fun NewProduct(
-        injector: ComposeDesktopInjector, productId: Int?
+        injector: ComposeDesktopInjector, productId: String?
     ) {
         val viewModelScope = rememberCoroutineScope()
         val vm: NewProductViewModel = remember(viewModelScope) { injector.newProductViewModel(viewModelScope) }
@@ -63,7 +63,7 @@ class NewProductPage : KoinComponent {
         val unitTypeState: ChoiceState = uiState.formState.getState(Product::unitType.name)
 
         LaunchedEffect(photoState.value) {
-            if (photoState.value.isNotBlank() && !photoState.value.contains(storagePrefix)) {
+            if (photoState.value.isNotBlank() && !photoState.value.contains("https://")) {
                 postInput(NewProductContract.Inputs.UploadPhoto(file = File(photoState.value)))
             }
         }

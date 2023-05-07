@@ -51,7 +51,7 @@ class ProductRepositoryImpl(
         return observeStates().map { it.photoUploadResponse }
     }
 
-    override fun get(productId: Int): Flow<SupabaseResource<Product>> {
+    override fun get(productId: String): Flow<SupabaseResource<Product>> {
         trySend(ProductRepositoryContract.Inputs.GetProduct(productId))
         return observeStates().map { it.product }
     }

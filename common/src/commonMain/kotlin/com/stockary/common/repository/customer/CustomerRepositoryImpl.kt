@@ -5,11 +5,9 @@ import com.copperleaf.ballast.build
 import com.copperleaf.ballast.repository.BallastRepository
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
-import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Profile
 import com.stockary.common.repository.customer.model.Role
-import com.stockary.common.repository.product.model.Product
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -36,34 +34,29 @@ class CustomerRepositoryImpl(
         return observeStates().map { it.customerTypes }
     }
 
-    override fun get(customerId: Int): Flow<SupabaseResource<Product>> {
-        TODO("Not yet implemented")
+    override fun get(customerId: String): Flow<SupabaseResource<Profile>> {
+        trySend(CustomerRepositoryContract.Inputs.GetCustomer(customerId))
+        return observeStates().map { it.customer }
     }
 
     override fun add(
-        email: String,
-        name: String,
-        role: String,
-        address: String,
-        phone: String
+        email: String, name: String, role: String, address: String, phone: String
     ): Flow<SupabaseResource<Boolean>> {
         trySend(
             CustomerRepositoryContract.Inputs.Add(
-                email = email,
-                name = name,
-                role = role,
-                address = address,
-                phone = phone
+                email = email, name = name, role = role, address = address, phone = phone
             )
         )
         return observeStates().map { it.saving }
     }
 
     override fun edit(customer: Profile, updated: Profile): Flow<SupabaseResource<Boolean>> {
-        TODO("Not yet implemented")
+        trySend(CustomerRepositoryContract.Inputs.Edit(customer = customer, updated = updated))
+        return observeStates().map { it.saving }
     }
 
     override fun delete(customer: Profile): Flow<SupabaseResource<Boolean>> {
-        TODO("Not yet implemented")
+        trySend(CustomerRepositoryContract.Inputs.Delete(customer))
+        return observeStates().map { it.deleting }
     }
 }
