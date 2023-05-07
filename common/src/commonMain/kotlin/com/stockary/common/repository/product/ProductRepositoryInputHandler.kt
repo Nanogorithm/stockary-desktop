@@ -13,6 +13,7 @@ import com.stockary.common.repository.product.model.ProductCustomerRole
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -202,7 +203,7 @@ class ProductRepositoryInputHandler(
         is ProductRepositoryContract.Inputs.UploadPhoto -> {
             updateState { it.copy(photoUploadResponse = SupabaseResource.Loading) }
             val result = supabaseClient.storage["shad"].upload(
-                "products/${System.currentTimeMillis()}.${input.file.extension}", input.file.readBytes()
+                "products/${Clock.System.now()}.${input.file.extension}", input.file.readBytes()
             )
             println("upload path => $result")
             updateState { it.copy(photoUploadResponse = SupabaseResource.Success(result)) }

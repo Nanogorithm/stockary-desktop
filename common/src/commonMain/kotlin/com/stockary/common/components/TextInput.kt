@@ -2,7 +2,7 @@
 
 package com.stockary.common.components
 
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,22 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.AwtWindow
+import com.seiko.imageloader.rememberAsyncImagePainter
 import com.stockary.common.SupabaseResource
 import com.stockary.common.currencySymbol
 import com.stockary.common.dashedBorder
 import com.stockary.common.form_builder.TextFieldState
-import io.kamel.core.Resource
-import io.kamel.image.KamelImage
-import io.kamel.image.lazyPainterResource
-import java.awt.FileDialog
-import java.awt.Frame
-import java.io.File
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextInput(
     label: String, state: TextFieldState, placeHolder: String, maxLines: Int = 1, modifier: Modifier = Modifier
@@ -86,17 +80,9 @@ fun FileChooser(
         ) {
             if (state.value.isNotBlank()) {
                 println("photo -> ${state.value}")
-                val painterResource: Resource<Painter> =
-                    lazyPainterResource(data = if (state.value.contains("https://")) state.value else File(state.value))
-                KamelImage(
-                    resource = painterResource,
-                    contentDescription = "Product photo",
-                    onLoading = { progress -> CircularProgressIndicator(progress) },
-                    onFailure = { exception ->
 
-                    },
-                    animationSpec = tween(),
-                )
+                val painter = rememberAsyncImagePainter(state.value)
+                Image(painter, null)
             } else {
                 Icon(Icons.Default.AddAPhoto, null)
             }
@@ -134,35 +120,36 @@ fun FileChooser(
         }
 
         if (isFileChooserOpen) {
-            FileDialog {
-                isFileChooserOpen = false
-                it?.let {
-                    //process to upload
-                    state.change(it)
-                }
-            }
+//            FileDialog {
+//                isFileChooserOpen = false
+//                it?.let {
+//                    //process to upload
+//                    state.change(it)
+//                }
+//            }
         }
     }
 }
 
+//
+//@Composable
+//fun FileDialog(
+//    parent: Frame? = null, onCloseRequest: (result: String?) -> Unit
+//) = AwtWindow(
+//    create = {
+//        object : FileDialog(parent, "Choose a file", LOAD) {
+//            override fun setVisible(value: Boolean) {
+//                super.setVisible(value)
+//                if (value) {
+//                    val path: String = directory + file
+//                    onCloseRequest(path)
+//                }
+//            }
+//        }
+//    }, dispose = FileDialog::dispose
+//)
 
-@Composable
-fun FileDialog(
-    parent: Frame? = null, onCloseRequest: (result: String?) -> Unit
-) = AwtWindow(
-    create = {
-        object : FileDialog(parent, "Choose a file", LOAD) {
-            override fun setVisible(value: Boolean) {
-                super.setVisible(value)
-                if (value) {
-                    val path: String = directory + file
-                    onCloseRequest(path)
-                }
-            }
-        }
-    }, dispose = FileDialog::dispose
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyInput(
     label: String, state: TextFieldState, placeHolder: String, modifier: Modifier = Modifier

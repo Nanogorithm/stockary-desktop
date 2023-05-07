@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,6 +18,8 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.CustomDropdown
+import com.stockary.common.CustomDropdownMenuItem
 import com.stockary.common.di.injector.ComposeDesktopInjector
 
 @Composable
@@ -69,22 +69,22 @@ private fun Content(
                         Icon(Icons.Default.ArrowDropDown, null)
                     }
 
-                    DropdownMenu(expanded = expandMenu, onDismissRequest = {
-                        expandMenu = false
-                    }) {
-                        DropdownMenuItem(onClick = {
+                    CustomDropdown(
+                        expanded = expandMenu,
+                        onDismiss = {
+                            expandMenu = false
+                        },
+                        modifier = Modifier
+                    ) {
+                        CustomDropdownMenuItem(onClick = {
                             expandMenu = false
                             selectedFilter = "category"
-                        }) {
-                            Text("Category")
-                        }
+                        }, text = { Text("Category") })
 
-                        DropdownMenuItem(onClick = {
+                        CustomDropdownMenuItem(onClick = {
                             expandMenu = false
                             selectedFilter = "customer"
-                        }) {
-                            Text("Customer")
-                        }
+                        }, text = { Text("Customer") })
                     }
                 }
                 Spacer(modifier = Modifier.weight(1f))

@@ -3,8 +3,6 @@ package com.stockary.common.di.injector
 import com.copperleaf.ballast.*
 import com.copperleaf.ballast.core.LoggingInterceptor
 import com.copperleaf.ballast.core.PrintlnLogger
-import com.copperleaf.ballast.debugger.BallastDebuggerClientConnection
-import com.copperleaf.ballast.debugger.BallastDebuggerInterceptor
 import com.copperleaf.ballast.navigation.routing.RouterContract
 import com.copperleaf.ballast.navigation.routing.RoutingTable
 import com.copperleaf.ballast.navigation.routing.fromEnum
@@ -67,12 +65,9 @@ import com.stockary.common.ui.summary.SummaryContract
 import com.stockary.common.ui.summary.SummaryEventHandler
 import com.stockary.common.ui.summary.SummaryInputHandler
 import com.stockary.common.ui.summary.SummaryViewModel
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import kotlinx.coroutines.CoroutineScope
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import kotlin.system.exitProcess
 
 class ComposeDesktopInjectorImpl(
     private val applicationScope: CoroutineScope,
@@ -89,7 +84,7 @@ class ComposeDesktopInjectorImpl(
             }.withRouter(RoutingTable.fromEnum(AppScreen.values()), initialRoute = AppScreen.Home).build(),
             eventHandler = eventHandler {
                 if (it is RouterContract.Events.BackstackEmptied) {
-                    exitProcess(0)
+//                    exitProcess(0)
                 }
             },
         )
@@ -265,20 +260,20 @@ class ComposeDesktopInjectorImpl(
 
     // configs
 // ---------------------------------------------------------------------------------------------------------------------
-    private val debuggerConnection by lazy {
-        BallastDebuggerClientConnection(
-            engineFactory = CIO,
-            applicationCoroutineScope = applicationScope,
-            host = "127.0.0.1",
-        ).also {
-            it.connect()
-        }
-    }
+//    private val debuggerConnection by lazy {
+//        BallastDebuggerClientConnection(
+//            engineFactory = CIO,
+//            applicationCoroutineScope = applicationScope,
+//            host = "127.0.0.1",
+//        ).also {
+//            it.connect()
+//        }
+//    }
 
     private fun commonBuilder(): BallastViewModelConfiguration.Builder {
         return BallastViewModelConfiguration.Builder().apply {
             this += LoggingInterceptor()
-            this += BallastDebuggerInterceptor(debuggerConnection)
+//            this += BallastDebuggerInterceptor(debuggerConnection)
             logger = ::PrintlnLogger
         }
     }

@@ -5,8 +5,6 @@ package com.stockary.common.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -19,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.stockary.common.CustomDropdown
+import com.stockary.common.CustomDropdownMenuItem
 import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.repository.category.model.Category
 import com.stockary.common.repository.customer.model.Role
@@ -55,24 +55,34 @@ fun SearchableDropDown(
             }
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
-
-        DropdownMenu(
-            expanded = showPop, onDismissRequest = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
+/*
+        CustomDropdown(
+            expanded = showPop, onDismiss = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
         ) {
-            TextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search") })
+            TextField(
+                value = search,
+                onValueChange = { search = it },
+                placeholder = { Text("Search") }
+            )
             items.filter {
                 it.title.contains(search)
             }.forEachIndexed { index, element ->
-                DropdownMenuItem(onClick = {
-                    state.change(element.id.toString())
-                    showPop = false
-                    search = ""
-                }) { Text(text = element.title) }
+                CustomDropdownMenuItem(
+                    onClick = {
+                        state.change(element.id.toString())
+                        showPop = false
+                        search = ""
+                    },
+                    text = {
+                        Text(text = element.title)
+                    }
+                )
             }
-        }
+        }*/
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectUnitType(
     items: List<UnitType>,
@@ -107,20 +117,25 @@ fun SelectUnitType(
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
 
-        DropdownMenu(
-            expanded = showPop, onDismissRequest = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
+        /*CustomDropdown(
+            expanded = showPop, onDismiss = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
         ) {
             TextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search") })
             items.filter {
                 it.name.contains(search)
             }.forEachIndexed { index, element ->
-                DropdownMenuItem(onClick = {
-                    state.change(element.id.toString())
-                    showPop = false
-                    search = ""
-                }) { Text(text = element.name) }
+                CustomDropdownMenuItem(
+                    onClick = {
+                        state.change(element.id.toString())
+                        showPop = false
+                        search = ""
+                    },
+                    text = {
+                        Text(text = element.name)
+                    }
+                )
             }
-        }
+        }*/
     }
 }
 
@@ -158,19 +173,19 @@ fun SelectCustomerType(
             Icon(if (showPop) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null)
         }
 
-        DropdownMenu(
-            expanded = showPop, onDismissRequest = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
+        /*CustomDropdown(
+            expanded = showPop, onDismiss = { showPop = false }, modifier = Modifier.size(250.dp, 350.dp)
         ) {
             TextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search") })
             items.filter {
                 it.name.contains(search)
             }.forEachIndexed { index, element ->
-                DropdownMenuItem(onClick = {
+                CustomDropdownMenuItem(onClick = {
                     state.change(element.id.toString())
                     showPop = false
                     search = ""
-                }) { Text(text = element.name) }
+                }, text = { Text(text = element.name) })
             }
-        }
+        }*/
     }
 }

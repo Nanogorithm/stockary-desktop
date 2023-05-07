@@ -5,8 +5,9 @@ import androidx.compose.ui.Modifier
 import com.stockary.common.components.CustomDropdownMenu
 import com.stockary.common.components.CustomDropdownMenuItems
 
+
 actual fun getPlatformName(): String {
-    return "Desktop"
+    return "Browser"
 }
 
 @Composable
@@ -17,6 +18,7 @@ actual fun SignOutMenu(
 ) {
     SignOutMenu(expanded = expanded, onDismiss = onDismiss, onLogout = onLogout)
 }
+
 
 @Composable
 actual fun CustomDropdown(

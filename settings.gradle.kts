@@ -20,4 +20,4 @@ pluginManagement {
 
 rootProject.name = "stockary"
 
-include(":android", ":desktop", ":common")
+include(":android", ":desktop", ":common",":web")

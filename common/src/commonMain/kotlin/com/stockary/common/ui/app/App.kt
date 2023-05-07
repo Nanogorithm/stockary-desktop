@@ -6,8 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Person
@@ -18,11 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.navigation.routing.*
 import com.copperleaf.ballast.navigation.vm.Router
+import com.stockary.common.SignOutMenu
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.router.AppScreen
 import com.stockary.common.router.AppScreen.*
@@ -39,13 +37,15 @@ import com.stockary.common.ui.order.OrderPage
 import com.stockary.common.ui.product.ProductPage
 import com.stockary.common.ui.summary.Summary
 import io.github.jan.supabase.gotrue.SessionStatus
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.koin.core.component.KoinComponent
 
 
 class AppScreenView(
     val injector: ComposeDesktopInjector
 ) : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
     @Composable
     fun App() {
         val viewModelScope = rememberCoroutineScope()
@@ -74,7 +74,7 @@ class AppScreenView(
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
 
-            ) { innerPaddings ->
+                ) { innerPaddings ->
                 if (routerState.currentRouteOrNull != Login) {
                     PermanentNavigationDrawer(
                         drawerContent = {
@@ -172,16 +172,12 @@ class AppScreenView(
                     SessionStatus.NotAuthenticated -> {}
                 }
 
-                DropdownMenu(expanded = expandMenu, onDismissRequest = {
+                /*SignOutMenu(expanded = expandMenu, onDismiss = {
                     expandMenu = false
                 }) {
-                    DropdownMenuItem(onClick = {
-                        expandMenu = false
-                        vm.trySend(AppContract.Inputs.Logout)
-                    }) {
-                        Text("Logout")
-                    }
-                }
+                    expandMenu = false
+                    vm.trySend(AppContract.Inputs.Logout)
+                }*/
             }
             Spacer(modifier = Modifier.height(48.dp))
             Box(modifier = Modifier.fillMaxSize()) {
