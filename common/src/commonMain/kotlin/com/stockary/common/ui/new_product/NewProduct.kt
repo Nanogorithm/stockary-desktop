@@ -150,107 +150,88 @@ class NewProductPage : KoinComponent {
                         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
                             Text("Organize", fontSize = 24.sp, fontWeight = FontWeight.W600)
                             Spacer(modifier = Modifier.height(36.dp))
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
                                 if (uiState.categoryList !is Cached.NotLoaded && uiState.categoryList.isLoading()) {
-                                    item {
-                                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                                    }
-                                    item { }
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp).align(Alignment.CenterHorizontally)
+                                    )
                                 } else {
                                     val categories = uiState.categoryList.getCachedOrEmptyList()
                                     if (categories.isNotEmpty()) {
-                                        item {
-                                            Column(modifier = Modifier.fillMaxWidth()) {
-                                                SearchableDropDown(
-                                                    modifier = Modifier.fillMaxWidth().height(60.dp),
-                                                    label = "Category",
-                                                    items = categories,
-                                                    state = categoryState
-                                                )
-                                                if (categoryState.hasError) {
-                                                    Text(
-                                                        text = categoryState.errorMessage,
-                                                        modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-                                                        style = androidx.compose.material.MaterialTheme.typography.caption.copy(
-                                                            color = androidx.compose.material.MaterialTheme.colors.error
-                                                        )
+                                        Column(modifier = Modifier.fillMaxWidth()) {
+                                            SearchableDropDown(
+                                                modifier = Modifier.fillMaxWidth().height(60.dp),
+                                                label = "Category",
+                                                items = categories,
+                                                state = categoryState
+                                            )
+                                            if (categoryState.hasError) {
+                                                Text(
+                                                    text = categoryState.errorMessage,
+                                                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                    style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                        color = androidx.compose.material.MaterialTheme.colors.error
                                                     )
-                                                }
+                                                )
                                             }
                                         }
-                                        item { }
                                     }
                                 }
+
+                                Spacer(modifier = Modifier.height(16.dp))
 
                                 if (uiState.customerType !is Cached.NotLoaded && uiState.customerType.isLoading()) {
-                                    item {
-                                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                                    }
-                                    item { }
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(48.dp).align(Alignment.CenterHorizontally)
+                                    )
                                 } else {
                                     uiState.customerType.getCachedOrEmptyList().forEach { _customerType ->
-                                        item {
-                                            Column {
-
-                                                val priceState: TextFieldState =
-                                                    uiState.formState.getState(_customerType.slug!!)
-
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    val typeName = _customerType.title ?: ""
+                                        Column {
+                                            val priceState: TextFieldState =
+                                                uiState.formState.getState(_customerType.slug!!)
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                val typeName = _customerType.title ?: ""
 
 
-                                                    TextField(
-                                                        value = priceState.value,
-                                                        onValueChange = {
-                                                            priceState.change(it)
-                                                        },
-                                                        placeholder = {
-                                                            Text(
-                                                                typeName
-                                                            )
-                                                        },
-                                                        singleLine = true,
-                                                        colors = TextFieldDefaults.textFieldColors(
-                                                            containerColor = Color.White,
-                                                            textColor = contentColorFor(Color.White),
-                                                            unfocusedIndicatorColor = Color.Transparent,
-                                                            placeholderColor = Color(0xFF676767)
-                                                        ),
-                                                        leadingIcon = {
-                                                            Text(
-                                                                currencySymbol,
-                                                                color = Color(0xFF1F1F1F),
-                                                                fontWeight = FontWeight.W500
-                                                            )
-                                                        },
-                                                        modifier = Modifier.weight(1f),
-                                                        label = {
-                                                            Text("$typeName Price")
-                                                        },
-                                                        isError = priceState.hasError
-                                                    )
-                                                }
-                                                if (priceState.hasError) {
+                                                TextField(value = priceState.value, onValueChange = {
+                                                    priceState.change(it)
+                                                }, placeholder = {
                                                     Text(
-                                                        text = priceState.errorMessage,
-                                                        modifier = Modifier.padding(start = 12.dp, top = 4.dp),
-                                                        style = androidx.compose.material.MaterialTheme.typography.caption.copy(
-                                                            color = androidx.compose.material.MaterialTheme.colors.error
-                                                        )
+                                                        typeName
                                                     )
-                                                }
+                                                }, singleLine = true, colors = TextFieldDefaults.textFieldColors(
+                                                    containerColor = Color.White,
+                                                    textColor = contentColorFor(Color.White),
+                                                    unfocusedIndicatorColor = Color.Transparent,
+                                                    placeholderColor = Color(0xFF676767)
+                                                ), leadingIcon = {
+                                                    Text(
+                                                        currencySymbol,
+                                                        color = Color(0xFF1F1F1F),
+                                                        fontWeight = FontWeight.W500
+                                                    )
+                                                }, modifier = Modifier.weight(1f), label = {
+                                                    Text("$typeName Price")
+                                                }, isError = priceState.hasError
+                                                )
                                             }
+                                            if (priceState.hasError) {
+                                                Text(
+                                                    text = priceState.errorMessage,
+                                                    modifier = Modifier.padding(start = 12.dp, top = 4.dp),
+                                                    style = androidx.compose.material.MaterialTheme.typography.caption.copy(
+                                                        color = androidx.compose.material.MaterialTheme.colors.error
+                                                    )
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(8.dp))
                                         }
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
                     }
