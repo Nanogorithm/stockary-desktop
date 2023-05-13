@@ -1,9 +1,13 @@
 package com.stockary.common.ui.new_product
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,8 +72,10 @@ class NewProductPage : KoinComponent {
             }
         }
 
+        val stateVertical = rememberScrollState(0)
+
         Box {
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp).verticalScroll(stateVertical)) {
                 Text(
                     if (uiState.productId != null) "Editing ${uiState.productId}" else "New Product",
                     fontSize = 32.sp,
@@ -312,6 +318,12 @@ class NewProductPage : KoinComponent {
                     }
                 }
             }
+
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(stateVertical)
+            )
         }
     }
 }
