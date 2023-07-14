@@ -1,4 +1,4 @@
-package com.helloanwar.common.ui.components.tableview
+package com.stockary.common.components.tableview
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.helloanwar.common.ui.components.tableview.*
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource

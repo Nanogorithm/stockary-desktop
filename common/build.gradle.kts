@@ -60,7 +60,7 @@ version = "1.0-SNAPSHOT"
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-properties:1.4.1")
 
                 implementation("com.github.librepdf:openpdf:1.3.30")
-
+//                implementation("dev.chrisbanes.material3:material3-window-size-class-multiplatform:0.2.0")
             }
         }
         val commonTest by getting {

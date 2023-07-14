@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
-import com.helloanwar.common.ui.components.tableview.TableView
+import com.stockary.common.components.tableview.TableView
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.repository.product.model.ProductTable
 import com.stockary.common.repository.product.model.toProductTable
