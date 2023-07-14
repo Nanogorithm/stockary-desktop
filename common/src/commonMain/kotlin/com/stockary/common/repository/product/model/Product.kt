@@ -1,5 +1,8 @@
 package com.stockary.common.repository.product.model
 
+import com.helloanwar.common.ui.components.tableview.ColumnType
+import com.helloanwar.common.ui.components.tableview.TableHeader
+import com.stockary.common.removeEmptyFraction
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,6 +24,32 @@ data class Product(
     var category: String? = null,
     val productCustomerRole: List<ProductCustomerRole> = emptyList()
 )
+
+data class ProductTable(
+    val id: String?,
+    @TableHeader("Product Code", 0) val code: String? = null,
+    @TableHeader("Photo", 1) val image: ColumnType,
+    @TableHeader("Title", 2) val title: String,
+    @TableHeader("Prices", 3) val prices: String? = null,
+    @TableHeader("Unit", 4) val unitAmount: String,
+    @TableHeader("Category", 5) val category: String?
+)
+
+fun Product.toProductTable(): ProductTable {
+    return ProductTable(
+        id = this.id,
+        code = this.code,
+        title = this.title,
+        image = ColumnType.Image(src = this.photo),
+        unitAmount = "${this.units?.amount?.removeEmptyFraction() ?: ""} ${this.units?.type ?: ""}",
+        category = this.category,
+        prices = this.prices?.mapNotNull {
+            if (it.value > 0) {
+                "${it.key} : ${it.value.removeEmptyFraction()}"
+            } else null
+        }?.joinToString("\n")
+    )
+}
 
 @Serializable
 data class Price(
