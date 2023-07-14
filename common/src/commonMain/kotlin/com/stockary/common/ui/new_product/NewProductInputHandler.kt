@@ -7,6 +7,7 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.SupabaseResource
 import com.stockary.common.form_builder.*
+import com.stockary.common.removeEmptyFraction
 import com.stockary.common.repository.category.CategoryRepository
 import com.stockary.common.repository.product.ProductRepository
 import com.stockary.common.repository.product.model.Product
@@ -47,11 +48,9 @@ class NewProductInputHandler(
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
 
-            if (currentState.uploadResponse is SupabaseResource.Success) {
-                val photoPath = currentState.uploadResponse.data
-                val photoField: TextFieldState = currentState.formState.getState("photo")
-                photoField.change(photoPath)
-            }
+            val photo = if (currentState.uploadResponse is SupabaseResource.Success) {
+                currentState.uploadResponse.data
+            } else null
 
             val product: Product = currentState.formState.getData()
             val rawData = currentState.formState.getMap()
@@ -60,7 +59,8 @@ class NewProductInputHandler(
                 listOf(productRepository.add(
                     product = product,
                     prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float },
-                    types = currentState.customerType.getCachedOrEmptyList()
+                    types = currentState.customerType.getCachedOrEmptyList(),
+                    media = photo
                 ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
             }
         }
@@ -159,9 +159,9 @@ class NewProductInputHandler(
 
                 formState.getState<TextFieldState>(Product::title.name).change(product.title)
                 formState.getState<TextFieldState>(Product::unitAmount.name)
-                    .change(product.units?.amount?.toString() ?: "")
+                    .change(product.units?.amount?.removeEmptyFraction() ?: "")
                 formState.getState<TextFieldState>(Product::description.name).change(product.description ?: "")
-                formState.getState<TextFieldState>("photo").change(product.photo ?: "")
+                formState.getState<TextFieldState>("photo").change(product.media?.url ?: "")
                 formState.getState<ChoiceState>(Product::unitType.name).change(product.units?.type ?: "")
                 formState.getState<ChoiceState>(Product::category.name).change(product.category ?: "")
 
@@ -169,7 +169,7 @@ class NewProductInputHandler(
                 currentState.customerType.getCachedOrEmptyList().forEach { _role ->
                     product.prices?.let {
                         val price = it[_role.slug!!] as Double
-                        formState.getState<TextFieldState>(_role.slug).change(price.toString())
+                        formState.getState<TextFieldState>(_role.slug).change(price.removeEmptyFraction())
                     }
                 }
             }
@@ -179,11 +179,9 @@ class NewProductInputHandler(
         NewProductContract.Inputs.Update -> {
             val currentState = getCurrentState()
             updateState { it.copy(response = SupabaseResource.Loading) }
-            if (currentState.uploadResponse is SupabaseResource.Success) {
-                val photoPath = currentState.uploadResponse.data
-                val photoField: TextFieldState = currentState.formState.getState("photo")
-                photoField.change(photoPath)
-            }
+            val photo = if (currentState.uploadResponse is SupabaseResource.Success) {
+                currentState.uploadResponse.data
+            } else null
 
             if (currentState.product is SupabaseResource.Success) {
 
@@ -197,10 +195,10 @@ class NewProductInputHandler(
                         product = product,
                         updated = updated,
                         prices = currentState.customerType.getCachedOrEmptyList().map { rawData[it.slug] as Float },
-                        types = currentState.customerType.getCachedOrEmptyList()
+                        types = currentState.customerType.getCachedOrEmptyList(),
+                        photo = photo
                     ).map { NewProductContract.Inputs.UpdateSaveResponse(it) })
                 }
-
             }
             Unit
         }

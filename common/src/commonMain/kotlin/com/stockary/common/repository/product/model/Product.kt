@@ -16,7 +16,7 @@ data class Product(
     val categoryId: Int? = null,
     val unitType: String? = null,
 
-    val photo: String? = null,
+    val media: Media? = null,
     val code: String? = null,
     val prices: Map<String, Double>? = null,
     val units: Units? = null,
@@ -24,6 +24,7 @@ data class Product(
     var category: String? = null,
     val productCustomerRole: List<ProductCustomerRole> = emptyList()
 )
+
 
 data class ProductTable(
     val id: String?,
@@ -40,7 +41,7 @@ fun Product.toProductTable(): ProductTable {
         id = this.id,
         code = this.code,
         title = this.title,
-        image = ColumnType.Image(src = this.photo),
+        image = ColumnType.Image(src = this.media?.url),
         unitAmount = "${this.units?.amount?.removeEmptyFraction() ?: ""} ${this.units?.type ?: ""}",
         category = this.category,
         prices = this.prices?.mapNotNull {
@@ -60,6 +61,15 @@ data class Price(
 data class Units(
     val amount: Float = 0f, val type: String? = null
 )
+
+@Serializable
+data class Media(
+    val path: String? = null, val url: String? = null
+)
+
+enum class MediaType {
+    IMAGE, VIDEO, PDF, LINK
+}
 
 @Serializable
 data class ProductCustomerRole(

@@ -275,13 +275,13 @@ inline fun <reified T> TableRow(
                                         contentDescription = "Photo",
                                         onLoading = { progress -> CircularProgressIndicator(progress) },
                                         onFailure = { exception ->
-                                               
+
                                         },
                                         animationSpec = tween(),
                                     )
                                 }
                             } else {
-                                Text(modifier = Modifier.padding(5.dp), text = "$rc")
+                                Text(modifier = Modifier.padding(5.dp), text = "--")
                             }
                         } else {
                             Text(modifier = Modifier.padding(5.dp), text = "$rc")

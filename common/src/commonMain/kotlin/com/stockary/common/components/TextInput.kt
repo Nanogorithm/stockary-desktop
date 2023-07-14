@@ -20,19 +20,17 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
-import com.google.cloud.storage.Bucket
-import com.google.firebase.cloud.StorageClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.currencySymbol
 import com.stockary.common.dashedBorder
 import com.stockary.common.form_builder.TextFieldState
+import com.stockary.common.repository.product.model.Media
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 
 @Composable
@@ -75,7 +73,7 @@ fun TextInput(
 fun FileChooser(
     state: TextFieldState,
     modifier: Modifier = Modifier.fillMaxWidth().height(90.dp),
-    uploadResponse: SupabaseResource<String>
+    uploadResponse: SupabaseResource<Media>
 ) {
     var isFileChooserOpen by remember { mutableStateOf(false) }
     Column {
@@ -87,32 +85,14 @@ fun FileChooser(
         ) {
             if (state.value.isNotBlank()) {
                 //get from firebase storage
-                val image = remember { mutableStateOf("") }
-                LaunchedEffect(state.value) {
-                    state.value.let {
-                        if (it.contains("https://")) {
-                            image.value = it
-                        } else {
-                            val bucket: Bucket? = StorageClient.getInstance().bucket()
-                            try {
-                                val url = bucket?.get(it)?.signUrl(1, TimeUnit.HOURS)
-                                println("public url => $url")
-                                image.value = url.toString()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-                }
-
                 val painterResource: Resource<Painter> =
-                    lazyPainterResource(data = if (image.value.contains("https://")) image.value else File(image.value))
+                    lazyPainterResource(data = if (state.value.contains("https://")) state.value else File(state.value))
                 KamelImage(
                     resource = painterResource,
                     contentDescription = "Product photo",
                     onLoading = { progress -> CircularProgressIndicator(progress) },
                     onFailure = { exception ->
-
+                        exception.printStackTrace()
                     },
                     animationSpec = tween(),
                 )

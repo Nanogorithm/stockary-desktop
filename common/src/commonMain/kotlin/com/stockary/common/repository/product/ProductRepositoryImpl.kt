@@ -8,6 +8,7 @@ import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
+import com.stockary.common.repository.product.model.Media
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
 import kotlinx.coroutines.CoroutineScope
@@ -46,9 +47,9 @@ class ProductRepositoryImpl(
         return observeStates().map { it.unitTypes }
     }
 
-    override fun uploadPhoto(file: File): Flow<SupabaseResource<String>> {
+    override fun uploadPhoto(file: File): Flow<SupabaseResource<Media>> {
         trySend(ProductRepositoryContract.Inputs.UploadPhoto(file = file))
-        return observeStates().map { it.photoUploadResponse }
+        return observeStates().map { it.mediaUploadResponse }
     }
 
     override fun get(productId: String): Flow<SupabaseResource<Product>> {
@@ -57,16 +58,16 @@ class ProductRepositoryImpl(
     }
 
     override fun add(
-        product: Product, prices: List<Float>, types: List<Role>
+        product: Product, prices: List<Float>, types: List<Role>, media: Media?
     ): Flow<SupabaseResource<Boolean>> {
-        trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types))
+        trySend(ProductRepositoryContract.Inputs.Add(product = product, prices = prices, types = types, media = media))
         return observeStates().map { it.saving }
     }
 
     override fun edit(
-        product: Product, updated: Product, prices: List<Float>, types: List<Role>
+        product: Product, updated: Product, prices: List<Float>, types: List<Role>, photo: Media?
     ): Flow<SupabaseResource<Boolean>> {
-        trySend(ProductRepositoryContract.Inputs.Edit(product, updated, prices, types))
+        trySend(ProductRepositoryContract.Inputs.Edit(product, updated, prices, types, photo))
         return observeStates().map { it.saving }
     }
 

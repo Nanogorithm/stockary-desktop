@@ -3,6 +3,7 @@ package com.stockary.common.repository.product
 import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
+import com.stockary.common.repository.product.model.Media
 import com.stockary.common.repository.product.model.Product
 import com.stockary.common.repository.product.model.UnitType
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +15,18 @@ interface ProductRepository {
     fun getCustomerTypes(refreshCache: Boolean = false): Flow<Cached<List<Role>>>
     fun getProductUnitTypes(refreshCache: Boolean = false): Flow<Cached<List<UnitType>>>
 
-    fun uploadPhoto(file: File): Flow<SupabaseResource<String>>
+    fun uploadPhoto(file: File): Flow<SupabaseResource<Media>>
 
     fun get(productId: String): Flow<SupabaseResource<Product>>
-    fun add(product: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
-    fun edit(product: Product, updated: Product, prices: List<Float>, types: List<Role>): Flow<SupabaseResource<Boolean>>
+    fun add(product: Product, prices: List<Float>, types: List<Role>, media: Media?): Flow<SupabaseResource<Boolean>>
+    fun edit(
+        product: Product,
+        updated: Product,
+        prices: List<Float>,
+        types: List<Role>,
+        photo: Media?
+    ): Flow<SupabaseResource<Boolean>>
+
     fun delete(product: Product): Flow<SupabaseResource<Boolean>>
     fun getPhotoUrl(url: String)
 }

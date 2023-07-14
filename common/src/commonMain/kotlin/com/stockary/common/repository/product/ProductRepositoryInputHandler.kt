@@ -9,10 +9,12 @@ import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.google.cloud.firestore.SetOptions
 import com.google.cloud.storage.Bucket
+import com.google.cloud.storage.Storage
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.cloud.StorageClient
 import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
+import com.stockary.common.repository.product.model.Media
 import com.stockary.common.repository.product.model.Product
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
@@ -110,8 +112,7 @@ class ProductRepositoryInputHandler(
                 }
 
                 val units = mapOf(
-                    "amount" to input.product.unitAmount,
-                    "type" to input.product.unitType
+                    "amount" to input.product.unitAmount, "type" to input.product.unitType
                 )
 
                 println("saving => $prices $units")
@@ -121,7 +122,7 @@ class ProductRepositoryInputHandler(
                         "title" to input.product.title,
                         "description" to input.product.description,
                         "category" to input.product.category,
-                        "photo" to input.product.photo,
+                        "media" to input.media,
                         "prices" to prices,
                         "units" to units
                     )
@@ -158,8 +159,7 @@ class ProductRepositoryInputHandler(
                 }
 
                 val units = mapOf(
-                    "amount" to input.updated.unitAmount,
-                    "type" to input.updated.unitType
+                    "amount" to input.updated.unitAmount, "type" to input.updated.unitType
                 )
 
                 println("updating => $prices $units")
@@ -169,11 +169,10 @@ class ProductRepositoryInputHandler(
                         "title" to input.updated.title,
                         "description" to input.updated.description,
                         "category" to input.updated.category,
-                        "photo" to input.updated.photo,
+                        "media" to input.photo,
                         "prices" to prices,
                         "units" to units
-                    ),
-                    SetOptions.merge()
+                    ), SetOptions.merge()
                 )
 
                 updateState { it.copy(saving = SupabaseResource.Success(true)) }
@@ -235,23 +234,51 @@ class ProductRepositoryInputHandler(
         }
 
         is ProductRepositoryContract.Inputs.UpdateUploadResponse -> {
-            updateState { it.copy(photoUploadResponse = input.photoUploadResponse) }
+            updateState { it.copy(mediaUploadResponse = input.mediaUploadResponse) }
         }
 
         is ProductRepositoryContract.Inputs.UploadPhoto -> {
-            updateState { it.copy(photoUploadResponse = SupabaseResource.Loading) }
+            updateState { it.copy(mediaUploadResponse = SupabaseResource.Loading) }
 
             //upload to firebase storage
             val bucket: Bucket? = StorageClient.getInstance().bucket()
             bucket?.let {
                 val objectName = "products/${System.currentTimeMillis()}.${input.file.extension}"
                 val contentType = getMimeType(input.file.toURI().toURL())
-                if (contentType != null && contentType != "") {
-                    it.create(objectName, input.file.inputStream(), contentType, Bucket.BlobWriteOption.doesNotExist())
+                val fileBlob = if (contentType != null && contentType != "") {
+                    val blob = it.create(
+                        objectName,
+                        input.file.inputStream(),
+                        contentType,
+                        Bucket.BlobWriteOption.doesNotExist(),
+                        Bucket.BlobWriteOption.predefinedAcl(
+                            Storage.PredefinedAcl.PUBLIC_READ
+                        )
+                    )
+//                    println("metadataLink => ${blob.metadata["mediaLink"]}, ${blob.mediaLink}")
+                    blob
                 } else {
-                    it.create(objectName, input.file.inputStream(), Bucket.BlobWriteOption.doesNotExist())
+                    val blob = it.create(
+                        objectName,
+                        input.file.inputStream(),
+                        Bucket.BlobWriteOption.doesNotExist(),
+                        Bucket.BlobWriteOption.predefinedAcl(
+                            Storage.PredefinedAcl.PUBLIC_READ
+                        )
+                    )
+//                    println("metadataLink => ${blob.metadata["mediaLink"]}, ${blob.mediaLink}")
+                    blob
                 }
-                updateState { it.copy(photoUploadResponse = SupabaseResource.Success(objectName)) }
+
+                updateState {
+                    it.copy(
+                        mediaUploadResponse = SupabaseResource.Success(
+                            Media(
+                                path = objectName, url = fileBlob.mediaLink
+                            )
+                        )
+                    )
+                }
             }
 
             Unit

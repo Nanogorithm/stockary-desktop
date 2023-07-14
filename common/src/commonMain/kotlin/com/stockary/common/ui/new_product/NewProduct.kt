@@ -1,8 +1,6 @@
 package com.stockary.common.ui.new_product
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +23,6 @@ import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.form_builder.ChoiceState
 import com.stockary.common.form_builder.TextFieldState
 import com.stockary.common.repository.product.model.Product
-import com.stockary.common.storagePrefix
 import org.koin.core.component.KoinComponent
 import java.io.File
 
