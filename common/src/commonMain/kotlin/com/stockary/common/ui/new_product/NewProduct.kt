@@ -52,7 +52,7 @@ class NewProductPage : KoinComponent {
         val error = remember { mutableStateOf<String?>(null) }
 
         val titleState: TextFieldState = uiState.formState.getState(Product::title.name)
-        val descriptionState: TextFieldState = uiState.formState.getState(Product::description.name)
+        val productCodeState: TextFieldState = uiState.formState.getState(Product::code.name)
         val photoState: TextFieldState = uiState.formState.getState("photo")
         val unitAmountState: TextFieldState = uiState.formState.getState(Product::unitAmount.name)
 
@@ -92,11 +92,10 @@ class NewProductPage : KoinComponent {
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             TextInput(
-                                label = "Description",
-                                placeHolder = "This is popular item contains a,b,c",
-                                state = descriptionState,
-                                maxLines = 3,
-                                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 80.dp)
+                                label = "Product Code",
+                                placeHolder = "eg. 10001",
+                                state = productCodeState,
+                                modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Box(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {

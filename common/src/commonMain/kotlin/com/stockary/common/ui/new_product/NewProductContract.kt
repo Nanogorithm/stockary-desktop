@@ -32,7 +32,7 @@ object NewProductContract {
                     validators = listOf(Validators.Required()),
                 ),
                 TextFieldState(
-                    name = Product::description.name,
+                    name = Product::code.name,
                     validators = listOf(),
                 ),
                 TextFieldState(

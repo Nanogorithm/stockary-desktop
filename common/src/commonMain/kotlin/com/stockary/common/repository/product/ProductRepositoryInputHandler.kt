@@ -16,12 +16,9 @@ import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.customer.model.Role
 import com.stockary.common.repository.product.model.Media
 import com.stockary.common.repository.product.model.Product
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.postgrest
+import com.stockary.common.repository.product.model.UnitType
 import io.github.jan.supabase.storage.storage
-import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -30,8 +27,6 @@ import java.net.URL
 class ProductRepositoryInputHandler(
     private val eventBus: EventBus,
 ) : InputHandler<ProductRepositoryContract.Inputs, Any, ProductRepositoryContract.State>, KoinComponent {
-
-    val supabaseClient: SupabaseClient by inject()
 
     override suspend fun InputHandlerScope<ProductRepositoryContract.Inputs, Any, ProductRepositoryContract.State>.handleInput(
         input: ProductRepositoryContract.Inputs
@@ -120,7 +115,7 @@ class ProductRepositoryInputHandler(
                 val product = firestore.collection("products").add(
                     mapOf(
                         "title" to input.product.title,
-                        "description" to input.product.description,
+                        "code" to input.product.code,
                         "category" to input.product.category,
                         "media" to input.media,
                         "prices" to prices,
@@ -167,7 +162,7 @@ class ProductRepositoryInputHandler(
                 val product = firestore.collection("products").document(input.product.id!!).set(
                     mapOf(
                         "title" to input.updated.title,
-                        "description" to input.updated.description,
+                        "code" to input.updated.code,
                         "category" to input.updated.category,
                         "media" to input.photo,
                         "prices" to prices,
@@ -220,11 +215,21 @@ class ProductRepositoryInputHandler(
                 getValue = { it.unitTypes },
                 updateState = { ProductRepositoryContract.Inputs.UpdateUnitTypes(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["unit_types"].select("*")
-                    println("Unit types => ${result.body}")
-                    result.decodeList(json = Json {
-                        ignoreUnknownKeys = true
-                    })
+                    val firestore = FirestoreClient.getFirestore()
+                    val future = firestore.collection("unit_types").get()
+                    val data = future.get()
+
+                    data.documents.mapNotNull { docSnap ->
+                        try {
+                            val role = docSnap.toObject(UnitType::class.java)
+                            role?.apply {
+                                id = docSnap.id
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }
@@ -301,8 +306,7 @@ class ProductRepositoryInputHandler(
         }
 
         is ProductRepositoryContract.Inputs.GetPhotoUrl -> {
-            val result = supabaseClient.storage["shad"].publicRenderUrl(input.path)
-            println("imagePath $result")
+
         }
     }
 }

@@ -160,7 +160,7 @@ class NewProductInputHandler(
                 formState.getState<TextFieldState>(Product::title.name).change(product.title)
                 formState.getState<TextFieldState>(Product::unitAmount.name)
                     .change(product.units?.amount?.removeEmptyFraction() ?: "")
-                formState.getState<TextFieldState>(Product::description.name).change(product.description ?: "")
+                formState.getState<TextFieldState>(Product::code.name).change(product.code ?: "")
                 formState.getState<TextFieldState>("photo").change(product.media?.url ?: "")
                 formState.getState<ChoiceState>(Product::unitType.name).change(product.units?.type ?: "")
                 formState.getState<ChoiceState>(Product::category.name).change(product.category ?: "")

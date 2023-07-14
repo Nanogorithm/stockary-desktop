@@ -78,5 +78,5 @@ data class ProductCustomerRole(
 
 @Serializable
 data class UnitType(
-    val id: Int? = null, val name: String
+    var id: String? = null, val name: String = ""
 )
