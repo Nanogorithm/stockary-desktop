@@ -59,7 +59,8 @@ data class Price(
 
 @Serializable
 data class Units(
-    val amount: Float = 0f, val type: String? = null
+    val amount: Float = 0f,
+    val type: String? = null
 )
 
 @Serializable

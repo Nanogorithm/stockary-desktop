@@ -2,16 +2,14 @@ package com.stockary.common.ui.summary
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -20,7 +18,10 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.components.tableview.TableView
 import com.stockary.common.di.injector.ComposeDesktopInjector
+import com.stockary.common.repository.order.model.OrderSummaryTable
+import com.stockary.common.repository.order.model.toOrderSummaryItem
 
 @Composable
 fun Summary(injector: ComposeDesktopInjector) {
@@ -42,12 +43,49 @@ fun Summary(injector: ComposeDesktopInjector) {
 private fun Content(
     uiState: SummaryContract.State, postInput: (SummaryContract.Inputs) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(start = 64.dp)) {
+
+    var selectedFilter by remember { mutableStateOf("category") }
+
+    val productContent = remember(uiState.orders) {
+        mutableStateOf(
+            uiState.orders.getCachedOrEmptyList().flatMap { _order ->
+                _order.toOrderSummaryItem()
+            }.groupBy {
+                it.productId
+            }.map {
+                println("${it.key} => ${it.value.map { it.productName }}")
+                val totalUnitAmount = it.value.map { item -> (item.units?.amount ?: 0f) * item.quantity }.sum()
+                val first = it.value.firstOrNull()
+
+                OrderSummaryTable(
+                    userId = null,
+                    customerName = null,
+                    productName = first?.productName,
+                    categoryName = first?.category,
+                    totalUnit = totalUnitAmount,
+                    unitName = first?.units?.type ?: ""
+                )
+            }.sortedBy {
+                it.categoryName
+            }
+        )
+    }
+    val selectedOrder: MutableState<OrderSummaryTable?> = remember { mutableStateOf(null) }
+
+    val onOrderSelect: (OrderSummaryTable) -> Unit = {
+        selectedOrder.value = it
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(start = 64.dp, end = 16.dp)
+    ) {
         Spacer(modifier = Modifier.height(48.dp))
         Card(
-            modifier = Modifier.fillMaxSize().padding(end = 50.dp), colors = CardDefaults.cardColors(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(end = 8.dp),
+            colors = CardDefaults.cardColors(
                 containerColor = Color(0xFFF7F9FB), contentColor = contentColorFor(Color(0xFFF7F9FB))
-            ), shape = RoundedCornerShape(20.dp)
+            ),
+            shape = RoundedCornerShape(20.dp)
         ) {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
@@ -57,8 +95,9 @@ private fun Content(
                 modifier = Modifier.padding(horizontal = 32.dp)
             )
 
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)) {
-                var selectedFilter by remember { mutableStateOf("category") }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+            ) {
                 var expandMenu by remember { mutableStateOf(false) }
                 Box {
                     Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).clickable {
@@ -79,10 +118,12 @@ private fun Content(
                             Text("Category")
                         }
 
-                        DropdownMenuItem(onClick = {
-                            expandMenu = false
-                            selectedFilter = "customer"
-                        }) {
+                        DropdownMenuItem(
+                            onClick = {
+                                expandMenu = false
+                                selectedFilter = "customer"
+                            }
+                        ) {
                             Text("Customer")
                         }
                     }
@@ -94,39 +135,27 @@ private fun Content(
                     Icon(Icons.Default.Print, null)
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Category", fontSize = 16.sp, color = Color(0x66000000))
-                Spacer(modifier = Modifier.weight(1f))
-                Text("Item", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-                Text("Total Unit", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
-            }
-            Divider(color = Color(0x33000000))
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+        }
 
-                if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
-                    item {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                }
-
-                items(uiState.orders.getCachedOrEmptyList()) { _order ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 32.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(_order.categoryName)
-                        Spacer(modifier = Modifier.weight(1f))
-                        Text(_order.title, modifier = Modifier.width(181.dp))
-                        Text("${_order.totalUnit} ${_order.unitName}", modifier = Modifier.width(181.dp))
-                    }
-                    Divider(color = Color(0xFFD9D9D9))
-                }
+        if (uiState.orders !is Cached.NotLoaded && uiState.orders.isLoading()) {
+            Spacer(modifier = Modifier.height(48.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                CircularProgressIndicator()
             }
+        } else if (uiState.orders.getCachedOrEmptyList().isEmpty()) {
+            Spacer(modifier = Modifier.height(48.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text("Product list is empty")
+            }
+        } else {
+            TableView(
+                currentItem = selectedOrder,
+                content = productContent,
+                indexColumn = true,
+                indexColWidth = 48.dp,
+                onRowSelection = onOrderSelect,
+                actions = null
+            )
         }
     }
 }

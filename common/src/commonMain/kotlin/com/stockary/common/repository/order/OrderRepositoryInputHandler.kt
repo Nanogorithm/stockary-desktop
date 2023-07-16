@@ -7,13 +7,14 @@ import com.copperleaf.ballast.postInput
 import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
+import com.google.cloud.firestore.Query
 import com.stockary.common.repository.order.model.Order
-import com.stockary.common.repository.order.model.OrderSummary
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.postgrest
-import kotlinx.serialization.json.Json
+import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.util.*
+
 
 class OrderRepositoryInputHandler(
     private val eventBus: EventBus,
@@ -67,9 +68,8 @@ class OrderRepositoryInputHandler(
                 getValue = { it.orderList },
                 updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
                 doFetch = {
-
                     val firestore = com.google.firebase.cloud.FirestoreClient.getFirestore()
-                    val future = firestore.collection("orders").get()
+                    val future = firestore.collection("orders").orderBy("created_at", Query.Direction.DESCENDING).get()
                     val data = future.get()
 
                     data.documents.mapNotNull { snap ->
@@ -77,6 +77,9 @@ class OrderRepositoryInputHandler(
                             val order = snap.toObject(Order::class.java)
                             order?.apply {
                                 id = snap.id
+                                createdAt = (snap.data["created_at"] as com.google.cloud.Timestamp?)?.let {
+                                    Instant.fromEpochSeconds(it.seconds, it.nanos)
+                                }
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -94,11 +97,38 @@ class OrderRepositoryInputHandler(
                 getValue = { it.summary },
                 updateState = { OrderRepositoryContract.Inputs.UpdateSummary(it) },
                 doFetch = {
-                    val result = supabaseClient.postgrest["today_orders"].select()
-                    result.decodeList<OrderSummary>(json = Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                    })
+                    val firestore = com.google.firebase.cloud.FirestoreClient.getFirestore()
+//                    val serverTime = firestore.collection("nonexistent").get().get().readTime
+
+
+                    val calendar = Calendar.getInstance()
+                    calendar.time = Date()
+                    calendar[Calendar.HOUR_OF_DAY] = 0
+                    calendar[Calendar.MINUTE] = 0
+                    calendar[Calendar.SECOND] = 0
+                    calendar[Calendar.MILLISECOND] = 0
+                    val today = calendar.time
+
+                    val future = firestore.collection("orders")
+                        .whereGreaterThan("created_at", today)
+                        .orderBy("created_at").get()
+
+                    val data = future.get()
+
+                    data.documents.mapNotNull { snap ->
+                        try {
+                            val order = snap.toObject(Order::class.java)
+                            order?.apply {
+                                id = snap.id
+                                createdAt = (snap.data["created_at"] as com.google.cloud.Timestamp?)?.let {
+                                    Instant.fromEpochSeconds(it.seconds, it.nanos)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
                 },
             )
         }

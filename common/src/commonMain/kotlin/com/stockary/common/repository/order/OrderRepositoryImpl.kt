@@ -7,7 +7,6 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.withRepository
 import com.stockary.common.repository.order.model.Order
-import com.stockary.common.repository.order.model.OrderSummary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,10 +17,10 @@ class OrderRepositoryImpl(
     configBuilder: BallastViewModelConfiguration.Builder,
 ) : BallastRepository<OrderRepositoryContract.Inputs, OrderRepositoryContract.State>(
     coroutineScope = coroutineScope, eventBus = eventBus, config = configBuilder.apply {
-            inputHandler = OrderRepositoryInputHandler(eventBus)
-            initialState = OrderRepositoryContract.State()
-            name = "Order Repository"
-        }.withRepository().build()
+        inputHandler = OrderRepositoryInputHandler(eventBus)
+        initialState = OrderRepositoryContract.State()
+        name = "Order Repository"
+    }.withRepository().build()
 ), OrderRepository {
     override fun clearAllCaches() {
         trySend(OrderRepositoryContract.Inputs.ClearCaches)
@@ -33,7 +32,7 @@ class OrderRepositoryImpl(
         return observeStates().map { it.orderList }
     }
 
-    override fun getTodayOrders(refreshCache: Boolean): Flow<Cached<List<OrderSummary>>> {
+    override fun getTodayOrders(refreshCache: Boolean): Flow<Cached<List<Order>>> {
         trySend(OrderRepositoryContract.Inputs.RefreshSummary(refreshCache))
         return observeStates().map { it.summary }
     }
