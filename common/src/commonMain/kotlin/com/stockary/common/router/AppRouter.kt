@@ -37,7 +37,7 @@ enum class AppScreen(
         "/app/new-customer-type?typeId={?}", "Add Customer Type"
     ),
     ProductList(
-        "/app/products?sort={?}", "products", icon = Icons.Default.ShoppingCart
+        "/app/products?sort={?}", "Products", icon = Icons.Default.ShoppingCart
     ),
     NewProduct(
         "/app/new-product?productId={?}", "Add Product"

@@ -29,7 +29,7 @@ class OrderEventHandler(
             router.trySend(
                 RouterContract.Inputs.GoToDestination(
                     AppScreen.OrderDetails.directions()
-                        .path("orderId", event.orderId)
+                        .path(event.orderId)
                         .build()
                 )
             )
