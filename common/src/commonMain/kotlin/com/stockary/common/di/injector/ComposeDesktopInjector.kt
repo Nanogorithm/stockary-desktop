@@ -11,6 +11,7 @@ import com.stockary.common.ui.new_customer.NewCustomerViewModel
 import com.stockary.common.ui.new_product.NewProductViewModel
 import com.stockary.common.ui.new_types.NewCustomerTypeViewModel
 import com.stockary.common.ui.order.OrderViewModel
+import com.stockary.common.ui.order_details.OrderDetailsViewModel
 import com.stockary.common.ui.product.ProductViewModel
 import com.stockary.common.ui.summary.SummaryViewModel
 import com.stockary.common.ui.types.TypeViewModel
@@ -28,6 +29,7 @@ interface ComposeDesktopInjector {
     ): HomeViewModel
 
     fun orderViewModel(coroutineScope: CoroutineScope): OrderViewModel
+    fun orderDetailsViewModel(coroutineScope: CoroutineScope): OrderDetailsViewModel
     fun summaryViewModel(coroutineScope: CoroutineScope): SummaryViewModel
     fun typeViewModel(coroutineScope: CoroutineScope): TypeViewModel
 

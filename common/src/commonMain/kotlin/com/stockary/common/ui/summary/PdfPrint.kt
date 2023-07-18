@@ -3,7 +3,6 @@ package com.stockary.common.ui.summary
 import com.lowagie.text.*
 import com.lowagie.text.pdf.PdfPageEventHelper
 import com.lowagie.text.pdf.PdfWriter
-import com.stockary.common.repository.order.model.Order
 import com.stockary.common.repository.order.model.OrderSummaryTable
 import java.awt.Color
 import java.awt.Desktop
@@ -53,7 +52,7 @@ fun pdfInvoice(
         bottom = PageSize.A4.getTop(180f)
     }
 
-    val title = "Kitchen Summary"
+    val title = "Order Summary"
 
     val pdfWriter = PdfWriter.getInstance(myPDFDoc, pdfOutputFile).apply {
 
@@ -82,16 +81,23 @@ fun pdfInvoice(
         myTable.addCell(current)
     }
 
+    var previousCategory: String? = null
+
     orders.sortedBy { it.categoryName }.forEach { order ->
         myTable.apply {
+            val category = if (previousCategory != order.categoryName) {
+                previousCategory = order.categoryName
+                order.categoryName
+            } else ""
+
             addCell(
-                Cell(Phrase(order.categoryName)).apply {
-                    border = Cell.BOTTOM
+                Cell(Phrase(category)).apply {
+                    border = Cell.BOTTOM + Cell.RIGHT
                 }
             )
             addCell(
                 Cell(Phrase(order.productName)).apply {
-                    border = Cell.BOTTOM
+                    border = Cell.BOTTOM + Cell.RIGHT
                 }
             )
             addCell(
@@ -134,6 +140,55 @@ fun pdfInvoice(
 
         // 2) Add the picture to the pdf
 //        add(image)
+
+        //add new page for print for department wise
+        orders.groupBy { it.categoryName }.forEach {
+            newPage()
+            //add category name
+            add(
+                Paragraph(
+                    it.key,
+                    Font(Font.COURIER, 20f, Font.BOLDITALIC, Color.BLACK)
+                ).apply {
+                    alignment = Element.ALIGN_CENTER
+                }
+            )
+
+            val ordersByCategory = it.value
+
+            val byCategoryTable = Table(2).apply {
+                padding = 2f
+                spacing = 1f
+                width = 100f
+            }
+
+            listOf("Item", "Total Unit").forEach {
+                val current = Cell(Phrase(it)).apply {
+                    isHeader = true
+                    backgroundColor = Color.LIGHT_GRAY
+                }
+                byCategoryTable.addCell(current)
+            }
+
+            ordersByCategory.forEach { order ->
+                byCategoryTable.apply {
+                    addCell(
+                        Cell(Phrase(order.productName)).apply {
+                            border = Cell.BOTTOM + Cell.RIGHT
+                        }
+                    )
+                    addCell(
+                        Cell(Phrase("${order.totalUnit} ${order.unitName}")).apply {
+                            border = Cell.BOTTOM
+                        }
+                    )
+                }
+            }
+
+            add(Paragraph(Chunk.NEWLINE))
+            add(byCategoryTable)
+            add(Paragraph(Chunk.NEWLINE))
+        }
 
         close()
     }

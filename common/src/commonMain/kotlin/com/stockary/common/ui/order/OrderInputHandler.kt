@@ -32,5 +32,9 @@ class OrderInputHandler(
         is OrderContract.Inputs.UpdateOrders -> {
             updateState { it.copy(orders = input.orders) }
         }
+
+        is OrderContract.Inputs.GoDetails -> {
+            postEvent(OrderContract.Events.NavigateDetails(input.orderId))
+        }
     }
 }

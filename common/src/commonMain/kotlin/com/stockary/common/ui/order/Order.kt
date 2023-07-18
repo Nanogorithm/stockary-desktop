@@ -77,10 +77,12 @@ class OrderPage : KoinComponent {
                             uiState.orders.getCachedOrEmptyList().firstOrNull { _order ->
                                 _order.id == it.id
                             }?.let {
-
+                                it.id?.let {
+                                    postInput(OrderContract.Inputs.GoDetails(orderId = it))
+                                }
                             }
                         }) {
-                            Icon(Icons.Default.Preview, "Delete Product", tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.Preview, "View Order", tint = MaterialTheme.colorScheme.primary)
                         }
 
                         IconButton(onClick = {

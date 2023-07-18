@@ -14,9 +14,11 @@ object OrderContract {
         object GoBack : Inputs()
         data class FetchOrders(val forceRefresh: Boolean) : Inputs()
         data class UpdateOrders(val orders: Cached<List<Order>>) : Inputs()
+        data class GoDetails(val orderId: String) : Inputs()
     }
 
     sealed class Events {
         object NavigateUp : Events()
+        data class NavigateDetails(val orderId: String) : Events()
     }
 }

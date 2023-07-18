@@ -1,7 +1,11 @@
 package com.stockary.common.ui.new_customer
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,8 +55,10 @@ class NewCustomerPage : KoinComponent {
         val addressState: TextFieldState = uiState.formState.getState(Profile::address.name)
         val roleState: ChoiceState = uiState.formState.getState(Profile::role.name)
 
+        val stateVertical = rememberScrollState(0)
+
         Box {
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
+            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp).verticalScroll(stateVertical)) {
                 Text(
                     if (uiState.customerId != null) "Editing ${uiState.customerId}" else "New Customer",
                     fontSize = 32.sp,
@@ -181,6 +187,11 @@ class NewCustomerPage : KoinComponent {
                     }
                 }
             }
+            VerticalScrollbar(
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(stateVertical)
+            )
         }
     }
 }

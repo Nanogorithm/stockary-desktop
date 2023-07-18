@@ -66,6 +66,10 @@ import com.stockary.common.ui.order.OrderContract
 import com.stockary.common.ui.order.OrderEventHandler
 import com.stockary.common.ui.order.OrderInputHandler
 import com.stockary.common.ui.order.OrderViewModel
+import com.stockary.common.ui.order_details.OrderDetailsContract
+import com.stockary.common.ui.order_details.OrderDetailsEventHandler
+import com.stockary.common.ui.order_details.OrderDetailsInputHandler
+import com.stockary.common.ui.order_details.OrderDetailsViewModel
 import com.stockary.common.ui.product.ProductContract
 import com.stockary.common.ui.product.ProductEventHandler
 import com.stockary.common.ui.product.ProductInputHandler
@@ -139,6 +143,18 @@ class ComposeDesktopInjectorImpl(
         )
     }
 
+    override fun orderDetailsViewModel(coroutineScope: CoroutineScope): OrderDetailsViewModel {
+        return OrderDetailsViewModel(
+            coroutineScope = coroutineScope,
+            configBuilder = commonBuilder().withViewModel(
+                inputHandler = OrderDetailsInputHandler(orderRepository = orderRepository),
+                initialState = OrderDetailsContract.State(),
+                name = "OrderDetails",
+            ),
+            eventHandler = OrderDetailsEventHandler(router)
+        )
+    }
+
     override fun summaryViewModel(coroutineScope: CoroutineScope): SummaryViewModel {
         return SummaryViewModel(
             coroutineScope = coroutineScope, configBuilder = commonBuilder().withViewModel(
@@ -184,12 +200,12 @@ class ComposeDesktopInjectorImpl(
             coroutineScope = applicationScope,
             eventBus = eventBus,
             configBuilder = commonBuilder().withViewModel(
-                    inputHandler = CustomerTypeRepositoryInputHandler(
-                        eventBus = eventBus,
-                    ),
-                    initialState = CustomerTypeRepositoryContract.State(),
-                    name = "Customer Type Repository",
-                ).withRepository(),
+                inputHandler = CustomerTypeRepositoryInputHandler(
+                    eventBus = eventBus,
+                ),
+                initialState = CustomerTypeRepositoryContract.State(),
+                name = "Customer Type Repository",
+            ).withRepository(),
         )
     }
 
@@ -301,10 +317,10 @@ class ComposeDesktopInjectorImpl(
         return NewCustomerTypeViewModel(
             coroutineScope = coroutineScope,
             configBuilder = commonBuilder().withViewModel(
-                    initialState = NewCustomerTypeContract.State(),
-                    inputHandler = NewCustomerTypeInputHandler(customerTypeRepository),
-                    name = "NewCustomerTypeScreen"
-                ),
+                initialState = NewCustomerTypeContract.State(),
+                inputHandler = NewCustomerTypeInputHandler(customerTypeRepository),
+                name = "NewCustomerTypeScreen"
+            ),
             eventHandler = NewCustomerTypeEventHandler(router)
         )
     }

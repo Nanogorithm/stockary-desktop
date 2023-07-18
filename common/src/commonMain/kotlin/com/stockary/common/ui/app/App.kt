@@ -37,6 +37,7 @@ import com.stockary.common.ui.new_order.NewOrder
 import com.stockary.common.ui.new_product.NewProductPage
 import com.stockary.common.ui.new_types.NewCustomerTypePage
 import com.stockary.common.ui.order.OrderPage
+import com.stockary.common.ui.order_details.OrderDetailsScreen
 import com.stockary.common.ui.product.ProductPage
 import com.stockary.common.ui.summary.Summary
 import com.stockary.common.ui.types.TypePage
@@ -234,7 +235,8 @@ class AppScreenView(
                             }
 
                             OrderDetails -> {
-
+                                val orderId: String by stringPath()
+                                OrderDetailsScreen(injector = injector, orderId = orderId)
                             }
 
                             NewOrder -> {
