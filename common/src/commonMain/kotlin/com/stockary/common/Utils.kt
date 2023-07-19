@@ -68,12 +68,12 @@ fun Modifier.dashedBorder(width: Dp, radius: Dp, color: Color) = drawBehind {
 
 
 fun yesterday(): Date {
-    val now: Instant = Instant.now()
-    return Date.from(now.minus(2, ChronoUnit.DAYS)).startOfDay()
+    val now: Instant = today().toInstant()
+    return Date.from(now.minus(1, ChronoUnit.DAYS)).startOfDay()
 }
 
 fun last7Days(): Date {
-    val now: Instant = Instant.now()
+    val now: Instant = today().toInstant()
     return Date.from(now.minus(7, ChronoUnit.DAYS)).startOfDay()
 }
 

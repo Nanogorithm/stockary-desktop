@@ -5,6 +5,7 @@ import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
 import com.stockary.common.repository.order.OrderRepository
+import com.stockary.common.today
 import kotlinx.coroutines.flow.map
 
 class HomeInputHandler(
@@ -23,7 +24,9 @@ class HomeInputHandler(
 
         is HomeContract.Inputs.FetchOrders -> {
             observeFlows("FetchOrders") {
-                listOf(orderRepository.getOrders(input.forceRefresh).map { HomeContract.Inputs.UpdateOrders(it) })
+                listOf(
+                    orderRepository.getOrders(input.forceRefresh, date = today(), isSingleDay = true)
+                        .map { HomeContract.Inputs.UpdateOrders(it) })
             }
         }
 

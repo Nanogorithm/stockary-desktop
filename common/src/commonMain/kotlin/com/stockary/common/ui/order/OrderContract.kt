@@ -1,6 +1,7 @@
 package com.stockary.common.ui.order
 
 import com.copperleaf.ballast.repository.cache.Cached
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.order.model.Order
 import com.stockary.common.today
 import java.util.Date
@@ -8,7 +9,8 @@ import java.util.Date
 object OrderContract {
     data class State(
         val loading: Boolean = false,
-        val orders: Cached<List<Order>> = Cached.NotLoaded()
+        val orders: Cached<List<Order>> = Cached.NotLoaded(),
+        val orderUpdateStatus: SupabaseResource<Order> = SupabaseResource.Idle
     )
 
     sealed class Inputs {
@@ -24,6 +26,8 @@ object OrderContract {
         data class GoDetails(val orderId: String) : Inputs()
 
         data class PrintInvoices(val orders: List<Order>) : Inputs()
+        data class EditOrder(val order: Order, val status: String) : Inputs()
+        data class UpdateOrderStatus(val order: SupabaseResource<Order>) : Inputs()
     }
 
     sealed class Events {

@@ -4,6 +4,8 @@ import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
+import com.google.cloud.firestore.SetOptions
+import com.stockary.common.SupabaseResource
 import com.stockary.common.repository.order.OrderRepository
 import com.stockary.common.ui.summary.pdfInvoiceForCustomers
 import kotlinx.coroutines.flow.map
@@ -51,6 +53,32 @@ class OrderInputHandler(
                     orders = input.orders
                 )
             }
+        }
+
+        is OrderContract.Inputs.EditOrder -> {
+            //update order
+            updateState { it.copy(orderUpdateStatus = SupabaseResource.Loading) }
+            sideJob("UpdateOrderStatus") {
+                val response = try {
+                    val firestore = com.google.firebase.cloud.FirestoreClient.getFirestore()
+                    firestore.collection("orders").document(input.order.id!!).set(
+                        mapOf(
+                            "status" to input.status
+                        ), SetOptions.merge()
+                    )
+                    SupabaseResource.Success(input.order.copy(status = input.status))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    SupabaseResource.Error(e)
+                }
+
+                postInput(OrderContract.Inputs.UpdateOrderStatus(response))
+            }
+        }
+
+        is OrderContract.Inputs.UpdateOrderStatus -> {
+            //update modified order
+            updateState { it.copy(orderUpdateStatus = input.order) }
         }
     }
 }

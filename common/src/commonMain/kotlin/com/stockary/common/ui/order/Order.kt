@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -21,10 +22,12 @@ import androidx.compose.ui.window.Dialog
 import com.copperleaf.ballast.repository.cache.Cached
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.copperleaf.ballast.repository.cache.isLoading
+import com.stockary.common.SupabaseResource
 import com.stockary.common.components.datapicker.DatePickerUI
 import com.stockary.common.components.tableview.TableView
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.last7Days
+import com.stockary.common.repository.order.model.Order
 import com.stockary.common.repository.order.model.OrderTable
 import com.stockary.common.repository.order.model.toOrderTable
 import com.stockary.common.today
@@ -59,6 +62,8 @@ class OrderPage : KoinComponent {
     ) {
         var selectedFilter by remember { mutableStateOf("today") }
         var showDatePicker by remember { mutableStateOf(false) }
+        var showOrderEditDialog by remember { mutableStateOf(false) }
+        var editingOrder by remember { mutableStateOf<Order?>(null) }
 
         val productContent = remember(uiState.orders) {
             mutableStateOf(uiState.orders.getCachedOrEmptyList().map { it.toOrderTable() })
@@ -194,6 +199,150 @@ class OrderPage : KoinComponent {
                 )
             }
 
+
+            LaunchedEffect(uiState.orderUpdateStatus) {
+                if (uiState.orderUpdateStatus is SupabaseResource.Success) {
+                    showOrderEditDialog = false
+                    editingOrder = null
+                }
+            }
+
+            Dialog(
+                visible = showOrderEditDialog,
+                onCloseRequest = {
+                    showOrderEditDialog = false
+                },
+                title = "Edit order",
+                undecorated = true,
+                transparent = true
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 16.dp)) {
+                        var expandOrderStatus by remember { mutableStateOf(false) }
+                        var selectedStatus by remember(editingOrder) { mutableStateOf(editingOrder?.status ?: "") }
+
+                        Box(
+                            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                        ) {
+                            Column {
+                                Text("Order Status")
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        .clickable {
+                                            expandOrderStatus = true
+                                        }
+                                ) {
+                                    Text(selectedStatus.capitalize(), fontSize = 14.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(Icons.Default.ArrowDropDown, null)
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = expandOrderStatus,
+                                onDismissRequest = {
+                                    expandOrderStatus = false
+                                }
+                            ) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandOrderStatus = false
+                                        selectedStatus = "pending"
+                                    }
+                                ) {
+                                    Text("Pending")
+                                }
+
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandOrderStatus = false
+                                        selectedStatus = "processing"
+                                    }
+                                ) {
+                                    Text("Processing")
+                                }
+
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandOrderStatus = false
+                                        selectedStatus = "shipped"
+                                    }
+                                ) {
+                                    Text("Shipped")
+                                }
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandOrderStatus = false
+                                        selectedStatus = "delivered"
+                                    }
+                                ) {
+                                    Text("Delivered")
+                                }
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandOrderStatus = false
+                                        selectedStatus = "canceled"
+                                    }
+                                ) {
+                                    Text("Canceled")
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    showOrderEditDialog = false
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            when (uiState.orderUpdateStatus) {
+                                is SupabaseResource.Error, SupabaseResource.Idle -> {
+                                    Button(
+                                        onClick = {
+                                            editingOrder?.let {
+                                                if (selectedStatus.isNotBlank() && selectedStatus != it.status) {
+                                                    postInput(
+                                                        OrderContract.Inputs.EditOrder(
+                                                            order = it,
+                                                            status = selectedStatus
+                                                        )
+                                                    )
+                                                } else {
+                                                    showOrderEditDialog = false
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Text("Save")
+                                    }
+                                }
+
+                                SupabaseResource.Loading -> {
+                                    CircularProgressIndicator()
+                                }
+
+                                is SupabaseResource.Success -> {
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (selectedFilter == "custom") {
                 selectedDate.value?.let {
                     Text("Orders for $it")
@@ -233,9 +382,8 @@ class OrderPage : KoinComponent {
                             uiState.orders.getCachedOrEmptyList().firstOrNull { _order ->
                                 _order.id == it.id
                             }?.let {
-                                it.id?.let {
-
-                                }
+                                editingOrder = it
+                                showOrderEditDialog = true
                             }
                         }) {
                             Icon(Icons.Default.Edit, "Change Order Status", tint = MaterialTheme.colorScheme.error)
