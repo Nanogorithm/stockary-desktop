@@ -165,7 +165,10 @@ class OrderPage : KoinComponent {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         onClick = {
-
+                            val orders = uiState.orders.getCachedOrEmptyList()
+                            if (orders.isNotEmpty()) {
+                                postInput(OrderContract.Inputs.PrintInvoices(orders))
+                            }
                         }
                     ) {
                         Icon(Icons.Default.Print, null)

@@ -5,6 +5,7 @@ import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.observeFlows
 import com.copperleaf.ballast.postInput
 import com.stockary.common.repository.order.OrderRepository
+import com.stockary.common.ui.summary.pdfInvoiceForCustomers
 import kotlinx.coroutines.flow.map
 
 class OrderInputHandler(
@@ -41,6 +42,15 @@ class OrderInputHandler(
 
         is OrderContract.Inputs.GoDetails -> {
             postEvent(OrderContract.Events.NavigateDetails(input.orderId))
+        }
+
+        is OrderContract.Inputs.PrintInvoices -> {
+            sideJob("PrintInvoicesForCustomer") {
+                pdfInvoiceForCustomers(
+                    fileName = System.currentTimeMillis().toString(),
+                    orders = input.orders
+                )
+            }
         }
     }
 }

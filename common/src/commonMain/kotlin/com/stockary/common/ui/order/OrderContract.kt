@@ -22,6 +22,8 @@ object OrderContract {
 
         data class UpdateOrders(val orders: Cached<List<Order>>) : Inputs()
         data class GoDetails(val orderId: String) : Inputs()
+
+        data class PrintInvoices(val orders: List<Order>) : Inputs()
     }
 
     sealed class Events {
