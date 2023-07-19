@@ -10,6 +10,7 @@ import com.stockary.common.repository.order.model.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class OrderRepositoryImpl(
     coroutineScope: CoroutineScope,
@@ -26,9 +27,9 @@ class OrderRepositoryImpl(
         trySend(OrderRepositoryContract.Inputs.ClearCaches)
     }
 
-    override fun getOrders(refreshCache: Boolean): Flow<Cached<List<Order>>> {
+    override fun getOrders(refreshCache: Boolean, date: Date, isSingleDay: Boolean): Flow<Cached<List<Order>>> {
         trySend(OrderRepositoryContract.Inputs.Initialize)
-        trySend(OrderRepositoryContract.Inputs.RefreshOrders(refreshCache))
+        trySend(OrderRepositoryContract.Inputs.RefreshOrders(refreshCache, date, isSingleDay))
         return observeStates().map { it.orderList }
     }
 

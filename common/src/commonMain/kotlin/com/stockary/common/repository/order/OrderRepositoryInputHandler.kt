@@ -8,20 +8,16 @@ import com.copperleaf.ballast.repository.bus.EventBus
 import com.copperleaf.ballast.repository.bus.observeInputsFromBus
 import com.copperleaf.ballast.repository.cache.fetchWithCache
 import com.google.cloud.firestore.Query
+import com.stockary.common.endOfDay
 import com.stockary.common.repository.order.model.Order
-import io.github.jan.supabase.SupabaseClient
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.util.*
 
 
 class OrderRepositoryInputHandler(
     private val eventBus: EventBus,
 ) : InputHandler<OrderRepositoryContract.Inputs, Any, OrderRepositoryContract.State>, KoinComponent {
-
-    val supabaseClient: SupabaseClient by inject()
-
     override suspend fun InputHandlerScope<OrderRepositoryContract.Inputs, Any, OrderRepositoryContract.State>.handleInput(
         input: OrderRepositoryContract.Inputs
     ) = when (input) {
@@ -69,7 +65,14 @@ class OrderRepositoryInputHandler(
                 updateState = { OrderRepositoryContract.Inputs.UpdateOrders(it) },
                 doFetch = {
                     val firestore = com.google.firebase.cloud.FirestoreClient.getFirestore()
-                    val future = firestore.collection("orders").orderBy("created_at", Query.Direction.DESCENDING).get()
+
+                    val future = if (input.isSingleDay) firestore.collection("orders")
+                        .whereGreaterThanOrEqualTo("created_at", input.date)
+                        .whereLessThanOrEqualTo("created_at", input.date.endOfDay())
+                        .orderBy("created_at", Query.Direction.DESCENDING).get()
+                    else firestore.collection("orders").whereGreaterThanOrEqualTo("created_at", input.date)
+                        .orderBy("created_at", Query.Direction.DESCENDING).get()
+
                     val data = future.get()
 
                     data.documents.mapNotNull { snap ->

@@ -23,9 +23,15 @@ class OrderInputHandler(
 
         is OrderContract.Inputs.FetchOrders -> {
             observeFlows("FetchOrders") {
-                listOf(orderRepository.getOrders(refreshCache = input.forceRefresh).map {
-                    OrderContract.Inputs.UpdateOrders(it)
-                })
+                listOf(
+                    orderRepository.getOrders(
+                        refreshCache = input.forceRefresh,
+                        date = input.date,
+                        isSingleDay = input.isSingleDay
+                    ).map {
+                        OrderContract.Inputs.UpdateOrders(it)
+                    }
+                )
             }
         }
 
