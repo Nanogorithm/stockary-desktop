@@ -399,6 +399,152 @@ fun pdfInvoiceForCustomers(
     )
 }
 
+fun pdfInvoice(
+    fileName: String,
+    order: Order
+) {
+    val invoiceDir = File("invoices".appDataDir())
+
+    // 1) Create a FileOutputStream object with the path and name of the file
+    val pdfOutputFile = FileOutputStream(
+        File(
+            invoiceDir, "${fileName}.pdf"
+        )
+    )
+
+    val myPDFDoc = Document(PageSize.A4, 40f, 40f, 80f, 80f)
+
+    val footer = Rectangle(30f, 30f, PageSize.A4.getRight(30f), 140f).apply {
+        border = Rectangle.BOX
+        borderColor = Color.BLACK
+        borderWidth = 2f
+    }
+
+    val header = Rectangle(30f, 30f, PageSize.A4.getRight(30f), 140f).apply {
+        border = Rectangle.BOX
+        borderColor = Color.BLUE
+        borderWidth = 1f
+        top = PageSize.A4.getTop(30f)
+        bottom = PageSize.A4.getTop(180f)
+    }
+
+    val title = "Order Summary"
+
+    val pdfWriter = PdfWriter.getInstance(myPDFDoc, pdfOutputFile).apply {
+
+        pageEvent = object : PdfPageEventHelper() {
+
+            override fun onEndPage(writer: PdfWriter, doc: Document) {
+                with(writer.directContent) {
+//                    rectangle(header)
+//                    rectangle(footer)
+                }
+            }
+        }
+    }
+
+    myPDFDoc.apply {
+        addTitle("Order Summary $fileName")
+        addSubject("This is a tutorial explaining how to use openPDF")
+        addKeywords("Kotlin, OpenPDF, Basic sample")
+        addCreator("Stockary")
+        addAuthor("Stockary")
+
+        open()
+
+        //add new page for print for customer wise
+        //add category name
+        add(
+            Paragraph(
+                order.customer_name,
+                Font(Font.COURIER, 20f, Font.BOLDITALIC, Color.BLACK)
+            ).apply {
+                alignment = Element.ALIGN_CENTER
+            }
+        )
+        add(
+            Paragraph(
+                "ID: #${order.id}",
+                Font(Font.COURIER, 16f, Font.NORMAL, Color.BLACK)
+            ).apply {
+                alignment = Element.ALIGN_LEFT
+            }
+        )
+        add(
+            Paragraph(
+                "Total: ${order.total.toCurrencyFormat()}",
+                Font(Font.COURIER, 16f, Font.NORMAL, Color.BLACK)
+            ).apply {
+                alignment = Element.ALIGN_LEFT
+            }
+        )
+
+        val byCustomerTable = Table(5).apply {
+            padding = 2f
+            spacing = 1f
+            width = 100f
+        }
+
+        listOf("Item", "Demand", "Deliver", "Demand Total", "Delivery Total").forEach {
+            val current = Cell(Phrase(it)).apply {
+                isHeader = true
+                backgroundColor = Color.LIGHT_GRAY
+            }
+            byCustomerTable.addCell(current)
+        }
+
+        val size = order.items.size
+
+        order.items.forEachIndexed { index, orderItem ->
+            byCustomerTable.apply {
+                addCell(
+                    Cell(Phrase(orderItem.title)).apply {
+                        border = Cell.BOTTOM + Cell.RIGHT
+                    }
+                )
+                addCell(
+                    Cell(Phrase(orderItem.quantity.toString())).apply {
+                        border = Cell.BOTTOM + Cell.RIGHT
+                    }
+                )
+                addCell(
+                    Cell(Phrase("")).apply {
+                        border = Cell.BOTTOM + Cell.RIGHT
+                    }
+                )
+                addCell(
+                    Cell(
+                        Phrase(
+                            (orderItem.price * orderItem.quantity).toCurrencyFormat()
+                        )
+                    ).apply {
+                        border = Cell.BOTTOM + Cell.RIGHT
+                    }
+                )
+                addCell(
+                    Cell(Phrase("")).apply {
+                        border = Cell.BOTTOM
+                    }
+                )
+            }
+        }
+
+        add(Paragraph(Chunk.NEWLINE))
+        add(byCustomerTable)
+        add(Paragraph(Chunk.NEWLINE))
+
+        close()
+    }
+
+    pdfWriter.close()
+
+    openPdf(
+        File(
+            invoiceDir, "${fileName}.pdf"
+        )
+    )
+}
+
 private fun openPdf(file: File) {
     if (Desktop.isDesktopSupported()) {
         try {

@@ -14,6 +14,7 @@ public object OrderDetailsContract {
         object GoBack : Inputs()
         data class GetOrder(val orderId: String) : Inputs()
         data class UpdateOrder(val order: Order?) : Inputs()
+        data class PrintInvoice(val order: Order) : Inputs()
     }
 
     public sealed class Events {

@@ -5,10 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,8 +15,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.toCurrencyFormat
+import com.stockary.common.ui.order.OrderContract
 
 @Composable
 fun OrderDetailsScreen(
@@ -50,7 +51,19 @@ private fun Content(
             modifier = Modifier.fillMaxSize()
                 .padding(horizontal = 16.dp).verticalScroll(stateVertical)
         ) {
-            Text("Order ${uiState.orderId}", fontSize = 32.sp, fontWeight = FontWeight.W600)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text("Order #${uiState.orderId}", fontSize = 32.sp, fontWeight = FontWeight.W600)
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        uiState.order?.let {
+                            postInput(OrderDetailsContract.Inputs.PrintInvoice(it))
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Print, null)
+                }
+            }
             if (uiState.loading) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -97,7 +110,11 @@ private fun Content(
                             Text(it.title ?: "", modifier = Modifier.weight(3f))
                             Text(it.price.toCurrencyFormat(), modifier = Modifier.weight(1f), textAlign = TextAlign.End)
                             Text(it.quantity.toString(), modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                            Text((it.quantity * it.price).toCurrencyFormat(), modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                            Text(
+                                (it.quantity * it.price).toCurrencyFormat(),
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.End
+                            )
                         }
                     }
                 }

@@ -3,9 +3,12 @@ package com.stockary.common.ui.order_details
 import com.copperleaf.ballast.InputHandler
 import com.copperleaf.ballast.InputHandlerScope
 import com.copperleaf.ballast.postInput
+import com.google.cloud.Timestamp
 import com.google.firebase.cloud.FirestoreClient
 import com.stockary.common.repository.order.OrderRepository
 import com.stockary.common.repository.order.model.Order
+import com.stockary.common.ui.summary.pdfInvoice
+import com.stockary.common.ui.summary.pdfInvoiceForSummary
 import kotlinx.datetime.Instant
 
 public class OrderDetailsInputHandler(
@@ -40,7 +43,7 @@ public class OrderDetailsInputHandler(
                     val order = data.toObject(Order::class.java)
                     order?.apply {
                         id = data.id
-                        createdAt = (data["created_at"] as com.google.cloud.Timestamp?)?.let {
+                        createdAt = (data["created_at"] as Timestamp?)?.let {
                             Instant.fromEpochSeconds(it.seconds, it.nanos)
                         }
                     }
@@ -55,6 +58,13 @@ public class OrderDetailsInputHandler(
 
         is OrderDetailsContract.Inputs.UpdateOrder -> {
             updateState { it.copy(order = input.order, loading = false) }
+        }
+
+        is OrderDetailsContract.Inputs.PrintInvoice -> {
+            pdfInvoice(
+                fileName = System.currentTimeMillis().toString(),
+                order = input.order
+            )
         }
     }
 }
