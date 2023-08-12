@@ -36,7 +36,7 @@ class SummaryInputHandler(
 
         is SummaryContract.Inputs.Print -> {
             sideJob("printSummary") {
-                pdfInvoice(
+                pdfInvoiceForSummary(
                     fileName = System.currentTimeMillis().toString(),
                     orders = input.orders.flatMap { _order ->
                         _order.toOrderSummaryItem()

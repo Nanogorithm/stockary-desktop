@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 import java.text.Normalizer
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 val currencySymbol = "৳"
@@ -77,4 +79,39 @@ fun Modifier.dashedBorder(width: Dp, radius: Dp, color: Color) = drawBehind {
             paint
         )
     }
+}
+
+
+fun yesterday(): Date {
+    val now: Instant = today().toInstant()
+    return Date.from(now.minus(1, ChronoUnit.DAYS)).startOfDay()
+}
+
+fun last7Days(): Date {
+    val now: Instant = today().toInstant()
+    return Date.from(now.minus(7, ChronoUnit.DAYS)).startOfDay()
+}
+
+fun today(): Date {
+    return Date().startOfDay()
+}
+
+fun Date.startOfDay(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar[Calendar.HOUR_OF_DAY] = 0
+    calendar[Calendar.MINUTE] = 0
+    calendar[Calendar.SECOND] = 0
+    calendar[Calendar.MILLISECOND] = 0
+    return calendar.time
+}
+
+fun Date.endOfDay(): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar[Calendar.HOUR_OF_DAY] = 23
+    calendar[Calendar.MINUTE] = 59
+    calendar[Calendar.SECOND] = 59
+    calendar[Calendar.MILLISECOND] = 999
+    return calendar.time
 }

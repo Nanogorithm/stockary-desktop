@@ -2,6 +2,8 @@ package com.stockary.common.repository.order
 
 import com.copperleaf.ballast.repository.cache.Cached
 import com.stockary.common.repository.order.model.Order
+import com.stockary.common.today
+import java.util.*
 
 object OrderRepositoryContract {
     data class State(
@@ -17,7 +19,12 @@ object OrderRepositoryContract {
         object Initialize : Inputs()
         object RefreshAllCaches : Inputs()
 
-        data class RefreshOrders(val forceRefresh: Boolean) : Inputs()
+        data class RefreshOrders(
+            val forceRefresh: Boolean,
+            val date: Date = today(),
+            val isSingleDay: Boolean = true
+        ) : Inputs()
+
         data class UpdateOrders(val dataList: Cached<List<Order>>) : Inputs()
 
         data class RefreshSummary(val forceRefresh: Boolean) : Inputs()
