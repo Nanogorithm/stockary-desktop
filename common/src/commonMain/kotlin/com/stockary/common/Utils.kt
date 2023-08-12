@@ -18,16 +18,31 @@ fun Float.toCurrencyFormat() = "${currencySymbol}${this}"
 fun Double.toCurrencyFormat() = "${currencySymbol}${this}"
 
 fun Float.removeEmptyFraction(): String {
-    if (this.toString().split(".").last().toInt() > 0) {
-        return this.toString()
+    try {
+        val roundTo = String.format("%.2f", this)
+        println("number => $roundTo")
+        if (roundTo.split(".").last().toInt() > 0) {
+            return roundTo
+        }
+    } catch (e: Exception) {
+        println("number => $this")
+        e.printStackTrace()
     }
+
     return this.toInt().toString()
 }
 
 fun Double.removeEmptyFraction(): String {
-    if (this.toString().split(".").last().toInt() > 0) {
-        return this.toString()
+    try {
+        val roundTo = String.format("%.2f", this)
+        if (roundTo.split(".").last().toInt() > 0) {
+            return roundTo
+        }
+    } catch (e: Exception) {
+        println("number => $this")
+        e.printStackTrace()
     }
+
     return this.toInt().toString()
 }
 
