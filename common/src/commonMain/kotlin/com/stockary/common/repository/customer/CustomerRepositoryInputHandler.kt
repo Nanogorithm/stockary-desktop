@@ -171,7 +171,7 @@ class CustomerRepositoryInputHandler(
                         }
 
                         if (input.customer.name != input.updated.name) {
-                            if (input.updated.name.isNotBlank()) {
+                            if (input.updated.name?.isNotBlank() == true) {
                                 setDisplayName(input.updated.name)
                             }
                         }

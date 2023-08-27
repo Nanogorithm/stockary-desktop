@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Profile(
     var uid: String? = null,
     var email: String? = null,
-    var name: String = "",
+    var name: String? = "",
     var company: String? = null,
     var address: String? = null,
     var phone: String? = null,

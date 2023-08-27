@@ -120,7 +120,7 @@ class NewCustomerInputHandler(
                 val formState = currentState.formState
                 val customer: Profile = currentState.customer.data
 
-                formState.getState<TextFieldState>(Profile::name.name).change(customer.name)
+                formState.getState<TextFieldState>(Profile::name.name).change(customer.name ?: "")
                 formState.getState<TextFieldState>(Profile::email.name).change(customer.email ?: "")
                 formState.getState<TextFieldState>(Profile::phone.name).change(customer.phone ?: "")
                 formState.getState<TextFieldState>(Profile::address.name).change(customer.address ?: "")
