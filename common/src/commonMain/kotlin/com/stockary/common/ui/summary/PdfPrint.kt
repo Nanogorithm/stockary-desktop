@@ -175,7 +175,9 @@ fun pdfInvoiceForSummary(
             ordersByCategory.forEach { order ->
                 byCategoryTable.apply {
                     addCell(
-                        Cell(Phrase(order.productName)).apply {
+                        Cell(
+                            Phrase(order.productName)
+                        ).apply {
                             border = Cell.BOTTOM + Cell.RIGHT
                         }
                     )
@@ -248,13 +250,13 @@ fun pdfInvoiceForCustomers(
         }
     }
 
-    val myTable = Table(4).apply {
+    val myTable = Table(3).apply {
         padding = 2f
         spacing = 1f
         width = 100f
     }
 
-    listOf("Customer", "Demand Quantity", "Demand Total", "Delivery Total").forEach {
+    listOf("Customer", "Total Items", "Delivery Total").forEach {
         val current = Cell(Phrase(it)).apply {
             isHeader = true
             backgroundColor = Color.LIGHT_GRAY
@@ -270,15 +272,15 @@ fun pdfInvoiceForCustomers(
                 }
             )
             addCell(
-                Cell(Phrase(order.items.sumOf { it.quantity }.toString())).apply {
+                Cell(Phrase(order.items.size.toString())).apply {
                     border = Cell.BOTTOM + Cell.RIGHT
                 }
             )
-            addCell(
-                Cell(Phrase(order.total.toCurrencyFormat())).apply {
-                    border = Cell.BOTTOM + Cell.RIGHT
-                }
-            )
+//            addCell(
+//                Cell(Phrase(order.total.toCurrencyFormat())).apply {
+//                    border = Cell.BOTTOM + Cell.RIGHT
+//                }
+//            )
             addCell(
                 Cell(Phrase("")).apply {
                     border = Cell.BOTTOM
@@ -338,13 +340,13 @@ fun pdfInvoiceForCustomers(
                 }
             )
 
-            val byCustomerTable = Table(5).apply {
+            val byCustomerTable = Table(4).apply {
                 padding = 2f
                 spacing = 1f
                 width = 100f
             }
 
-            listOf("Item", "Demand", "Deliver", "Demand Total", "Delivery Total").forEach {
+            listOf("Item", "Demand", "Deliver", "Delivery Total").forEach {
                 val current = Cell(Phrase(it)).apply {
                     isHeader = true
                     backgroundColor = Color.LIGHT_GRAY
@@ -355,22 +357,21 @@ fun pdfInvoiceForCustomers(
             it.items.forEachIndexed { index, orderItem ->
                 byCustomerTable.apply {
                     addCell(
-                        Cell(Phrase(orderItem.title)).apply {
+                        Cell(
+                            Phrase(
+                                "${orderItem.title}${orderItem.note?.text?.prependIndent("\n") ?: ""}"
+                            )
+                        ).apply {
                             border = Cell.BOTTOM + Cell.RIGHT
                         }
                     )
                     addCell(
-                        Cell(Phrase(orderItem.quantity.toString())).apply {
+                        Cell(Phrase("${orderItem.quantity} ${orderItem.units?.type}")).apply {
                             border = Cell.BOTTOM + Cell.RIGHT
                         }
                     )
                     addCell(
                         Cell(Phrase("")).apply {
-                            border = Cell.BOTTOM + Cell.RIGHT
-                        }
-                    )
-                    addCell(
-                        Cell(Phrase((orderItem.price * orderItem.quantity).toCurrencyFormat())).apply {
                             border = Cell.BOTTOM + Cell.RIGHT
                         }
                     )

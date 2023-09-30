@@ -117,7 +117,7 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
             ) {
                 Text("Name", fontSize = 16.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
-                Text("Total Quantity", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
+                Text("Total Items", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
                 Text("Total", modifier = Modifier.width(181.dp), fontSize = 16.sp, color = Color(0x66000000))
             }
             Divider(color = Color(0x33000000))
@@ -138,7 +138,7 @@ private fun Content(uiState: HomeContract.State, postInput: (HomeContract.Inputs
                     ) {
                         Text(_order.user_id ?: "NaN")
                         Spacer(modifier = Modifier.weight(1f))
-                        Text("${_order.items.sumOf { it.quantity }}", modifier = Modifier.width(181.dp))
+                        Text("${_order.items.size}", modifier = Modifier.width(181.dp))
                         Text(_order.total.toCurrencyFormat(), modifier = Modifier.width(181.dp))
                     }
                     Divider(color = Color(0xFFD9D9D9))

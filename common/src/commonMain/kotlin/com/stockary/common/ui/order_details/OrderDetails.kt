@@ -1,5 +1,6 @@
 package com.stockary.common.ui.order_details
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,7 +20,13 @@ import androidx.compose.ui.unit.sp
 import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.toCurrencyFormat
+import com.stockary.common.toDateTimeString
 import com.stockary.common.ui.order.OrderContract
+import io.kamel.core.Resource
+import io.kamel.image.KamelImage
+import io.kamel.image.lazyPainterResource
+import kotlinx.datetime.toJavaInstant
+import java.io.File
 
 @Composable
 fun OrderDetailsScreen(
@@ -79,7 +87,7 @@ private fun Content(
             uiState.order?.let {
                 Text("Customer Name: ${it.customer_name}")
                 Text("Status: ${it.status}")
-                Text("Time: ${it.createdAt.toString()}")
+                Text("Time: ${it.createdAt?.toJavaInstant()?.toDateTimeString()}")
                 Text("Total: ${it.total.toCurrencyFormat()}")
                 Spacer(Modifier.height(16.dp))
                 Card(
@@ -107,7 +115,39 @@ private fun Content(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(it.title ?: "", modifier = Modifier.weight(3f))
+                            Column(modifier = Modifier.weight(3f)) {
+                                Text(it.title ?: "")
+                                Spacer(Modifier.height(8.dp))
+                                it.note?.let {
+                                    if (it.photo != null) {
+                                        //show with photo
+                                        Row {
+                                            it.photo?.let {
+                                                val painterResource: Resource<Painter> =
+                                                    lazyPainterResource(data = it)
+                                                KamelImage(
+                                                    resource = painterResource,
+                                                    contentDescription = "Note photo",
+                                                    onLoading = { progress -> CircularProgressIndicator(progress) },
+                                                    onFailure = { exception ->
+                                                        exception.printStackTrace()
+                                                    },
+                                                    animationSpec = tween(),
+                                                    modifier = Modifier.size(100.dp)
+                                                )
+                                            }
+                                            Spacer(Modifier.width(8.dp))
+                                            it.text?.let {
+                                                Text(it)
+                                            }
+                                        }
+                                    } else {
+                                        it.text?.let {
+                                            Text(it)
+                                        }
+                                    }
+                                }
+                            }
                             Text(it.price.toCurrencyFormat(), modifier = Modifier.weight(1f), textAlign = TextAlign.End)
                             Text(it.quantity.toString(), modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
                             Text(

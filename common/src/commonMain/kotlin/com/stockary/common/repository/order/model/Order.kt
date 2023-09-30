@@ -22,7 +22,7 @@ data class OrderTable(
     var userId: String?,
     @TableHeader("ID", 0) val id: String? = null,
     @TableHeader("Customer", 1) val customerName: String?,
-    @TableHeader("Quantity", 2) val quantity: Int,
+    @TableHeader("Quantity", 2) val quantity: Float,
     @TableHeader("Total", 3) val total: String?,
     @TableHeader("Time", 4) val createdAt: String?,
     @TableHeader("Status", 5) val status: String?
@@ -36,7 +36,9 @@ fun Order.toOrderTable(): OrderTable {
         status = this.status,
         createdAt = this.createdAt?.toString(),
         total = this.total.toCurrencyFormat(),
-        quantity = this.items.sumOf { it.quantity }
+        quantity = this.items.sumOf {
+            it.quantity.toDouble()
+        }.toFloat()
     )
 }
 
@@ -57,13 +59,20 @@ fun Order.toOrderSummaryItem(): List<OrderSummaryItem> {
 
 @Serializable
 data class OrderItem(
-    val quantity: Int = 0,
+    val quantity: Float = 0f,
     val price: Double = 0.0,
     val discount: Double = 0.0,
     val title: String? = null,
     val product_id: String? = null,
     val category: String? = null,
-    val units: Units? = null
+    val units: Units? = null,
+    val note: Note? = null
+)
+
+@Serializable
+data class Note(
+    val text: String? = null,
+    val photo: String? = null
 )
 
 data class OrderSummary(
@@ -76,7 +85,7 @@ data class OrderSummaryItem(
     val userId: String?,
     val customerName: String?,
 
-    val quantity: Int = 0,
+    val quantity: Float = 0f,
     val productName: String? = null,
     val productId: String? = null,
     val category: String? = null,

@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 import java.text.Normalizer
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -114,4 +116,18 @@ fun Date.endOfDay(): Date {
     calendar[Calendar.SECOND] = 59
     calendar[Calendar.MILLISECOND] = 999
     return calendar.time
+}
+
+fun Instant.toDateString(): String {
+    val formatter = DateTimeFormatter
+        .ofPattern("dd MMMM, yy", Locale.ENGLISH)
+        .withZone(ZoneId.systemDefault())
+    return formatter.format(this)
+}
+
+fun Instant.toDateTimeString(): String {
+    val formatter = DateTimeFormatter
+        .ofPattern("hh:mm a dd MMMM, yy", Locale.ENGLISH)
+        .withZone(ZoneId.systemDefault())
+    return formatter.format(this)
 }
