@@ -17,16 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.copperleaf.ballast.repository.cache.getCachedOrEmptyList
 import com.stockary.common.di.injector.ComposeDesktopInjector
 import com.stockary.common.toCurrencyFormat
 import com.stockary.common.toDateTimeString
-import com.stockary.common.ui.order.OrderContract
 import io.kamel.core.Resource
 import io.kamel.image.KamelImage
 import io.kamel.image.lazyPainterResource
 import kotlinx.datetime.toJavaInstant
-import java.io.File
 
 @Composable
 fun OrderDetailsScreen(

@@ -95,6 +95,7 @@ class CategoryPage : KoinComponent {
                 Text("ID", fontSize = 12.sp, color = Color(0x66000000), modifier = Modifier.width(150.dp))
                 Text("Category Name", fontSize = 12.sp, color = Color(0x66000000))
                 Spacer(modifier = Modifier.weight(1f))
+                Text("Order note", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("No of Products", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Sort", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
                 Text("Actions", modifier = Modifier.width(181.dp), fontSize = 12.sp, color = Color(0x66000000))
@@ -122,6 +123,7 @@ class CategoryPage : KoinComponent {
                     ) {
                         Text("#${_category?.id?.substring(0, 6)}", modifier = Modifier.width(150.dp))
                         Text(_category.title, modifier = Modifier.weight(1f))
+                        Text(if (_category.noteApplicable) "enabled" else "disabled", modifier = Modifier.width(181.dp))
                         Text("0", modifier = Modifier.width(181.dp))
                         Text("0", modifier = Modifier.width(181.dp))
                         Row(

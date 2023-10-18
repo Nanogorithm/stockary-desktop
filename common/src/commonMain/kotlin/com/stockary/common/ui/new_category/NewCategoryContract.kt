@@ -10,7 +10,7 @@ object NewCategoryContract {
     sealed class Inputs {
         object Initialize : Inputs()
         object GoBack : Inputs()
-        data class Save(val title: String, val description: String) : Inputs()
+        data class Save(val title: String, val description: String, val noteApplicable: Boolean) : Inputs()
         data class SaveAndContinue(val title: String, val description: String) : Inputs()
         data class UpdateSaveResponse(val response: SupabaseResource<Boolean>, val isContinue: Boolean = false) :
             Inputs()

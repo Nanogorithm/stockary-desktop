@@ -93,7 +93,8 @@ class CategoryRepositoryInputHandler(
                 val firestore = FirestoreClient.getFirestore()
                 val category = firestore.collection("categories").add(
                     mapOf(
-                        "title" to input.category.title
+                        "title" to input.category.title,
+                        "noteApplicable" to input.category.noteApplicable
                     )
                 )
 

@@ -27,7 +27,8 @@ fun String.appDataDir(): String {
 
 fun pdfInvoiceForSummary(
     fileName: String,
-    orders: List<OrderSummaryTable>
+    orders: List<OrderSummaryTable>,
+    specialCategories: List<OrderSummaryTable>
 ) {
     val invoiceDir = File("invoices".appDataDir())
 
@@ -144,7 +145,7 @@ fun pdfInvoiceForSummary(
 //        add(image)
 
         //add new page for print for department wise
-        orders.groupBy { it.categoryName }.forEach {
+        orders.filter { it.categoryName != "Birthday Cake" }.groupBy { it.categoryName }.forEach {
             newPage()
             //add category name
             add(
@@ -178,14 +179,114 @@ fun pdfInvoiceForSummary(
                         Cell(
                             Phrase(order.productName)
                         ).apply {
-                            border = Cell.BOTTOM + Cell.RIGHT
+                            border = if (order.note != null) Cell.RIGHT else Cell.BOTTOM + Cell.RIGHT
                         }
                     )
                     addCell(
                         Cell(Phrase("${order.totalUnit} ${order.unitName}")).apply {
-                            border = Cell.BOTTOM
+                            border = if (order.note != null) Cell.NO_BORDER else Cell.BOTTOM
                         }
                     )
+                }
+
+                order.note?.let { note ->
+                    byCategoryTable.apply {
+                        addCell(
+                            Cell(
+                                Phrase(note.text ?: "")
+                            ).apply {
+                                border = Cell.BOTTOM + Cell.RIGHT
+                            }
+                        )
+                        addCell(
+                            Cell(
+                                if (note.photo != null) {
+                                    Image.getInstance(note.photo).apply {
+                                        scaleAbsolute(350f, 350f)
+                                    }
+                                } else {
+                                    Phrase("")
+                                }
+                            ).apply {
+                                border = Cell.BOTTOM
+                            }
+                        )
+                    }
+                }
+            }
+
+            add(Paragraph(Chunk.NEWLINE))
+            add(byCategoryTable)
+            add(Paragraph(Chunk.NEWLINE))
+        }
+
+        specialCategories.groupBy { it.categoryName }.forEach {
+            newPage()
+            //add category name
+            add(
+                Paragraph(
+                    it.key,
+                    Font(Font.COURIER, 20f, Font.BOLDITALIC, Color.BLACK)
+                ).apply {
+                    alignment = Element.ALIGN_CENTER
+                }
+            )
+
+            val ordersByCategory = it.value
+
+            val byCategoryTable = Table(2).apply {
+                padding = 2f
+                spacing = 1f
+                width = 100f
+            }
+
+            listOf("Item", "Quantity").forEach {
+                val current = Cell(Phrase(it)).apply {
+                    isHeader = true
+                    backgroundColor = Color.LIGHT_GRAY
+                }
+                byCategoryTable.addCell(current)
+            }
+
+            ordersByCategory.forEach { order ->
+                byCategoryTable.apply {
+                    addCell(
+                        Cell(
+                            Phrase(order.productName)
+                        ).apply {
+                            border = if (order.note != null) Cell.RIGHT else Cell.BOTTOM + Cell.RIGHT
+                        }
+                    )
+                    addCell(
+                        Cell(Phrase("${order.totalUnit} ${order.unitName}")).apply {
+                            border = if (order.note != null) Cell.NO_BORDER else Cell.BOTTOM
+                        }
+                    )
+                }
+
+                order.note?.let { note ->
+                    byCategoryTable.apply {
+                        addCell(
+                            Cell(
+                                Phrase(note.text ?: "")
+                            ).apply {
+                                border = Cell.BOTTOM + Cell.RIGHT
+                            }
+                        )
+                        addCell(
+                            Cell(
+                                if (note.photo != null) {
+                                    Image.getInstance(note.photo).apply {
+                                        scaleAbsolute(350f, 350f)
+                                    }
+                                } else {
+                                    Phrase("")
+                                }
+                            ).apply {
+                                border = Cell.BOTTOM
+                            }
+                        )
+                    }
                 }
             }
 

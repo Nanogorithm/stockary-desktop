@@ -43,7 +43,6 @@ class SummaryInputHandler(
                     }.groupBy {
                         it.productId
                     }.map {
-                        println("${it.key} => ${it.value.map { it.productName }}")
                         val totalUnitAmount = it.value.map { item -> (item.units?.amount ?: 0f) * item.quantity }.sum()
                         val first = it.value.firstOrNull()
                         OrderSummaryTable(
@@ -52,10 +51,24 @@ class SummaryInputHandler(
                             productName = first?.productName,
                             categoryName = first?.category,
                             totalUnit = totalUnitAmount,
-                            unitName = first?.units?.type ?: ""
+                            unitName = first?.units?.type ?: "",
+                            note = null
                         )
                     }.sortedBy {
                         it.categoryName
+                    },
+                    specialCategories = input.orders.flatMap { _order ->
+                        _order.toOrderSummaryItem()
+                    }.filter { it.category == "Birthday Cake" }.map {
+                        OrderSummaryTable(
+                            userId = null,
+                            customerName = null,
+                            productName = it.productName,
+                            categoryName = it.category,
+                            totalUnit = it.quantity,
+                            unitName = it.units?.type ?: "",
+                            note = it.notes
+                        )
                     }
                 )
             }

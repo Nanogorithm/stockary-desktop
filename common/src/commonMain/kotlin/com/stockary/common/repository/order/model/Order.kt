@@ -3,6 +3,7 @@ package com.stockary.common.repository.order.model
 import com.helloanwar.common.ui.components.tableview.TableHeader
 import com.stockary.common.repository.product.model.Units
 import com.stockary.common.toCurrencyFormat
+import jdk.jfr.Enabled
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -51,7 +52,9 @@ fun Order.toOrderSummaryItem(): List<OrderSummaryItem> {
             quantity = it.quantity,
             productId = it.product_id,
             category = it.category,
-            units = it.units
+            units = it.units,
+            notes = it.note,
+            isNoteEnabled = it.note != null
         )
     }
 }
@@ -89,7 +92,9 @@ data class OrderSummaryItem(
     val productName: String? = null,
     val productId: String? = null,
     val category: String? = null,
-    val units: Units? = null
+    val isNoteEnabled: Boolean = false,
+    val units: Units? = null,
+    val notes: Note? = null
 )
 
 data class OrderSummaryTable(
@@ -103,4 +108,5 @@ data class OrderSummaryTable(
     val totalUnit: Float,
     @TableHeader("Unit", 3)
     val unitName: String,
+    val note: Note? = null
 )

@@ -17,7 +17,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
 class NewCategoryPage : KoinComponent {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun NewCategory(
         injector: ComposeDesktopInjector
@@ -30,7 +29,7 @@ class NewCategoryPage : KoinComponent {
             vm.trySend(NewCategoryContract.Inputs.Initialize)
         }
 
-        Content(uiState){
+        Content(uiState) {
             vm.trySend(it)
         }
     }
@@ -43,6 +42,7 @@ class NewCategoryPage : KoinComponent {
     ) {
         var categoryName by remember { mutableStateOf("") }
         var categoryDescription by remember { mutableStateOf("") }
+        var noteApplicable by remember { mutableStateOf(false) }
         var sortIndex by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp)) {
@@ -83,6 +83,20 @@ class NewCategoryPage : KoinComponent {
                             placeholderColor = Color(0xFF676767)
                         )
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("Order note")
+                        Switch(
+                            checked = noteApplicable,
+                            onCheckedChange = {
+                                noteApplicable = it
+                            }
+                        )
+                    }
+
                     when (val saving = uiState.response) {
                         is SupabaseResource.Error -> {
                             Text(saving.exception.message ?: "")
@@ -106,10 +120,13 @@ class NewCategoryPage : KoinComponent {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = {
-                        postInput(NewCategoryContract.Inputs.Save(
-                            title = categoryName,
-                            description = categoryDescription
-                        ))
+                        postInput(
+                            NewCategoryContract.Inputs.Save(
+                                title = categoryName,
+                                description = categoryDescription,
+                                noteApplicable = noteApplicable
+                            )
+                        )
                     }, shape = RoundedCornerShape(15.dp), enabled = categoryName.isNotBlank()
                 ) {
                     Text("Save")
