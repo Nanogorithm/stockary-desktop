@@ -460,7 +460,7 @@ fun pdfInvoiceForCustomers(
                     addCell(
                         Cell(
                             Phrase(
-                                "${orderItem.title}${orderItem.note?.text?.prependIndent("\n") ?: ""}"
+                                "${orderItem.title}"
                             )
                         ).apply {
                             border = Cell.BOTTOM + Cell.RIGHT
@@ -481,6 +481,32 @@ fun pdfInvoiceForCustomers(
                             border = Cell.BOTTOM
                         }
                     )
+
+                    //add note
+                    orderItem.note?.let { note ->
+                        addCell(
+                            Cell(
+                                Phrase(note.text ?: "")
+                            ).apply {
+                                colspan = 2
+                                border = Cell.BOTTOM + Cell.RIGHT
+                            }
+                        )
+                        addCell(
+                            Cell(
+                                if (note.photo != null) {
+                                    Image.getInstance(note.photo).apply {
+                                        scaleAbsolute(350f, 350f)
+                                    }
+                                } else {
+                                    Phrase("")
+                                }
+                            ).apply {
+                                colspan = 2
+                                border = Cell.BOTTOM
+                            }
+                        )
+                    }
                 }
             }
 
@@ -628,6 +654,32 @@ fun pdfInvoice(
                         border = Cell.BOTTOM
                     }
                 )
+
+                //add note
+                orderItem.note?.let { note ->
+                    addCell(
+                        Cell(
+                            Phrase(note.text ?: "")
+                        ).apply {
+                            colspan = 2
+                            border = Cell.BOTTOM + Cell.RIGHT
+                        }
+                    )
+                    addCell(
+                        Cell(
+                            if (note.photo != null) {
+                                Image.getInstance(note.photo).apply {
+                                    scaleAbsolute(350f, 350f)
+                                }
+                            } else {
+                                Phrase("")
+                            }
+                        ).apply {
+                            colspan = 3
+                            border = Cell.BOTTOM
+                        }
+                    )
+                }
             }
         }
 
